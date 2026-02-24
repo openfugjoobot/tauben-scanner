@@ -1,0 +1,35 @@
+{
+  "name": "tauben-scanner-frontend",
+  "version": "1.0.0",
+  "description": "KI Tauben Scanner - Capacitor React App",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "android": "npm run build && npx cap sync android && npx cap open android",
+    "sync": "npx cap sync android",
+    "ios": "echo 'iOS not configured'"
+  },
+  "keywords": ["capacitor", "react", "tensorflow", "pigeon-scanner"],
+  "author": "OpenFugjooBot",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^8.1.0",
+    "@capacitor/camera": "^8.0.1",
+    "@capacitor/cli": "^8.1.0",
+    "@capacitor/core": "^8.1.0",
+    "@tensorflow-models/mobilenet": "^2.1.1",
+    "@tensorflow/tfjs": "^4.22.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.4",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}
