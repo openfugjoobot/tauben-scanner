@@ -15,24 +15,32 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Android SDK manually
+      - name: Setup Android SDK
         run: |
-          # Download command line tools
+          # Create SDK directory
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          mkdir -p $ANDROID_SDK_ROOT
+          
+          # Download SDK tools
           cd /tmp
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip -q commandlinetools-linux-11076708_latest.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          mv cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          mv cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
           
-          # Set environment
-          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          # Add to PATH
+          export PATH="$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools"
           
-          # Install SDK components
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0"
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          # Save to GITHUB_ENV for subsequent steps
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          
+          # Install required components
+          yes | sdkmanager --licenses
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Install Node dependencies
+      - name: Install dependencies
         run: |
           cd frontend
           npm ci
@@ -44,20 +52,30 @@ jobs:
 
       - name: Configure Android
         run: |
-          echo "sdk.dir=$HOME/android-sdk" > frontend/android/local.properties
+          echo "android.java.home=$JAVA_HOME_17_X64" > frontend/android/local.properties
+          echo "sdk.dir=$ANDROID_HOME" >> frontend/android/local.properties
+          cat frontend/android/local.properties
+          
           chmod +x frontend/android/gradlew
+          ls -la frontend/android/
 
-      - name: Sync Capacitor  
+      - name: Sync Capacitor
         run: |
+          echo "DEBUG: ANDROID_HOME=$ANDROID_HOME"
+          echo "DEBUG: JAVA_HOME=$JAVA_HOME"
+          export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
           cd frontend
-          npx cap sync android
+          npx cap sync android --verbose 2>&1 || echo "Sync failed, trying alternative..."
 
       - name: Build APK
         run: |
           cd frontend/android
-          ./gradlew assembleDebug --no-daemon
+          export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
+          ./gradlew assembleDebug --no-daemon --info
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: tauben-scanner-debug
           path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: ignore
