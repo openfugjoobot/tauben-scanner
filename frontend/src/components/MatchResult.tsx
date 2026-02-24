@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { matchPigeon } from '../services/api';
 import { getEmbeddingFromBase64 } from '../services/embedding';
-import type { MatchResponse, Pigeon } from '../types/api';
+import type { MatchResponse } from '../types/api';
 
 interface MatchResultProps {
   image: string;

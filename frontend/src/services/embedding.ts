@@ -26,9 +26,9 @@ export async function extractEmbedding(imageElement: HTMLImageElement): Promise<
   }
 
   try {
-    // Get the internal activation for feature extraction
-    // This returns a tensor with the features before classification
-    const embeddings = model.infer(imageElement, 'conv_preds') as tf.Tensor;
+    // Get the embeddings (true = return embedding layer, false = classification)
+    // This returns a tensor with the features before the final classification layer
+    const embeddings = model.infer(imageElement, true) as tf.Tensor;
     
     // Flatten the tensor to get a 1D array
     const flattened = embeddings.flatten();

@@ -1,6 +1,6 @@
-import type { MatchRequest, MatchResponse, ApiError, Pigeon } from '../types/api';
+import type { MatchRequest, MatchResponse, Pigeon } from '../types/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.tauben-scanner.example.com';
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'https://api.tauben-scanner.example.com';
 
 class ApiError extends Error {
   public readonly code: string;
