@@ -64,15 +64,17 @@ jobs:
           cd frontend
           npm run build
 
+      - name: Create local.properties BEFORE sync
+        run: |
+          mkdir -p frontend/android
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > frontend/android/local.properties
+          echo "ndk.dir=$ANDROID_SDK_ROOT/ndk/26.0.1040422" >> frontend/android/local.properties
+          cat frontend/android/local.properties
+
       - name: Sync Capacitor
         run: |
           cd frontend
           npx cap sync android
-
-      - name: Configure Android SDK path
-        run: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > frontend/android/local.properties
-          cat frontend/android/local.properties
 
       - name: Build Debug APK
         if: github.event.inputs.build_type != 'release'
