@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: tauben-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tauben_scanner
+      POSTGRES_USER: tauben
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - tauben-network
+
+  # Node.js API Server
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tauben-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://tauben:${DB_PASSWORD}@postgres:5432/tauben_scanner
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - tauben-network
+
+  # MinIO (optional: S3-compatible storage)
+  minio:
+    image: minio/minio:latest
+    container_name: tauben-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - tauben-network
+
+networks:
+  tauben-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  minio_data:
