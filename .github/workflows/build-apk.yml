@@ -28,9 +28,10 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools: 34.0.0
+
+      - name: Install Android SDK components
+        run: |
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Install dependencies
         working-directory: frontend
@@ -43,6 +44,8 @@ jobs:
       - name: Sync Capacitor
         working-directory: frontend
         run: |
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
           npx cap sync android
 
       - name: Build Debug APK
@@ -51,10 +54,10 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: apk-debug
+          name: tauben-scanner-debug
           path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Create Release
