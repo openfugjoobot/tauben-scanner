@@ -74,6 +74,28 @@ router.post('/match', async (req: Request, res: Response) => {
     if (result.rows.length > 0) {
       const topMatch = result.rows[0];
       
+      // Get the primary photo for this pigeon
+      const photoQuery = `
+        SELECT file_path 
+        FROM images 
+        WHERE pigeon_id = $1 AND is_primary = true 
+        ORDER BY created_at DESC 
+        LIMIT 1
+      `;
+      const photoResult = await pool.query(photoQuery, [topMatch.id]);
+      const photoUrl = photoResult.rows.length > 0 
+        ? `/uploads/${photoResult.rows[0].file_path}` 
+        : null;
+      
+      // Get sightings count
+      const sightingsQuery = `
+        SELECT COUNT(*) as count 
+        FROM sightings 
+        WHERE pigeon_id = $1
+      `;
+      const sightingsResult = await pool.query(sightingsQuery, [topMatch.id]);
+      const sightingsCount = parseInt(sightingsResult.rows[0].count);
+      
       // Get similar pigeons (excluding top match)
       const similarPigeons = result.rows.slice(1).map(row => ({
         id: row.id,
@@ -88,9 +110,9 @@ router.post('/match', async (req: Request, res: Response) => {
           id: topMatch.id,
           name: topMatch.name,
           description: topMatch.description,
-          photo_url: null, // Would need to query images table for this
-          first_seen: null, // Would need to query pigeons table for this
-          sightings_count: 0 // Would need to query sightings table for this
+          photo_url: photoUrl,
+          first_seen: topMatch.first_seen,
+          sightings_count: sightingsCount
         },
         confidence: parseFloat(topMatch.similarity.toFixed(4)),
         similar_pigeons: similarPigeons
