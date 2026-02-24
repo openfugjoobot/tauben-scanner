@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, master, develop ]
     paths:
-      - 'frontend/**'
+      - 'frontend/**
       - '.github/workflows/build-apk.yml'
   pull_request:
     branches: [ main, master ]
@@ -22,6 +22,8 @@ on:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: '--max-old-space-size=4096'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,18 +43,20 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 11076708
 
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses
+      - name: Debug SDK Path
+        run: |
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls -la $ANDROID_SDK_ROOT || echo "SDK not at ANDROID_SDK_ROOT"
+          which sdkmanager || echo "sdkmanager not in PATH"
+          sdkmanager --version || echo "sdkmanager not working"
 
       - name: Install Android SDK components
         run: |
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
-
-      - name: Set Android SDK environment
-        run: |
-          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools" "cmdline-tools;latest"
 
       - name: Install dependencies
         run: |
@@ -64,36 +68,46 @@ jobs:
           cd frontend
           npm run build
 
-      - name: Create local.properties BEFORE sync
+      - name: Create local.properties
         run: |
-          mkdir -p frontend/android
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > frontend/android/local.properties
-          echo "ndk.dir=$ANDROID_SDK_ROOT/ndk/26.0.1040422" >> frontend/android/local.properties
-          cat frontend/android/local.properties
+          cd frontend/android
+          echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
+          echo "ndk.dir=/usr/local/lib/android/sdk/ndk/26.0.1040422" >> local.properties
+          cat local.properties
+          echo "---"
+          ls -la /usr/local/lib/android/sdk/ || echo "SDK not at expected location"
+
+      - name: Set executable permissions
+        run: |
+          chmod +x frontend/android/gradlew
 
       - name: Sync Capacitor
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
         run: |
           cd frontend
           npx cap sync android
 
       - name: Build Debug APK
         if: github.event.inputs.build_type != 'release'
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
         run: |
           cd frontend/android
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Build Release APK
         if: github.event.inputs.build_type == 'release'
         env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           cd frontend/android
-          # Decode keystore
           echo $KEYSTORE_BASE64 | base64 -d > taubenscanner.keystore
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Upload Debug APK
         if: github.event.inputs.build_type != 'release'
@@ -109,12 +123,4 @@ jobs:
         with:
           name: app-release
           path: frontend/android/app/build/outputs/apk/release/app-release-signed.apk
-          retention-days: 90
-
-      - name: Upload AAB (App Bundle)
-        if: github.event.inputs.build_type == 'release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-bundle
-          path: frontend/android/app/build/outputs/bundle/release/app-release.aab
           retention-days: 90
