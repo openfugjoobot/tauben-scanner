@@ -12,13 +12,6 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'tensorflow': ['@tensorflow/tfjs', '@tensorflow-models/mobilenet'],
-        },
-      },
-    },
   },
   server: {
     port: 3000,
