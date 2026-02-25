@@ -4,10 +4,14 @@ import { pool } from '../config/database';
 const router = Router();
 
 // Helper function to validate embedding array
-const validateEmbedding = (embedding: any): boolean => {
-  if (!Array.isArray(embedding)) return false;
-  if (embedding.length !== 1024) return false;
-  return embedding.every(val => typeof val === 'number');
+// Accepts 1024 or 1280 dimensions (MobileNet V2 alpha 0.75 vs 1.0)
+const EMBEDDING_DIMENSIONS = [1024, 1280];
+
+const validateEmbedding = (embedding: any): { valid: boolean; dimension?: number } => {
+  if (!Array.isArray(embedding)) return { valid: false };
+  const isValidDim = EMBEDDING_DIMENSIONS.includes(embedding.length);
+  const isValidValues = embedding.every(val => typeof val === 'number' && !isNaN(val));
+  return { valid: isValidDim && isValidValues, dimension: embedding.length };
 };
 
 // POST /api/images/match - Match pigeon by embedding
@@ -16,11 +20,15 @@ router.post('/match', async (req: Request, res: Response) => {
     const { photo, embedding, location, threshold = 0.80 } = req.body;
     
     // Validate embedding if provided
-    if (embedding && !validateEmbedding(embedding)) {
-      return res.status(400).json({
-        error: 'INVALID_EMBEDDING',
-        message: 'Embedding must be a 1024-dimensional array of numbers'
-      });
+    if (embedding) {
+      const validation = validateEmbedding(embedding);
+      if (!validation.valid) {
+        return res.status(400).json({
+          error: 'INVALID_EMBEDDING',
+          message: `Embedding must be a ${EMBEDDING_DIMENSIONS.join(' or ')}-dimensional array of numbers. Received: ${validation.dimension || 'invalid'} dimensions`,
+          received: validation.dimension
+        });
+      }
     }
     
     // If no embedding provided, check if photo is provided
