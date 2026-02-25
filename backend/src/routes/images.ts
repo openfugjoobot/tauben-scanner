@@ -1,7 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { pool } from '../config/database';
+import { extractEmbeddingFromBase64, loadEmbeddingModel } from '../services/embedding';
 
 const router = Router();
+
+// Initialize model on startup
+loadEmbeddingModel().catch(err => {
+  console.warn('[Images] Failed to preload embedding model:', err.message);
+});
 
 // Helper function to validate embedding array
 // Accepts 1024 or 1280 dimensions (MobileNet V2 alpha 0.75 vs 1.0)
@@ -14,12 +20,14 @@ const validateEmbedding = (embedding: any): { valid: boolean; dimension?: number
   return { valid: isValidDim && isValidValues, dimension: embedding.length };
 };
 
-// POST /api/images/match - Match pigeon by embedding
+// POST /api/images/match - Match pigeon by embedding or photo
 router.post('/match', async (req: Request, res: Response) => {
   try {
     const { photo, embedding, location, threshold = 0.80 } = req.body;
     
-    // Validate embedding if provided
+    let queryEmbedding: number[] | undefined;
+    
+    // If embedding is provided, validate and use it
     if (embedding) {
       const validation = validateEmbedding(embedding);
       if (!validation.valid) {
@@ -29,33 +37,37 @@ router.post('/match', async (req: Request, res: Response) => {
           received: validation.dimension
         });
       }
+      queryEmbedding = embedding;
     }
     
-    // If no embedding provided, check if photo is provided
-    if (!embedding && !photo) {
+    // If no embedding but photo is provided, extract embedding from photo
+    if (!queryEmbedding && photo) {
+      console.log('[Images] No embedding provided, extracting from photo...');
+      try {
+        queryEmbedding = await extractEmbeddingFromBase64(photo);
+        console.log('[Images] Successfully extracted embedding from photo');
+      } catch (extractError) {
+        console.error('[Images] Failed to extract embedding from photo:', extractError);
+        return res.status(400).json({
+          error: 'EMBEDDING_EXTRACTION_FAILED',
+          message: 'Failed to extract embedding from photo. Please try again with a clearer image.'
+        });
+      }
+    }
+    
+    // If we have neither embedding nor photo
+    if (!queryEmbedding) {
       return res.status(400).json({
         error: 'MISSING_INPUT',
         message: 'Either embedding or photo is required'
       });
     }
     
-    // If we only have a photo, we would normally extract the embedding here
-    // For now, we'll assume the embedding is provided or will be extracted by the client
-    const queryEmbedding = embedding || []; // Placeholder
-    
     // Validate threshold
     if (typeof threshold !== 'number' || threshold < 0.5 || threshold > 0.99) {
       return res.status(400).json({
         error: 'INVALID_THRESHOLD',
         message: 'Threshold must be a number between 0.5 and 0.99'
-      });
-    }
-    
-    // If we don't have an embedding, return an error
-    if (!queryEmbedding.length) {
-      return res.status(400).json({
-        error: 'EMBEDDING_REQUIRED',
-        message: 'Embedding extraction not implemented in backend yet. Please provide embedding from client.'
       });
     }
     
