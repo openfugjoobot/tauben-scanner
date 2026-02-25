@@ -96,14 +96,22 @@ export async function extractEmbeddingFromBuffer(imageBuffer: Buffer): Promise<n
     // Get image data
     const imageData = ctx.getImageData(0, 0, 224, 224);
     
-    // Create tensor from image data
-    // Convert to Uint8Array for TensorFlow compatibility
-    const pixelData = new Uint8Array(imageData.data.buffer);
+    // Create tensor directly from ImageData (node-canvas compatible)
+    // tf.browser.fromPixels doesn't work with node-canvas ImageData
+    const { data, width, height } = imageData;
     
+    // data is RGBA, we need to create a 3-channel RGB tensor
+    // Remove alpha channel and reshape to [height, width, 3]
+    const rgbData = new Uint8Array(width * height * 3);
+    for (let i = 0; i < width * height; i++) {
+      rgbData[i * 3] = data[i * 4];     // R
+      rgbData[i * 3 + 1] = data[i * 4 + 1]; // G
+      rgbData[i * 3 + 2] = data[i * 4 + 2]; // B
+    }
+    
+    // Create tensor from raw data
     // Shape: [1, 224, 224, 3]
-    // @ts-ignore - canvas ImageData vs DOM ImageData compatibility
-    const tensor = tf.browser.fromPixels(imageData as unknown as ImageData)
-      .expandDims(0)
+    const tensor = tf.tensor4d(rgbData, [1, height, width, 3])
       .toFloat()
       .div(255.0); // Normalize to [0, 1]
     
