@@ -1,6 +1,17 @@
-import * as tf from '@tensorflow/tfjs-node';
+import * as tf from '@tensorflow/tfjs';
+import '@tensorflow/tfjs-backend-cpu';
 import * as mobilenet from '@tensorflow-models/mobilenet';
 import { createCanvas, loadImage } from 'canvas';
+
+// Initialize TensorFlow.js CPU backend
+let backendInitialized = false;
+async function initializeBackend(): Promise<void> {
+  if (backendInitialized) return;
+  await tf.setBackend('cpu');
+  await tf.ready();
+  console.log('[Embedding] TensorFlow.js backend:', tf.getBackend());
+  backendInitialized = true;
+}
 
 let model: mobilenet.MobileNet | null = null;
 let modelLoading = false;
@@ -14,6 +25,9 @@ const EXPECTED_EMBEDDING_DIMENSION = 1024;
  * Caches the model after first load
  */
 export async function loadEmbeddingModel(): Promise<void> {
+  // Initialize backend first
+  await initializeBackend();
+  
   if (model) return;
   if (modelLoading) {
     // Wait for loading to complete

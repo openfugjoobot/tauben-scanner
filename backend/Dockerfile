@@ -1,7 +1,7 @@
-# Use Node.js 18 LTS with Debian (required for TensorFlow.js native bindings)
+# Use Node.js 18 LTS with Debian (required for TensorFlow.js and Canvas)
 FROM node:18-slim
 
-# Install system dependencies for TensorFlow.js, Canvas and image processing
+# Install system dependencies for Canvas and image processing
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
@@ -30,7 +30,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies - use npm install since we may need to compile native modules
 RUN npm install
 
 # Copy source code
