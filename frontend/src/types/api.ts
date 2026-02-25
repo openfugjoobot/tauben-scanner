@@ -33,3 +33,19 @@ export interface ApiError {
   message: string;
   field?: string;
 }
+
+export interface CreatePigeonRequest {
+  name: string;
+  description?: string;
+  color?: string;
+  photo: string;
+  location?: Location;
+  first_seen?: string;
+}
+
+export interface CreatePigeonResponse {
+  id: string;
+  name: string;
+  photo_url?: string;
+  created_at: string;
+}

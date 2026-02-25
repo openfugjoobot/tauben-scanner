@@ -132,3 +132,5 @@ export async function healthCheck(): Promise<{ status: string; timestamp: string
 }
 
 export { ApiError };
+
+export default { matchPigeon, registerPigeon, getPigeon, listPigeons, reportSighting, healthCheck };
