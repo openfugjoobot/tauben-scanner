@@ -57,17 +57,31 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK Artifact
+      - name: Build Release APK
+        working-directory: frontend/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: tauben-scanner-debug
           path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
 
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauben-scanner-release
+          path: frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk
+
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          files: |
+            frontend/android/app/build/outputs/apk/debug/app-debug.apk
+            frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

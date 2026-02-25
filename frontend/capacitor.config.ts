@@ -1,4 +1,7 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
+
+// Determine build type from environment variable
+const isDebugBuild = process.env.NODE_ENV !== 'production' && process.env.BUILD_TYPE !== 'release';
 
 const config: CapacitorConfig = {
   appId: 'com.taubenscanner.app',
@@ -16,7 +19,8 @@ const config: CapacitorConfig = {
       keystoreKeyPassword: undefined,
       signingType: 'apksigner',
     },
-    webContentsDebuggingEnabled: true
+    // Debug only in development, disabled in release
+    webContentsDebuggingEnabled: isDebugBuild
   },
   plugins: {
     Camera: {
