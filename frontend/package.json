@@ -24,6 +24,7 @@
     "@capacitor/camera": "^8.0.1",
     "@capacitor/cli": "^8.1.0",
     "@capacitor/core": "^8.1.0",
+    "@capacitor/geolocation": "^8.1.0",
     "@capacitor/preferences": "^8.0.1",
     "@hookform/resolvers": "^5.2.2",
     "@types/react": "^19.2.14",
