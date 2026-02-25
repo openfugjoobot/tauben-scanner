@@ -27,15 +27,26 @@ const corsOrigins = process.env.CORS_ORIGINS
     'http://localhost:8100',
     'http://localhost:5173',
     'http://localhost:3000',
-    'http://localhost'
+    'http://localhost',
+    'ionic://localhost',
+    'http://localhost:8080',
+    'http://localhost:4200'
   ];
 
 app.use(cors({
-  origin: corsOrigins,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (Android WebView, mobile apps) OR from known origins
+    if (!origin || corsOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 204 // Handle preflight requests properly
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 204
 }));
 
 app.use(morgan('combined'));
