@@ -46,3 +46,4 @@ ios/App/ios/
 
 # Capacitor
 ios/
+node_modules/
