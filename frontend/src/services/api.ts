@@ -1,6 +1,22 @@
+import { Preferences } from '@capacitor/preferences';
 import type { MatchRequest, MatchResponse, Pigeon } from '../types/api';
 
-const API_BASE_URL = 'https://tauben-scanner.fugjoo.duckdns.org';
+const DEFAULT_API_URL = 'https://tauben-scanner.fugjoo.duckdns.org';
+
+async function getApiBaseUrl(): Promise<string> {
+  try {
+    const { value } = await Preferences.get({ key: 'app_settings' });
+    if (value) {
+      const settings = JSON.parse(value);
+      if (settings.backendUrl && settings.backendUrl !== 'https://api.tauben-scanner.example.com') {
+        return settings.backendUrl.replace(/\/$/, ''); // Remove trailing slash
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load API URL from settings:', error);
+  }
+  return DEFAULT_API_URL;
+}
 
 class ApiError extends Error {
   public readonly code: string;
@@ -38,7 +54,8 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 // Send a match request with photo
 export async function matchPigeon(request: MatchRequest): Promise<MatchResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/images/match`, {
+  const baseUrl = await getApiBaseUrl();
+  const response = await fetch(`${baseUrl}/api/images/match`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -57,7 +74,8 @@ export async function registerPigeon(pigeon: {
   location?: { lat: number; lng: number; name?: string };
   is_public?: boolean;
 }): Promise<Pigeon> {
-  const response = await fetch(`${API_BASE_URL}/api/pigeons`, {
+  const baseUrl = await getApiBaseUrl();
+  const response = await fetch(`${baseUrl}/api/pigeons`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -70,7 +88,8 @@ export async function registerPigeon(pigeon: {
 
 // Get pigeon details
 export async function getPigeon(id: string): Promise<Pigeon> {
-  const response = await fetch(`${API_BASE_URL}/api/pigeons/${id}`, {
+  const baseUrl = await getApiBaseUrl();
+  const response = await fetch(`${baseUrl}/api/pigeons/${id}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -91,7 +110,8 @@ export async function listPigeons(params?: {
   if (params?.limit) query.append('limit', params.limit.toString());
   if (params?.search) query.append('search', params.search);
 
-  const response = await fetch(`${API_BASE_URL}/api/pigeons?${query.toString()}`, {
+  const baseUrl = await getApiBaseUrl();
+  const response = await fetch(`${baseUrl}/api/pigeons?${query.toString()}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -108,7 +128,8 @@ export async function reportSighting(sighting: {
   notes?: string;
   photo?: string;
 }): Promise<{ id: string; pigeon_id: string; timestamp: string }> {
-  const response = await fetch(`${API_BASE_URL}/api/sightings`, {
+  const baseUrl = await getApiBaseUrl();
+  const response = await fetch(`${baseUrl}/api/sightings`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -121,7 +142,8 @@ export async function reportSighting(sighting: {
 
 // Health check
 export async function healthCheck(): Promise<{ status: string; timestamp: string; services: Record<string, string> }> {
-  const response = await fetch(`${API_BASE_URL}/health`, {
+  const baseUrl = await getApiBaseUrl();
+  const response = await fetch(`${baseUrl}/health`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
