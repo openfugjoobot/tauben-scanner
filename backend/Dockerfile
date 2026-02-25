@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     libcairo2-dev \
     libpango1.0-dev \
     libgif-dev \
+    libjpeg-dev \
     libgl1-mesa-glx \
     libglib2.0-0 \
     libxrender1 \
@@ -31,7 +32,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies - use npm install since we may need to compile native modules
-RUN npm install
+# Force rebuild of canvas for JPEG support
+RUN npm install && npm rebuild canvas
 
 # Copy source code
 COPY . .
