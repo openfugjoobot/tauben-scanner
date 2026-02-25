@@ -35,6 +35,7 @@ services:
       - postgres
     networks:
       - tauben-network
+      - proxy
 
   # MinIO (optional: S3-compatible storage)
   minio:
@@ -56,6 +57,8 @@ services:
 networks:
   tauben-network:
     driver: bridge
+  proxy:
+    external: true
 
 volumes:
   postgres_data:
