@@ -11,25 +11,16 @@ Vollständige REST API Referenz für den KI Tauben Scanner.
 ## 📚 Inhaltsverzeichnis
 
 - [Allgemein](#allgemein)
+- [CORS](#cors)
 - [Health Check](#health-check)
 - [Tauben (Pigeons)](#tauben-pigeons)
 - [Bilder (Images)](#bilder-images)
 - [Sichtungen (Sightings)](#sichtungen-sightings)
 - [Fehlerbehandlung](#fehlerbehandlung)
-- [Rate Limiting](#rate-limiting)
 
 ---
 
 ## Allgemein
-
-### CORS
-
-Die API unterstützt Cross-Origin Requests. Erlaubte Origins werden über `CORS_ORIGINS` konfiguriert.
-
-Standardmäßig erlaubt:
-- `http://localhost:5173` (Vite Dev Server)
-- `http://localhost:3000` (API)
-- `capacitor://localhost` (Mobile App)
 
 ### Authentifizierung
 
@@ -39,16 +30,38 @@ Standardmäßig erlaubt:
 
 Alle Endpoints akzeptieren und geben `application/json` zurück.
 
-### Response Envelope
+---
 
-Alle Antworten folgen diesem Format:
+## CORS
 
-```json
-{
-  // Bei Erfolg: Direkt die Resource(n)
-  // Bei Fehler: Error-Objekt
-}
+**Backend regelt CORS allein** - Nginx sollte KEINE CORS-Headers hinzufügen.
+
+### Konfiguration
+
+Erlaubte Origins werden über `CORS_ORIGINS` konfiguriert:
+
+```bash
+CORS_ORIGINS=https://tauben-scanner.fugjoo.duckdns.org,capacitor://localhost
 ```
+
+### Verhalten
+
+- `null` Origin wird erlaubt (Android Capacitor WebView)
+- Origins werden gespiegelt (reflect origin)
+- Credentials werden unterstützt
+- Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH
+
+### Default Origins
+
+- `https://tauben-scanner.fugjoo.duckdns.org`
+- `capacitor://localhost`
+- `http://localhost:8100`
+- `http://localhost:5173`
+- `http://localhost:3000`
+- `http://localhost`
+- `ionic://localhost`
+- `http://localhost:8080`
+- `http://localhost:4200`
 
 ---
 
@@ -90,13 +103,14 @@ Prüft den Status aller Services.
 
 ### POST /api/pigeons
 
-Erstellt eine neue Taube in der Datenbank.
+Erstellt eine neue Taube in der Datenbank. **NEU:** Erwartet jetzt ein Photo statt Embedding.
 
 #### Request Body
 
 | Feld | Typ | Erforderlich | Beschreibung |
 |------|-----|--------------|--------------|
 | `name` | string | ✅ | Name der Taube |
+| `photo` | string (base64) | ✅ | Bild als Base64-String |
 | `description` | string | ❌ | Beschreibung |
 | `location` | object | ❌ | Standort |
 | `location.lat` | number | ❌ | Breitengrad (-90 bis 90) |
@@ -112,6 +126,7 @@ curl -X POST http://localhost:3000/api/pigeons \
   -d '{
     "name": "Rudi Rothen",
     "description": "Roter Ring am linken Fuß, sehr zutraulich",
+    "photo": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9h...",
     "location": {
       "lat": 52.5200,
       "lng": 13.4050,
@@ -134,8 +149,8 @@ curl -X POST http://localhost:3000/api/pigeons \
     "name": "Alexanderplatz, Berlin"
   },
   "first_seen": null,
-  "photo_url": null,
-  "embedding_generated": false,
+  "photo_url": "/uploads/rudi_2024_01.jpg",
+  "embedding_generated": true,
   "created_at": "2024-01-15T10:30:00.000Z"
 }
 ```
@@ -148,7 +163,7 @@ curl -X POST http://localhost:3000/api/pigeons \
   "message": "Invalid input data",
   "details": [
     "Name is required and must be a non-empty string",
-    "Latitude must be a number between -90 and 90"
+    "Photo is required"
   ]
 }
 ```
@@ -193,7 +208,7 @@ curl http://localhost:3000/api/pigeons/550e8400-e29b-41d4-a716-446655440000
     "name": "Alexanderplatz, Berlin"
   },
   "first_seen": "2024-01-10T08:00:00.000Z",
-  "photo_url": null,
+  "photo_url": "/uploads/rudi_2024_01.jpg",
   "sightings": [
     {
       "id": "660e8400-e29b-41d4-a716-446655440001",
@@ -221,15 +236,6 @@ curl http://localhost:3000/api/pigeons/550e8400-e29b-41d4-a716-446655440000
 }
 ```
 
-#### Response 500 (Server Error)
-
-```json
-{
-  "error": "INTERNAL_SERVER_ERROR",
-  "message": "Failed to fetch pigeon"
-}
-```
-
 ---
 
 ### GET /api/pigeons
@@ -254,70 +260,29 @@ curl "http://localhost:3000/api/pigeons?page=1&limit=10"
 curl "http://localhost:3000/api/pigeons?search=Rudi&limit=5"
 ```
 
-#### Response 200 (Success)
-
-```json
-{
-  "pigeons": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440000",
-      "name": "Rudi Rothen",
-      "photo_url": null,
-      "first_seen": "2024-01-10T08:00:00.000Z",
-      "sightings_count": 5
-    },
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440001",
-      "name": "Helga Hell",
-      "photo_url": null,
-      "first_seen": "2024-01-11T10:00:00.000Z",
-      "sightings_count": 3
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 2,
-    "pages": 1
-  }
-}
-```
-
-#### Response 500 (Server Error)
-
-```json
-{
-  "error": "INTERNAL_SERVER_ERROR",
-  "message": "Failed to fetch pigeons"
-}
-```
-
 ---
 
 ## Bilder (Images)
 
 ### POST /api/images/match
 
-Sucht nach ähnlichen Tauben anhand eines Bild-Embeddings.
+Sucht nach ähnlichen Tauben anhand eines Fotos. **GEÄNDERT:** Erwartet jetzt Photo statt Embedding.
 
 #### Request Body
 
 | Feld | Typ | Erforderlich | Beschreibung |
 |------|-----|--------------|--------------|
-| `embedding` | array | ⚠️ | 1024-dimensionaler Vektor (base64 oder Array) |
-| `photo` | base64 | ⚠️ | Bild (Base64) - wird clientseitig verarbeitet |
+| `photo` | string (base64) | ✅ | Bild als Base64-String |
 | `threshold` | float | ❌ | Matching-Schwelle (0.50-0.99, default: 0.80) |
 | `location` | object | ❌ | Standort der Sichtung |
 
-⚠️ **Hinweis:** Mindestens eines der Felder `embedding` oder `photo` muss vorhanden sein.
-
-**Beispiel Request mit Embedding:**
+**Beispiel Request:**
 
 ```bash
 curl -X POST http://localhost:3000/api/images/match \
   -H "Content-Type: application/json" \
   -d '{
-    "embedding": [0.123, -0.456, 0.789, ..., 0.321],
+    "photo": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9h...",
     "threshold": 0.80,
     "location": {
       "lat": 52.52,
@@ -357,13 +322,7 @@ curl -X POST http://localhost:3000/api/images/match \
 {
   "match": false,
   "confidence": 0,
-  "similar_pigeons": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440001",
-      "name": "Unbekannte Taube",
-      "similarity": 0.6532
-    }
-  ],
+  "similar_pigeons": [],
   "suggestion": "Register as new pigeon?"
 }
 ```
@@ -372,15 +331,8 @@ curl -X POST http://localhost:3000/api/images/match \
 
 ```json
 {
-  "error": "INVALID_EMBEDDING",
-  "message": "Embedding must be a 1024-dimensional array of numbers"
-}
-```
-
-```json
-{
-  "error": "MISSING_INPUT",
-  "message": "Either embedding or photo is required"
+  "error": "MISSING_PHOTO",
+  "message": "Photo is required"
 }
 ```
 
@@ -388,15 +340,6 @@ curl -X POST http://localhost:3000/api/images/match \
 {
   "error": "INVALID_THRESHOLD",
   "message": "Threshold must be a number between 0.5 and 0.99"
-}
-```
-
-#### Response 500 (Server Error)
-
-```json
-{
-  "error": "INTERNAL_SERVER_ERROR",
-  "message": "Failed to match pigeon"
 }
 ```
 
@@ -454,138 +397,6 @@ curl -X POST http://localhost:3000/api/sightings \
 }
 ```
 
-#### Response 400 (Validation Error)
-
-```json
-{
-  "error": "VALIDATION_ERROR",
-  "message": "Invalid input data",
-  "details": [
-    "pigeon_id is required and must be a string",
-    "Latitude must be a number between -90 and 90"
-  ]
-}
-```
-
-#### Response 404 (Pigeon Not Found)
-
-```json
-{
-  "error": "NOT_FOUND",
-  "message": "Pigeon not found"
-}
-```
-
-#### Response 500 (Server Error)
-
-```json
-{
-  "error": "INTERNAL_SERVER_ERROR",
-  "message": "Failed to create sighting"
-}
-```
-
----
-
-### GET /api/sightings
-
-Listet alle Sichtungen mit Paginierung.
-
-#### Query Parameters
-
-| Parameter | Typ | Default | Beschreibung |
-|-----------|-----|---------|--------------|
-| `page` | integer | 1 | Seitennummer |
-| `limit` | integer | 20 | Ergebnisse pro Seite (max 100) |
-
-**Beispiel Request:**
-
-```bash
-curl "http://localhost:3000/api/sightings?page=1&limit=10"
-```
-
-#### Response 200 (Success)
-
-```json
-{
-  "sightings": [
-    {
-      "id": "660e8400-e29b-41d4-a716-446655440001",
-      "pigeon": {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "name": "Rudi Rothen"
-      },
-      "location": {
-        "lat": 52.5205,
-        "lng": 13.4055,
-        "name": "Fernsehturm, Berlin"
-      },
-      "notes": "Frisst von einem Sandwich",
-      "condition": "healthy",
-      "timestamp": "2024-01-15T09:30:00.000Z"
-    },
-    {
-      "id": "660e8400-e29b-41d4-a716-446655440002",
-      "pigeon": {
-        "id": "550e8400-e29b-41d4-a716-446655440001",
-        "name": "Helga Hell"
-      },
-      "location": {
-        "lat": 52.515,
-        "lng": 13.41,
-        "name": "Brandenburger Tor"
-      },
-      "notes": null,
-      "condition": "unknown",
-      "timestamp": "2024-01-14T16:45:00.000Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 2,
-    "pages": 1
-  }
-}
-```
-
----
-
-### GET /api/pigeons/:id/sightings
-
-Gibt alle Sichtungen einer spezifischen Taube zurück.
-
-#### Path Parameters
-
-| Parameter | Typ | Beschreibung |
-|-----------|-----|--------------|
-| `id` | UUID | ID der Taube |
-
-**Beispiel Request:**
-
-```bash
-curl http://localhost:3000/api/pigeons/550e8400-e29b-41d4-a716-446655440000/sightings
-```
-
-#### Response 200 (Success)
-
-```json
-[
-  {
-    "id": "660e8400-e29b-41d4-a716-446655440001",
-    "pigeon_id": "550e8400-e29b-41d4-a716-446655440000",
-    "location": {
-      "lat": 52.5205,
-      "lng": 13.4055,
-      "name": "Fernsehturm, Berlin"
-    },
-    "notes": "Frisst von einem Sandwich",
-    "condition": "healthy",
-    "timestamp": "2024-01-15T09:30:00.000Z"
-  }
-]
-```
-
 ---
 
 ## Fehlerbehandlung
@@ -595,9 +406,8 @@ curl http://localhost:3000/api/pigeons/550e8400-e29b-41d4-a716-446655440000/sigh
 | Code | HTTP Status | Beschreibung |
 |------|-------------|--------------|
 | `VALIDATION_ERROR` | 400 | Ungültige Eingabedaten |
-| `INVALID_EMBEDDING` | 400 | Embedding hat falsches Format |
-| `MISSING_INPUT` | 400 | Erforderliches Feld fehlt |
-| `INVALID_THRESHOLD` | 400 | Threshold außerhalb des gültigen Bereichs |
+| `MISSING_PHOTO` | 400 | Photo fehlt |
+| `INVALID_THRESHOLD` | 400 | Threshold außerhalb Bereich |
 | `NOT_FOUND` | 404 | Resource nicht gefunden |
 | `INTERNAL_SERVER_ERROR` | 500 | Serverseitiger Fehler |
 | `DATABASE_CONNECTION_FAILED` | 503 | Datenbank nicht erreichbar |
@@ -608,25 +418,13 @@ curl http://localhost:3000/api/pigeons/550e8400-e29b-41d4-a716-446655440000/sigh
 {
   "error": "ERROR_CODE",
   "message": "Human-readable description",
-  "details": ["Optional array of specific issues"] // Nur bei Validation Error
+  "details": ["Optional array of specific issues"]
 }
 ```
 
 ---
 
-## Rate Limiting
-
-⚠️ **Aktuell nicht implementiert.** 
-
-Zukünftig geplant:
-- 100 Requests pro Minute pro IP
-- 1000 Requests pro Stunde pro API-Key
-
----
-
 ## TypeScript Types
-
-Für TypeScript-Projekte:
 
 ```typescript
 // types/api.ts
@@ -649,13 +447,10 @@ export interface Pigeon {
   updated_at?: string;
 }
 
-export interface Sighting {
-  id: string;
-  pigeon_id: string;
+export interface MatchRequest {
+  photo: string;  // Base64 encoded image
+  threshold?: number;
   location?: Location;
-  notes?: string;
-  condition?: 'healthy' | 'injured' | 'unknown';
-  timestamp: string;
 }
 
 export interface MatchResponse {
@@ -670,17 +465,13 @@ export interface MatchResponse {
   suggestion?: string;
 }
 
-export interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  pages: number;
-}
-
-export interface ApiError {
-  error: string;
-  message: string;
-  details?: string[];
+export interface Sighting {
+  id: string;
+  pigeon_id: string;
+  location?: Location;
+  notes?: string;
+  condition?: 'healthy' | 'injured' | 'unknown';
+  timestamp: string;
 }
 ```
 
@@ -691,40 +482,26 @@ export interface ApiError {
 ### 1. Taube registrieren
 
 ```bash
-# Neue Taube erstellen
+# Neue Taube mit Photo erstellen
 curl -X POST http://localhost:3000/api/pigeons \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Test-Taube",
-    "description": "Ring rechts: 2024-AB-123"
-  }'
-# Response: { "id": "uuid-hier", ... }
-```
-
-### 2. Sichtung eintragen
-
-```bash
-# Sichtung der Taube
-curl -X POST http://localhost:3000/api/sightings \
-  -H "Content-Type: application/json" \
-  -d '{
-    "pigeon_id": "uuid-hier",
-    "location": { "lat": 52.52, "lng": 13.405, "name": "Berlin" },
-    "condition": "healthy"
+    "description": "Ring rechts: 2024-AB-123",
+    "photo": "base64EncodedImage..."
   }'
 ```
 
-### 3. Bild-Matching
+### 2. Photo-Matching
 
 ```bash
-# Mit Embedding nach gleicher Taube suchen
+# Mit Photo nach gleicher Taube suchen
 curl -X POST http://localhost:3000/api/images/match \
   -H "Content-Type: application/json" \
   -d '{
-    "embedding": [/* 1024 Zahlen */],
+    "photo": "base64EncodedImage...",
     "threshold": 0.85
   }'
-# Response: Match mit "Test-Taube"
 ```
 
 ---

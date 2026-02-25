@@ -34,6 +34,22 @@ c7843e260ed1   ankane/pgvector:latest            "docker-entrypoint.s…"   Up 3
 - **9000**: MinIO API (internal)
 - **9001**: MinIO Console (internal)
 
+### CORS-Konfiguration
+
+⚠️ **Wichtig:** Das Backend regelt CORS allein.
+
+- **Nginx Proxy Manager:** KEINE CORS-Headers hinzufügen
+- **Backend:** `Access-Control-Allow-Origin` mit reflected origin
+- **Android WebView:** Null-Origin wird erlaubt
+
+Standard-Origins in `app.ts`:
+```typescript
+'https://tauben-scanner.fugjoo.duckdns.org',
+'capacitor://localhost',
+'http://localhost:5173',
+'http://localhost:3000'
+```
+
 ### Access URLs
 
 - **Application**: https://tauben-scanner.dein-domain.de

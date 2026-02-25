@@ -28,7 +28,13 @@
 
 ## 🎯 Überblick
 
-Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadttauben per Smartphone-Kamera zu fotografieren und mit Hilfe von Machine Learning zu identifizieren. Die App nutzt TensorFlow.js mit MobileNet-V3 zur Erzeugung von Bild-Embeddings (1024-dimensionalen Vektoren) und speichert diese in einer PostgreSQL-Datenbank mit pgvector-Extension für schnelle Ähnlichkeitssuche.
+Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadttauben per Smartphone-Kamera zu fotografieren und mit Hilfe von Machine Learning zu identifizieren.
+
+**Architektur-Überblick:**
+- Frontend sendet Fotos an Backend
+- Backend extrahiert Embeddings server-seitig (MobileNet-V3)
+- PostgreSQL mit pgvector speichert 1024-dimensionale Vektoren
+- Cosine Similarity für Bild-Matching
 
 **Anwendungsfälle:**
 - 🏛️ **Kommunen**: Verwaltung von Stadttaubenpopulationen
@@ -41,33 +47,37 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 ## ✨ Features
 
 ### 🔍 Bilderkennung
-- **KI-basierte Identifikation** mit TensorFlow.js (MobileNet-V3)
-- **Echtzeit-Embedding-Generierung** direkt auf dem Gerät
+- **KI-basierte Identifikation** mit MobileNet-V3
+- **Server-side Embedding-Extraktion** (Backend verarbeitet Fotos)
 - **Cosine Similarity Matching** mit anpassbarem Threshold (0.50-0.99)
 - **Mehrwinkelsupport** durch Speicherung mehrerer Bilder pro Taube
 
 ### 📱 Mobile App
 - **Native Android-App** via Capacitor
 - **Kamera-Zugriff** mit Bilderfassung
-- **Offline-fähig** mit später Synchronisation
-- **Intuitive Benutzeroberfläche** in React
+- **Debug-UI**: UploadProgress, NetworkDebugPanel
+- **Timeout-Handling** mit AbortController (30s Standard)
 
 ### 🗄️ Datenbank & API
 - **PostgreSQL 15+** mit pgvector-Extension
 - **HNSW-Index** für schnelle Vektor-Suche
-- **GIN-Index** für Full-Text-Suche
 - **RESTful API** mit Express.js
-- **Eingebaute Validierung** und Fehlerbehandlung
+- **CORS** vom Backend geregelt (reflect origin für Android WebView)
 
 ### 🗺️ Standortverwaltung
 - **GPS-Tracking** bei Sichtungen
-- **Geografische Suche** mit PostGIS-ähnlichen Features
+- **Geografische Suche**
 - **Standort-basierte Historie**
 
 ### 📝 Sichtungsprotokoll
 - **Zeitgestempelte Sichtungen**
 - **Zustandsbewertung** (gesund, verletzt, unbekannt)
 - **Notizfunktion** für Beobachtungen
+
+### 🔧 Build-System
+- **GitHub Actions**: Automatische Debug + Release APK Builds
+- **Release**: webContentsDebuggingEnabled=false, optimiert
+- **Debug**: webContentsDebuggingEnabled=true
 
 ---
 
@@ -80,8 +90,6 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 | **TypeScript 5.9** | Typisierung |
 | **Vite 7** | Build-Tool |
 | **Capacitor 8** | Native Mobile Wrapper |
-| **TensorFlow.js 4.22** | Machine Learning |
-| **MobileNet-V3** | Feature Extraction |
 
 ### Backend (API Server)
 | Technologie | Zweck |
@@ -89,9 +97,10 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 | **Node.js** | Runtime |
 | **Express.js 5** | Web-Framework |
 | **TypeScript 5.9** | Typisierung |
+| **MobileNet-V3** | Server-side Feature Extraction |
 | **pg 8** | PostgreSQL Client |
 | **Helmet** | Security Headers |
-| **CORS** | Cross-Origin Requests |
+| **CORS** | Cross-Origin Requests (Backend-gesteuert) |
 | **Morgan** | HTTP Logging |
 
 ### Datenbank & Storage
@@ -108,6 +117,7 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 | **Docker** | Containerisierung |
 | **Docker Compose** | Multi-Service Orchestration |
 | **Nginx Proxy Manager** | Reverse Proxy & SSL |
+| **GitHub Actions** | CI/CD für APK Builds |
 
 ---
 
@@ -117,21 +127,21 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 graph TB
     subgraph "Mobile App"
         A[📱 Capacitor App] --> B[📷 Camera Component]
-        B --> C[🧠 TensorFlow.js]
-        C --> D[1024-d Embedding]
+        B --> C[Base64 Photo]
+        C --> D[POST /api/images/match]
     end
     
     subgraph "Backend API"
-        E[🌐 Express.js API] --> F[/api/images/match\]
-        E --> G[/api/pigeons\]
-        E --> H[/api/sightings\]
-        E --> I[/health\]
+        E[🌐 Express.js API] --> F[MobileNet-V3 Embedding]
+        F --> G[1024-d Vector]
+        E --> H[/api/pigeons\]
+        E --> I[/api/sightings\]
+        E --> J[/health\]
     end
     
     subgraph "Datenbank"
-        J[🐘 PostgreSQL + pgvector]
-        K[hnsw_index<br/>vector_cosine_ops]
-        L[gin_index<br/>tsvector]
+        K[🐘 PostgreSQL + pgvector]
+        L[hnsw_index<br/>vector_cosine_ops]
         M[Tables:<br/>pigeons, images, sightings]
     end
     
@@ -140,14 +150,13 @@ graph TB
         O[Image Files]
     end
     
-    D -->|POST /api/images/match| E
-    F --> J
-    G --> J
-    H --> J
-    J --> K
-    J --> L
-    J --> M
-    A -->|Image Upload| N
+    D -->|Photo Upload| E
+    G -->|Similarity Search| K
+    H --> K
+    I --> K
+    K --> L
+    K --> M
+    E --> N
     N --> O
 ```
 
@@ -155,15 +164,21 @@ graph TB
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Nutzer macht  │────▶│  MobileNet-V3    │────▶│  1024-d Vector  │
-│    Foto         │     │  Feature Extract │     │                 │
+│   Nutzer macht  │────▶│  Base64 Photo    │────▶│  POST /api/     │
+│    Foto         │     │  (Frontend)      │     │  images/match   │
 └─────────────────┘     └──────────────────┘     └────────┬────────┘
-                                                         │
-                                                         ▼
+                                                          │
+                                                          ▼
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Ähnlichste     │◀────│  Cosine Similar. │◀────│  pgvector       │
-│  Taube(n)       │     │  1 - (vec <=> q) │     │  HNSW Index     │
+│  Match-         │◀────│  Cosine Similar. │◀────│  MobileNet-V3   │
+│  Ergebnis       │     │  1 - (vec<=>q)  │     │  (Backend)      │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
+                                                          │
+                                                          ▼
+                                                 ┌─────────────────┐
+                                                 │  pgvector       │
+                                                 │  HNSW Index     │
+                                                 └─────────────────┘
 ```
 
 ---
@@ -184,7 +199,7 @@ cd tauben-scanner
 
 # 2. Umgebungsvariablen setzen
 cp .env.example .env
-# Bearbeite .env und setze passwörter
+# Bearbeite .env und setze Passwörter
 
 # 3. Mit Docker starten
 docker-compose up -d
@@ -264,15 +279,15 @@ Die vollständige API-Dokumentation findest du unter [`docs/API.md`](docs/API.md
 
 | Methode | Endpoint | Beschreibung |
 |---------|----------|--------------|
-| `POST` | `/api/pigeons` | Neue Taube erstellen |
+| `POST` | `/api/pigeons` | Neue Taube erstellen (mit Photo) |
 | `GET` | `/api/pigeons/:id` | Taube mit Sichtungen abrufen |
 | `GET` | `/api/pigeons` | Tauben-Liste (paginiert) |
-| `POST` | `/api/images/match` | Bild-Matching mit Embedding |
+| `POST` | `/api/images/match` | Bild-Matching (Photo Upload) |
 | `POST` | `/api/sightings` | Neue Sichtung erstellen |
 | `GET` | `/api/pigeons/:id/sightings` | Sichtungen einer Taube |
 | `GET` | `/health` | Health Check |
 
-### Beispiel: Taube erstellen
+### Beispiel: Taube erstellen (NEU)
 
 ```bash
 curl -X POST http://localhost:3000/api/pigeons \
@@ -280,6 +295,7 @@ curl -X POST http://localhost:3000/api/pigeons \
   -d '{
     "name": "Rudi Rothen",
     "description": "Roter Ring am linken Fuß",
+    "photo": "base64EncodedImageString...",
     "location": {
       "lat": 52.5200,
       "lng": 13.4050,
@@ -289,14 +305,18 @@ curl -X POST http://localhost:3000/api/pigeons \
   }'
 ```
 
-### Beispiel: Bild-Matching
+### Beispiel: Bild-Matching (NEU)
 
 ```bash
 curl -X POST http://localhost:3000/api/images/match \
   -H "Content-Type: application/json" \
   -d '{
-    "embedding": [0.123, 0.456, ..., 0.789],
-    "threshold": 0.80
+    "photo": "base64EncodedImageString...",
+    "threshold": 0.80,
+    "location": {
+      "lat": 52.52,
+      "lng": 13.405
+    }
   }'
 ```
 
@@ -315,13 +335,21 @@ NODE_ENV=production
 DATABASE_URL=postgresql://tauben:password@postgres:5432/tauben_scanner
 DB_PASSWORD=secure_test_password_123
 
-# CORS (kommaseparierte Liste)
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000,capacitor://localhost
+# CORS (Backend regelt CORS allein - keine Nginx CORS Headers!)
+CORS_ORIGINS=https://tauben-scanner.fugjoo.duckdns.org,capacitor://localhost
 
 # MinIO Storage
 MINIO_USER=minioadmin
 MINIO_PASSWORD=minioadmin123
 ```
+
+### CORS-Konfiguration
+
+Das Backend regelt CORS allein. Nginx sollte KEINE CORS-Headers hinzufügen.
+
+- Erlaubt: `null` Origin (Android Capacitor WebView)
+- Reflect origin für bekannte Origins
+- Credentials werden unterstützt
 
 ### Wichtige Einstellungen
 
@@ -329,7 +357,7 @@ MINIO_PASSWORD=minioadmin123
 |----------|---------|--------------|
 | `PORT` | 3000 | API Server Port |
 | `NODE_ENV` | development | Umgebung (development/production) |
-| `CORS_ORIGINS` | localhost | Erlaubte Origins |
+| `CORS_ORIGINS` | - | Erlaubte Origins (kommasepariert) |
 | `threshold` | 0.80 | Matching-Schwelle (0.50-0.99) |
 
 ---
@@ -337,6 +365,17 @@ MINIO_PASSWORD=minioadmin123
 ## 📱 Mobile App
 
 Die Mobile App wird mit Capacitor gebaut. Detaillierte Anleitungen findest du unter [`docs/MOBILE.md`](docs/MOBILE.md).
+
+### Android Berechtigungen
+
+```xml
+<!-- AndroidManifest.xml -->
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+```
 
 ### Schnellstart (Android)
 
@@ -350,17 +389,14 @@ npm install
 npm run android
 ```
 
-Dies öffnet Android Studio automatisch. Dort kannst du:
-- Einen Emulator starten
-- Ein Gerät per USB verbinden
-- Die APK signieren
+Dies öffnet Android Studio automatisch.
 
-### Features der App
+### GitHub Actions CI/CD
 
-- 📷 Echtzeit-Kamerazugriff
-- 🧠 On-Device AI (MobileNet-V3)
-- 📍 GPS-Standort-Erfassung
-- 📶 Offline-Unterstützung (geplant)
+- **Automatische Builds** bei Push auf main/tags
+- **Debug APK**: `app-debug.apk`
+- **Release APK**: `app-release-unsigned.apk`
+- Ablage als Artifacts und Release-Assets
 
 ---
 
@@ -369,11 +405,13 @@ Dies öffnet Android Studio automatisch. Dort kannst du:
 Für produktive Deployments empfehlen wir:
 
 1. **Docker Compose** mit SSL-Zertifikaten
-2. **Nginx Proxy Manager** als Reverse Proxy
+2. **Nginx Proxy Manager** als Reverse Proxy (keine CORS-Headers!)
 3. **Automatische Backups** der PostgreSQL-Datenbank
+4. **GitHub Actions** für APK-Builds
 
 Siehe [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) für:
 - SSL-Konfiguration
+- CORS-Setup (Backend-only)
 - Backup-Strategie
 - Troubleshooting
 - Performance-Optimierung
@@ -422,10 +460,10 @@ MIT License - siehe [LICENSE](LICENSE) für Details.
 
 ## 🙏 Danksagungen
 
-- **TensorFlow.js** - Für clientseitiges ML
+- **MobileNet-V3** - Für effiziente Feature Extraction
 - **pgvector** - Für Vektor-Suche in PostgreSQL
 - **Capacitor** - Für native Mobile Apps
-- **MobileNet-V3** - Für effiziente Feature Extraction
+- **TensorFlow.js** - Für serverseitiges ML
 
 ---
 

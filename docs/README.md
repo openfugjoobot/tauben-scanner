@@ -8,6 +8,7 @@ Willkommen in der offiziellen Dokumentation des KI Tauben Scanner!
 |----------|--------------|
 | [**README.md**](../README.md) | Hauptdokumentation mit Überblick, Features, Quick Start |
 | [**API.md**](API.md) | Vollständige API Referenz aller Endpoints |
+| [**ARCHITECTURE.md**](ARCHITECTURE.md) | Systemarchitektur und Komponenten |
 | [**DATABASE.md**](DATABASE.md) | Datenbank Schema, Indizes, Queries |
 | [**DEPLOYMENT.md**](DEPLOYMENT.md) | Docker-, SSL-, Backup- und Deployment-Guide |
 | [**MOBILE.md**](MOBILE.md) | Android App Entwicklung und Build-Anleitung |
@@ -43,13 +44,24 @@ Willkommen in der offiziellen Dokumentation des KI Tauben Scanner!
 │    Mobile App   │────▶│   REST API       │────▶│   PostgreSQL    │
 │   (Capacitor)   │◄────│   (Express.js)   │◄────│   + pgvector    │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
-        │                       │                       │
-        ▼                       ▼                       ▼
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  TensorFlow.js  │     │  MinIO (S3)     │     │   HNSW Index    │
-│  MobileNet-V3   │     │  Image Storage  │     │  (Cosine Sim.)  │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
+                               │                            │
+                               ▼                            ▼
+                     ┌──────────────────┐          ┌─────────────────┐
+                     │  TensorFlow.js   │          │   HNSW Index    │
+                     │  MobileNet-V3   │          │  (Cosine Sim.)  │
+                     │  (Server-side)   │          └─────────────────┘
+                     └──────────────────┘
+                               │
+                               ▼
+                     ┌──────────────────┐
+                     │  MinIO (S3)      │
+                     │  Image Storage   │
+                     └──────────────────┘
 ```
+
+**Architektur-Wechsel:** 
+- Früher: TensorFlow.js client-side im Frontend
+- Jetzt: Server-side Embedding Extraction im Backend
 
 ---
 
@@ -59,13 +71,14 @@ Willkommen in der offiziellen Dokumentation des KI Tauben Scanner!
 - **React 19** - UI Framework
 - **TypeScript 5.9** - Typisierung
 - **Capacitor 8** - Mobile Wrapper
-- **TensorFlow.js** - On-device ML
+- **Timeout-Handling** - AbortController (30s)
 
 ### Backend
 - **Node.js** + **Express.js 5** - API Server
+- **TensorFlow.js** + **MobileNet-V3** - Server-side ML
 - **TypeScript** - Server-Code
 - **Helmet** - Security
-- **CORS** - Cross-Origin
+- **CORS** - Backend-reguliert (reflect origin)
 
 ### Datenbank
 - **PostgreSQL 15+** - Hauptdatenbank

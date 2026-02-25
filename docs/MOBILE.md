@@ -15,6 +15,9 @@ Diese Dokumentation beschreibt die Einrichtung, Entwicklung und den Build der KI
 - [Projekt-Setup](#projekt-setup)
 - [Lokale Entwicklung](#lokale-entwicklung)
 - [Android Build](#android-build)
+- [Android Features](#android-features)
+- [Debug-UI Komponenten](#debug-ui-komponenten)
+- [CI/CD (GitHub Actions)](#cicd-github-actions)
 - [Geräte-Testing](#geräte-testing)
 - [Berechtigungen](#berechtigungen)
 - [Release & Distribution](#release--distribution)
@@ -110,14 +113,16 @@ npx cap add android
 Die Konfiguration befindet sich in `capacitor.config.ts`:
 
 ```typescript
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const isDebugBuild = process.env.NODE_ENV !== 'production' && process.env.BUILD_TYPE !== 'release';
 
 const config: CapacitorConfig = {
   appId: 'com.taubenscanner.app',
   appName: 'Tauben Scanner',
   webDir: 'dist',
   server: {
-    cleartext: true,  // Für HTTP (nur Development!)
+    cleartext: false,
     androidScheme: 'https'
   },
   android: {
@@ -127,12 +132,17 @@ const config: CapacitorConfig = {
       keystorePassword: undefined,
       keystoreKeyPassword: undefined,
       signingType: 'apksigner',
-    }
+    },
+    // Debug nur in Development, disabled in Release
+    webContentsDebuggingEnabled: isDebugBuild
   },
   plugins: {
     Camera: {
       permissionPrompt: true,
       saveToGallery: true
+    },
+    Geolocation: {
+      permissionPrompt: true
     }
   }
 };
@@ -140,7 +150,223 @@ const config: CapacitorConfig = {
 export default config;
 ```
 
-**Wichtig:** Für Produktion `cleartext` auf `false` setzen!
+---
+
+## Android Features
+
+### Berechtigungen
+
+**AndroidManifest.xml:**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.taubenscanner.app">
+
+    <!-- Network Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- Location Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="false"
+        android:networkSecurityConfig="@xml/network_security_config">
+        ...
+    </application>
+</manifest>
+```
+
+### Timeout-Handling
+
+**API-Requests mit AbortController:**
+
+```typescript
+// frontend/src/services/api.ts
+
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeoutMs: number = 30000
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    let errorMessage = 'Network error - please check your internet connection';
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        errorMessage = 'Network timeout - please check your connection';
+      }
+    }
+    throw new Error(errorMessage);
+  }
+}
+```
+
+**Timeout-Defaults:**
+
+| Operation | Timeout |
+|-----------|---------|
+| Health Check | 10s |
+| Single Pigeon Fetch | 15s |
+| List Pigeons | 15s |
+| Pigeon Registration | 30s |
+| Image Match | 30s |
+| Sighting Report | 30s |
+
+---
+
+## Debug-UI Komponenten
+
+### UploadProgress
+
+Zeigt Fortschritt beim Photo-Upload an.
+
+### NetworkDebugPanel
+
+Debug-Informationen für Netzwerk-Requests:
+- API-URL
+- Request-Status
+- Fehler-Logs (letzte 10 Einträge)
+- CORS-Status
+
+**Fehler-Logging:**
+
+```typescript
+function logNetworkError(error: string, url?: string) {
+  const errors = JSON.parse(localStorage.getItem('network_errors') || '[]');
+  errors.unshift({
+    timestamp: new Date().toLocaleString(),
+    error,
+    url
+  });
+  localStorage.setItem('network_errors', JSON.stringify(errors.slice(0, 10)));
+}
+```
+
+---
+
+## CI/CD (GitHub Actions)
+
+Automatische Builds bei Push auf main/tags.
+
+### Workflow: `.github/workflows/build-apk.yml`
+
+```yaml
+name: Build APK
+
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK components
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build web assets
+        working-directory: frontend
+        run: npm run build
+
+      - name: Sync Capacitor
+        working-directory: frontend
+        run: |
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+          npx cap sync android
+
+      - name: Build Debug APK
+        working-directory: frontend/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Build Release APK
+        working-directory: frontend/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauben-scanner-debug
+          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauben-scanner-release
+          path: frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            frontend/android/app/build/outputs/apk/debug/app-debug.apk
+            frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          generate_release_notes: true
+```
+
+### Build-Typen
+
+| Typ | webContentsDebuggingEnabled | Optimierung |
+|-----|----------------------------|-------------|
+| Debug | `true` | Nein |
+| Release | `false` | Ja (R8, minify) |
+
+### Artefakte
+
+- Debug APK: `app-debug.apk`
+- Release APK: `app-release-unsigned.apk` (ohne Signing-Keys)
 
 ---
 
@@ -158,14 +384,7 @@ npm run dev
 npm run dev -- --host
 ```
 
-### 2. Im Browser testen
-
-1. Auf `http://localhost:5173` öffnen
-2. Chrome DevTools → Device Toolbar
-3. Mobile Viewport wählen
-4. „Foto machen“ - Button testet die Kamera-Funktionalität
-
-### 3. Capacitor Live Reload
+### 2. Capacitor Live Reload
 
 ```bash
 # Sync zu Android
@@ -177,25 +396,6 @@ npx cap sync android
 
 # Mit Android Studio öffnen
 npx cap open android
-```
-
-### 4. Live Reload für schnelle Entwicklung
-
-```typescript
-// capacitor.config.ts (Development only!)
-const config: CapacitorConfig = {
-  // ... andere configs
-  server: {
-    url: 'http://DEINE_IP:5173',  // Deine lokale IP
-    cleartext: true
-  }
-};
-```
-
-```bash
-# Dann:
-npm run dev
-npx cap run android -l --host=DEINE_IP
 ```
 
 ---
@@ -213,7 +413,7 @@ npm run build
 # 2. Capacitor Sync
 npx cap sync android
 
-# 3. Debug APK  (Gradle)
+# 3. Debug APK (Gradle)
 cd android
 ./gradlew assembleDebug
 
@@ -236,50 +436,15 @@ keytool -genkey -v \
   -keyalg RSA \
   -keysize 2048 \
   -validity 10000
-
-# Antworten:
-# - Passwort: [starkes Passwort]
-# - CN: Tauben Scanner
-# - OU: Development
-# - O: OpenFugjooBot
-# - L: Berlin
-# - ST: Berlin
-# - C: DE
 ```
 
 **⚠️ Wichtig:** Sichere den Keystore! Verlust = keine Updates möglich!
 
-#### 2. Keystore konfigurieren
-
-`capacitor.config.ts` aktualisieren:
-
-```typescript
-android: {
-  buildOptions: {
-    keystorePath: 'taubenscanner.keystore',
-    keystoreAlias: 'taubenscanner',
-    keystorePassword: 'DEIN_PASSWORT',
-    keystoreKeyPassword: 'DEIN_PASSWORT',
-    signingType: 'apksigner',
-  }
-}
-```
-
-**Alternative (sicherer):** `local.properties` in `frontend/android/` erstellen:
-
-```properties
-keystore.file=taubenscanner.keystore
-keystore.alias=taubenscanner
-keystore.password=DEIN_PASSWORT
-keystore.key.password=DEIN_PASSWORT
-```
-
-#### 3. Release Build
+#### 2. Release Build
 
 ```bash
 cd frontend
 
-# Build
 npm run build
 npx cap sync android
 
@@ -288,7 +453,7 @@ cd android
 ./gradlew assembleRelease
 
 # APK liegt unter:
-ls ./app/build/outputs/apk/release/app-release-signed.apk
+ls ./app/build/outputs/apk/release/app-release-unsigned.apk
 ```
 
 ### AAB erstellen (Für Google Play)
@@ -330,87 +495,6 @@ emulator -avd TaubenScanner
    adb install frontend/android/app/build/outputs/apk/debug/app-debug.apk
    ```
 
-### APK installieren
-
-```bash
-# Via ADB
-adb install -r ./app-debug.apk
-
-# Via Browser (wenn APK auf Webserver)
-# Download auf Gerät → Installieren
-
-# Hinweis: Unknown Sources muss aktiviert sein
-```
-
----
-
-## Berechtigungen
-
-Die App benötigt folgende Berechtigungen:
-
-### AndroidManifest.xml
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.taubenscanner.app">
-
-    <!-- Internet -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    
-    <!-- Camera -->
-    <uses-permission android:name="android.permission.CAMERA" />
-    
-    <!-- Location -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- Storage (für Bildspeicherung) -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    
-</manifest>
-```
-
-### Request zur Laufzeit
-
-Die Berechtigungen werden automatisch durch den Capacitor Camera-Plugin angefragt. Für manuelle Steuerung:
-
-```typescript
-// src/services/permissions.ts
-import { Camera } from '@capacitor/camera';
-import { Geolocation } from '@capacitor/geolocation';
-
-export async function requestCameraPermission(): Promise<boolean> {
-  const permission = await Camera.requestPermissions();
-  return permission.camera === 'granted';
-}
-
-export async function requestLocationPermission(): Promise<boolean> {
-  const permission = await Geolocation.requestPermissions();
-  return permission.location === 'granted';
-}
-```
-
-### Berechtigungen prüfen
-
-```typescript
-// In einem Komponenten
-import { useEffect } from 'react';
-import { Camera } from '@capacitor/camera';
-
-function App() {
-  useEffect(() {
-    Camera.checkPermissions().then(permissionStatus => {
-      if (permissionStatus.camera !== 'granted') {
-        Camera.requestPermissions();
-      }
-    });
-  }, []);
-}
-```
-
 ---
 
 ## Release & Distribution
@@ -422,7 +506,7 @@ function App() {
 ```json
 {
   "name": "tauben-scanner-frontend",
-  "version": "1.0.1",  // Erhöhen für jedes Release
+  "version": "1.0.1",
   // ...
 }
 ```
@@ -432,76 +516,17 @@ function App() {
 ```gradle
 android {
     defaultConfig {
-        versionCode 2          // Erhöhen für jedes Release
-        versionName "1.0.1"     // Sollte package.json entsprechen
+        versionCode 2
+        versionName "1.0.1"
     }
 }
 ```
 
-### App Icon und Branding
-
-```bash
-# Icons generieren
-# Erstelle ein 1024x1024 PNG Logo in res/
-
-# Mit ImageMagick (optional)
-cd frontend
-npx cordova-res android --skip-config --copy
-
-# oder manuell kopieren:
-# android/app/src/main/res/mipmap-*/
-```
-
-| Verzeichnis | Größe |
-|-------------|-------|
-| `mipmap-xxxhdpi` | 512px |
-| `mipmap-xxhdpi` | 384px |
-| `mipmap-xhdpi` | 256px |
-| `mipmap-hdpi` | 192px |
-| `mipmap-mdpi` | 128px |
-| `mipmap-ldpi` | 96px |
-
 ### Google Play Store
 
-#### 1. Google Play Console
-
-1. [play.google.com/console](https://play.google.com/console) öffnen
-2. Neues App-Projekt erstellen
-3. App-Details eintragen
-
-#### 2. App Bundle hochladen
-
-```bash
-# AAB erstellen
-cd frontend/android
-./gradlew bundleRelease
-
-# Hochladen:
-# frontend/android/app/build/outputs/bundle/release/app-release.aab
-```
-
-#### 3. Store Listing
-
-Benötigte Assets:
-
-| Asset | Spezifikation |
-|-------|---------------|
-| Feature Graphic | 1024 x 500 px |
-| Screenshots | Mindestens 2, 1080 x 1920 px |
-| App Icon | 512 x 512 px |
-| Short Description | Max 80 Zeichen |
-| Full Description | Max 4000 Zeichen |
-
-#### 4. Content Rating
-
-- IARC-Zertifizierung beantragen
-- Für Tauben Scanner: PEGI 3 (für alle Altersgruppen)
-
-#### 5. Preise & Distribution
-
-- Kostenlos oder kostenpflichtig
-- Länder auswählen
-- Veröffentlichen
+1. Play Console → Release → Production
+2. AAB hochladen
+3. Rollout starten
 
 ---
 
@@ -526,33 +551,16 @@ rm -rf ~/.gradle/caches/
 echo $ANDROID_HOME
 ls $ANDROID_HOME
 
-# Lizenzen akzeptieren (falls nicht geschehen)
+# Lizenzen akzeptieren
 yes | sdkmanager --licenses
 ```
 
-### Build schlägt fehl
+### Netzwerk-Fehler (CORS)
 
-```bash
-# Dependency Updates
-cd frontend/android
-./gradlew dependencies --configuration implementation
-
-# Versionen prüfen
-java -version  # Sollte 17 sein
-```
-
-### APK zu groß
-
-```bash
-# APK Analyzer in Android Studio nutzen
-# Oder: ProGuard/R8 aktivieren
-
-# android/app/build.gradle
-defaultConfig {
-    minifyEnabled true
-    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-}
-```
+- Prüfe API-URL in den Einstellungen
+- Prüfe `network_security_config.xml`
+- Prüfe Backend CORS-Einstellungen
+- Debug-Logs in NetworkDebugPanel ansehen
 
 ### App stürzt beim Start ab
 
@@ -564,110 +572,11 @@ adb logcat -d > logs.txt
 grep -i "taubenscanner\|capacitor\|error\|fatal" logs.txt
 ```
 
-### TensorFlow.js zu langsam
+### Timeout bei Uploads
 
-```typescript
-// Backend optimieren
-import * as tf from '@tensorflow/tfjs';
-
-// WASM Backend (falls unterstützt)
-import '@tensorflow/tfjs-backend-wasm';
-
-await tf.setBackend('wasm');
-```
-
-### Hot Reload funktioniert nicht
-
-```bash
-# Capacitor neu synchronisieren
-cd frontend
-npm run build
-npx cap sync android
-
-# Android Studio: Build → Clean Project
-# Android Studio: File → Invalidate Caches / Restart
-```
-
----
-
-## Entwicklungs-Tipps
-
-### 1. TypeScript Types
-
-```typescript
-// src/types/api.ts
-export interface MatchResponse {
-  match: boolean;
-  pigeon?: {
-    id: string;
-    name: string;
-    photo_url?: string;
-  };
-  confidence: number;
-  similar_pigeons?: Array<{
-    id: string;
-    name: string;
-    similarity: number;
-  }>;
-}
-```
-
-### 2. Development vs Production
-
-```typescript
-// src/config/index.ts
-const isDev = import.meta.env.DEV;
-
-export const API_URL = isDev 
-  ? 'http://192.168.1.100:3000'  // Deine lokale IP
-  : 'https://api.taube.dein-domain.com';
-
-export const EMBEDDING_DIMENSION = 1024;
-export const MATCH_THRESHOLD = 0.80;
-```
-
-### 3. Offline-Unterstützung (zukünftig)
-
-```typescript
-// Service Worker für Offline-Fähigkeit
-// In vite.config.ts:
-import { VitePWA } from 'vite-plugin-pwa';
-
-export default defineConfig({
-  plugins: [
-    VitePWA({
-      registerType: 'autoUpdate',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,png,svg}']
-      }
-    })
-  ]
-});
-```
-
----
-
-## Testing
-
-### Unit Tests
-
-```bash
-# Jest einrichten
-npm install --save-dev jest @testing-library/react
-
-# Tests ausführen
-npm test
-```
-
-### E2E Tests
-
-```bash
-# Detox für React Native / Capacitor
-npm install --save-dev detox
-
-# Tests schreiben in e2e/
-detox test
-```
+- Konvertiere Bilder vor Upload (max 2MB)
+- Prüfe Server-Timeout-Einstellungen
+- Aktiviere UploadProgress für Debug
 
 ---
 

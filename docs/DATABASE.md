@@ -4,9 +4,11 @@ Diese Dokumentation beschreibt das PostgreSQL-Schema für den KI Tauben Scanner,
 
 **Datenbank:** PostgreSQL 15+ mit pgvector Extension
 
+**Architektur:** Embeddings werden serverseitig im Backend generiert (MobileNet-V3) und in PostgreSQL gespeichert.
+
 **Haupttabellen:**
-- `pigeons` - Registrierte Tauben
-- `images` - Bilder der Tauben
+- `pigeons` - Registrierte Tauben mit 1024-d Embedding
+- `images` - Zusätzliche Bilder (optional)
 - `sightings` - Sichtungen
 
 ---
