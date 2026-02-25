@@ -21,13 +21,21 @@ app.use(helmet());
 // CORS configuration - restrict to known origins
 const corsOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
-  : ['http://localhost:5173', 'http://localhost:3000', 'capacitor://localhost', 'http://localhost'];
+  : [
+    'https://tauben-scanner.fugjoo.duckdns.org',
+    'capacitor://localhost',
+    'http://localhost:8100',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost'
+  ];
 
 app.use(cors({
   origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 204 // Handle preflight requests properly
 }));
 
 app.use(morgan('combined'));

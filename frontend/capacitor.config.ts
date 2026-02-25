@@ -15,12 +15,16 @@ const config: CapacitorConfig = {
       keystorePassword: undefined,
       keystoreKeyPassword: undefined,
       signingType: 'apksigner',
-    }
+    },
+    webContentsDebuggingEnabled: true
   },
   plugins: {
     Camera: {
       permissionPrompt: true,
       saveToGallery: true
+    },
+    Geolocation: {
+      permissionPrompt: true
     }
   }
 };
