@@ -15,7 +15,6 @@
   "keywords": [
     "capacitor",
     "react",
-    "tensorflow",
     "pigeon-scanner"
   ],
   "author": "OpenFugjooBot",
@@ -27,8 +26,6 @@
     "@capacitor/core": "^8.1.0",
     "@capacitor/preferences": "^8.0.1",
     "@hookform/resolvers": "^5.2.2",
-    "@tensorflow-models/mobilenet": "^2.1.1",
-    "@tensorflow/tfjs": "^4.22.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "react": "^19.2.4",

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { matchPigeon } from '../services/api';
-import { getEmbeddingFromBase64 } from '../services/embedding';
 import type { MatchResponse } from '../types/api';
 
 interface MatchResultProps {
@@ -24,23 +23,9 @@ export function MatchResult({ image, onReset, onBack, initialResult, onResult }:
     setError('');
 
     try {
-      // Try to extract embedding on device (optional optimization)
-      let embedding: number[] | undefined;
-      let embeddingError: string | undefined;
-      try {
-        embedding = await getEmbeddingFromBase64(image);
-        console.log('[MatchResult] Successfully extracted embedding:', embedding?.length, 'dimensions');
-      } catch (e) {
-        embeddingError = e instanceof Error ? e.message : 'Unknown error';
-        console.error('[MatchResult] Client embedding extraction failed:', embeddingError);
-        // Don't proceed without embedding since backend doesn't support server-side extraction yet
-        throw new Error(`Embedding extraction failed: ${embeddingError}`);
-      }
-
-      // Send to API for matching
+      // Send photo to backend for server-side embedding extraction and matching
       const matchRequest = {
         photo: image,
-        ...(embedding && { embedding }),
         threshold: 0.80,
       };
 
