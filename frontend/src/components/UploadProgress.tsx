@@ -26,9 +26,9 @@ export const UploadProgress: React.FC<UploadProgressProps> = ({ steps, currentSt
             className={`step-item ${step.status}`}
           >
             <div className="step-icon">
-              {step.status === 'active' && <span className="spinner">⟳;</span>}
-              {step.status === 'completed' && <span className="check">✓;</span>}
-              {step.status === 'error' && <span className="error-x">✗;</span>}
+              {step.status === 'active' && <span className="spinner">⟳</span>}
+              {step.status === 'completed' && <span className="check">✓</span>}
+              {step.status === 'error' && <span className="error-x">✗</span>}
               {step.status === 'pending' && <span className="pending">{step.icon}</span>}
             </div>
             <div className="step-content">
