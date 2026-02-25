@@ -26,10 +26,15 @@ export function MatchResult({ image, onReset, onBack, initialResult, onResult }:
     try {
       // Try to extract embedding on device (optional optimization)
       let embedding: number[] | undefined;
+      let embeddingError: string | undefined;
       try {
         embedding = await getEmbeddingFromBase64(image);
+        console.log('[MatchResult] Successfully extracted embedding:', embedding?.length, 'dimensions');
       } catch (e) {
-        console.log('Client embedding extraction failed, using server-side:', e);
+        embeddingError = e instanceof Error ? e.message : 'Unknown error';
+        console.error('[MatchResult] Client embedding extraction failed:', embeddingError);
+        // Don't proceed without embedding since backend doesn't support server-side extraction yet
+        throw new Error(`Embedding extraction failed: ${embeddingError}`);
       }
 
       // Send to API for matching

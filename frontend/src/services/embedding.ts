@@ -2,16 +2,36 @@ import * as tf from '@tensorflow/tfjs';
 import * as mobilenet from '@tensorflow-models/mobilenet';
 
 let model: mobilenet.MobileNet | null = null;
+let modelLoadError: string | null = null;
+
+// Expected embedding dimension - must match backend validation
+const EXPECTED_EMBEDDING_DIMENSION = 1024;
+
+export function getLastModelError(): string | null {
+  return modelLoadError;
+}
 
 export async function loadEmbeddingModel(): Promise<void> {
   if (model) return;
   
-  // MobileNet V3 loaded with TensorFlow.js
-  // This loads the MobileNet model for feature extraction
-  model = await mobilenet.load({
-    version: 2,
-    alpha: 1.0
-  });
+  modelLoadError = null;
+  
+  try {
+    // MobileNet V2 with alpha 0.75 produces 1024-dimensional embeddings
+    // alpha 1.0 would produce 1280 dimensions, which doesn't match backend
+    console.log('[Embedding] Loading MobileNet V2 with alpha 0.75...');
+    
+    model = await mobilenet.load({
+      version: 2,
+      alpha: 0.75  // Changed from 1.0 to 0.75 to get 1024 dimensions
+    });
+    
+    console.log('[Embedding] Model loaded successfully');
+  } catch (error) {
+    modelLoadError = error instanceof Error ? error.message : 'Unknown error loading model';
+    console.error('[Embedding] Failed to load model:', modelLoadError);
+    throw new Error(`Model load failed: ${modelLoadError}`);
+  }
 }
 
 export function isModelLoaded(): boolean {
@@ -27,8 +47,18 @@ export async function extractEmbedding(imageElement: HTMLImageElement): Promise<
 
   try {
     // Get the embeddings (true = return embedding layer, false = classification)
-    // This returns a tensor with the features before the final classification layer
+    // This returns a tensor with shape [1, embedding_dimension]
     const embeddings = model.infer(imageElement, true) as tf.Tensor;
+    
+    if (embeddings.shape.length !== 2 || embeddings.shape[0] !== 1) {
+      throw new Error(`Unexpected tensor shape: ${JSON.stringify(embeddings.shape)}`);
+    }
+    
+    // Validate dimension
+    const actualDimension = embeddings.shape[1];
+    if (actualDimension !== EXPECTED_EMBEDDING_DIMENSION) {
+      console.warn(`[Embedding] Warning: Expected ${EXPECTED_EMBEDDING_DIMENSION} dimensions, got ${actualDimension}`);
+    }
     
     // Flatten the tensor to get a 1D array
     const flattened = embeddings.flatten();
@@ -41,13 +71,18 @@ export async function extractEmbedding(imageElement: HTMLImageElement): Promise<
     flattened.dispose();
 
     // Validate embedding dimension
+    if (embeddingArray.length !== EXPECTED_EMBEDDING_DIMENSION) {
+      console.warn(`[Embedding] Warning: Array has ${embeddingArray.length} dimensions, expected ${EXPECTED_EMBEDDING_DIMENSION}`);
+    }
+    
     if (embeddingArray.length === 0) {
       throw new Error('Failed to extract embedding: empty array returned');
     }
 
+    console.log(`[Embedding] Successfully extracted embedding with ${embeddingArray.length} dimensions`);
     return embeddingArray;
   } catch (error) {
-    console.error('Embedding extraction error:', error);
+    console.error('[Embedding] Extraction error:', error);
     throw new Error(`Failed to extract embedding: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -61,14 +96,21 @@ export async function extractMobileNetFeatures(imageElement: HTMLImageElement): 
   }
 
   try {
-    // For 1024-dimensional embedding, use the embedding feature
+    // Get the embedding
     const embedding = model.infer(imageElement, true) as tf.Tensor;
-    const embeddingArray = await embedding.array() as number[];
-    embedding.dispose();
     
+    // CRITICAL FIX: Must flatten before calling .array()
+    // Without flatten(), array() returns a nested array [[...]]
+    const flattened = embedding.flatten();
+    const embeddingArray = await flattened.array() as number[];
+    
+    embedding.dispose();
+    flattened.dispose();
+    
+    console.log(`[Embedding] extractMobileNetFeatures: ${embeddingArray.length} dimensions`);
     return embeddingArray;
   } catch (error) {
-    console.error('Feature extraction error:', error);
+    console.error('[Embedding] Feature extraction error:', error);
     throw new Error(`Failed to extract features: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -79,11 +121,18 @@ export function base64ToImage(base64String: string): Promise<HTMLImageElement> {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     
+    // Set a timeout in case image loading hangs
+    const timeout = setTimeout(() => {
+      reject(new Error('Image load timeout'));
+    }, 10000);
+    
     img.onload = () => {
+      clearTimeout(timeout);
       resolve(img);
     };
     
     img.onerror = (error) => {
+      clearTimeout(timeout);
       reject(new Error(`Failed to load image: ${error}`));
     };
     
@@ -112,6 +161,9 @@ export function resizeImageForMobileNet(
 
 // Complete workflow: base64 -> embedding
 export async function getEmbeddingFromBase64(base64Image: string): Promise<number[]> {
+  console.log('[Embedding] Processing base64 image...');
   const image = await base64ToImage(base64Image);
-  return extractEmbedding(image);
+  console.log(`[Embedding] Image loaded: ${image.width}x${image.height}`);
+  const embedding = await extractEmbedding(image);
+  return embedding;
 }
