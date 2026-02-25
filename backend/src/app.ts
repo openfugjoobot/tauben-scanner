@@ -33,20 +33,31 @@ const corsOrigins = process.env.CORS_ORIGINS
     'http://localhost:4200'
   ];
 
+// CORS - Allow all origins for mobile apps (Android sends null origin)
+// Nginx-Proxy-Manager should NOT add CORS headers - only backend does
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (Android WebView, mobile apps) OR from known origins
-    if (!origin || corsOrigins.includes(origin)) {
-      callback(null, true);
+  origin: function(origin, callback) {
+    // Allow null origin (Android Capacitor WebView) and all configured origins
+    // Also allow https://localhost from Chrome DevTools
+    const allowedOrigins = [
+      ...corsOrigins,
+      'https://localhost',
+      'http://localhost'
+    ];
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      // Reflect the origin back - this is important for CORS
+      callback(null, origin || '*');
     } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+      console.log('⚠️ CORS blocked:', origin);
+      callback(new Error('Not allowed'), false);
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 204
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  optionsSuccessStatus: 204,
+  preflightContinue: false
 }));
 
 app.use(morgan('combined'));
