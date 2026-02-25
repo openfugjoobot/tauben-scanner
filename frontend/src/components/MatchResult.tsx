@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { matchPigeon } from '../services/api';
+import { matchPigeon, getApiBaseUrl } from '../services/api';
+import { UploadProgress, UploadStep } from './UploadProgress';
 import type { MatchResponse } from '../types/api';
 
 interface MatchResultProps {
@@ -15,31 +16,89 @@ export function MatchResult({ image, onReset, onBack, initialResult, onResult }:
   const [result, setResult] = useState<MatchResponse | null>(initialResult);
   const [error, setError] = useState<string>('');
   const [showDetails, setShowDetails] = useState(false);
+  const [uploadSteps, setUploadSteps] = useState<UploadStep[]>([
+    { id: 1, label: 'Bild wird vorbereitet...', icon: '📷', status: 'pending' },
+    { id: 2, label: 'Verbindung zum Server testen...', icon: '🔗', status: 'pending', detail: '' },
+    { id: 3, label: 'Bild wird hochgeladen...', icon: '📤', status: 'pending', detail: '' },
+    { id: 4, label: 'KI analysiert...', icon: '🤖', status: 'pending', detail: '' },
+  ]);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const updateStep = (stepIndex: number, status: UploadStep['status'], detail?: string) => {
+    setUploadSteps(prev => prev.map((step, idx) => 
+      idx === stepIndex ? { ...step, status, ...(detail && { detail }) } : step
+    ));
+    if (status === 'active') setCurrentStep(stepIndex);
+  };
 
   const performScan = useCallback(async () => {
     if (!image) return;
 
     setIsScanning(true);
     setError('');
+    setCurrentStep(0);
+    
+    // Reset all steps
+    setUploadSteps([
+      { id: 1, label: 'Bild wird vorbereitet...', icon: '📷', status: 'active', detail: 'Base64-Kodierung' },
+      { id: 2, label: 'Verbindung zum Server testen...', icon: '🔗', status: 'pending', detail: '' },
+      { id: 3, label: 'Bild wird hochgeladen...', icon: '📤', status: 'pending', detail: '' },
+      { id: 4, label: 'KI analysiert...', icon: '🤖', status: 'pending', detail: '' },
+    ]);
 
     try {
-      // Send photo to backend for server-side embedding extraction and matching
+      // Schritt 1: Bild vorbereiten
+      await new Promise(resolve => setTimeout(resolve, 300)); // Kurze Verzögerung für UI
+      updateStep(0, 'completed');
+      
+      // Schritt 2: Verbindung testen
+      const baseUrl = await getApiBaseUrl();
+      updateStep(1, 'active', `Prüfe: ${baseUrl}/health`);
+      
+      try {
+        // Quick health check
+        const healthResponse = await fetch(`${baseUrl}/health`, { 
+          method: 'HEAD',
+          signal: AbortSignal.timeout(5000)
+        });
+        updateStep(1, 'completed', `Server antwortet (HTTP ${healthResponse.status})`);
+      } catch (healthErr) {
+        updateStep(1, 'error', 'Server nicht erreichbar');
+        throw new Error('Server nicht erreichbar. Bitte überprüfe die Internet-Verbindung.');
+      }
+      
+      // Schritt 3: Bild hochladen
+      updateStep(2, 'active', `Sende an: ${baseUrl}/api/images/match`);
+      
       const matchRequest = {
         photo: image,
         threshold: 0.80,
       };
 
       const response = await matchPigeon(matchRequest);
+      updateStep(2, 'completed');
+      
+      // Schritt 4: Analyse
+      updateStep(3, 'active', 'Verarbeite Ergebnis...');
+      await new Promise(resolve => setTimeout(resolve, 200));
+      updateStep(3, 'completed');
+      
       setResult(response);
       onResult(response);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten';
       setError(errorMessage);
+      
+      // Markiere aktuellen Schritt als fehlerhaft
+      if (currentStep < uploadSteps.length) {
+        updateStep(currentStep, 'error', errorMessage);
+      }
+      
       console.error('Match error:', err);
     } finally {
       setIsScanning(false);
     }
-  }, [image, onResult]);
+  }, [image, onResult, currentStep]);
 
   // Auto-scan on mount if no result
   useEffect(() => {
@@ -79,12 +138,11 @@ export function MatchResult({ image, onReset, onBack, initialResult, onResult }:
             </div>
           </div>
 
-          <div className="loading-spinner" />
-          <p className="card-text">Taube wird analysiert...</p>
-
-          <p className="card-text" style={{ fontSize: '0.875rem', marginTop: '8px' }}>
-            KI extrahiert Merkmale und vergleicht mit Datenbank
-          </p>
+          <UploadProgress 
+            steps={uploadSteps} 
+            currentStep={currentStep} 
+            error={error}
+          />
         </div>
       </div>
     );

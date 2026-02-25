@@ -4,6 +4,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { BackendUrlInput } from './BackendUrlInput';
 import { ThresholdSlider } from './ThresholdSlider';
 import { AppInfo } from './AppInfo';
+import { NetworkDebugPanel } from '../NetworkDebugPanel';
 import './SettingsPage.css';
 
 export const SettingsPage: React.FC = () => {
@@ -55,6 +56,11 @@ export const SettingsPage: React.FC = () => {
           <p className="setting-description">
             Aktueller Schwellenwert: {Math.round(matchThreshold * 100)}%
           </p>
+        </section>
+
+        <section className="settings-section">
+          <h2>🔧 Netzwerk-Diagnose</h2>
+          <NetworkDebugPanel />
         </section>
 
         <section className="settings-section">

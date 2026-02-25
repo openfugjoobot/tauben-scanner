@@ -1,0 +1,149 @@
+.network-debug-panel {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.network-debug-panel h3 {
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.status-section {
+  margin-bottom: 16px;
+}
+
+.status-row {
+  display: flex;
+  margin: 8px 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-label {
+  font-weight: 600;
+  color: #555;
+  min-width: 100px;
+}
+
+.status-value {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.status-value.checking {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-value.online {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-value.offline {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-detail {
+  color: #666;
+  font-size: 14px;
+}
+
+.status-detail.url {
+  font-family: monospace;
+  background: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.check-details {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  margin: 12px 0;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.test-button, .clear-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.test-button {
+  background: #007bff;
+  color: white;
+}
+
+.test-button:hover {
+  background: #0056b3;
+}
+
+.clear-button {
+  background: #6c757d;
+  color: white;
+}
+
+.clear-button:hover {
+  background: #545b62;
+}
+
+.errors-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.errors-section h4 {
+  margin: 0 0 12px 0;
+}
+
+.error-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.error-item {
+  background: #ffebee;
+  border-left: 3px solid #dc3545;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.error-time {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.error-text {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.error-url {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  word-break: break-all;
+}

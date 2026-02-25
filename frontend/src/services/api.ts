@@ -3,7 +3,19 @@ import type { MatchRequest, MatchResponse, Pigeon } from '../types/api';
 
 const DEFAULT_API_URL = 'https://tauben-scanner.fugjoo.duckdns.org';
 
-async function getApiBaseUrl(): Promise<string> {
+// Store error for debugging
+function logNetworkError(error: string, url?: string) {
+  const errors = JSON.parse(localStorage.getItem('network_errors') || '[]');
+  errors.unshift({
+    timestamp: new Date().toLocaleString(),
+    error,
+    url
+  });
+  // Keep only last 10 errors
+  localStorage.setItem('network_errors', JSON.stringify(errors.slice(0, 10)));
+}
+
+export async function getApiBaseUrl(): Promise<string> {
   try {
     const { value } = await Preferences.get({ key: 'app_settings' });
     if (value) {
@@ -37,10 +49,18 @@ async function fetchWithTimeout(
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error('Network timeout - please check your connection');
+    let errorMessage = 'Network error - please check your internet connection';
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        errorMessage = 'Network timeout - please check your connection';
+      } else if (error.message.includes('Failed to fetch')) {
+        errorMessage = `Connection failed - check if server is reachable: ${url}`;
+      } else {
+        errorMessage = error.message;
+      }
     }
-    throw error;
+    logNetworkError(errorMessage, url);
+    throw new Error(errorMessage);
   }
 }
 
@@ -58,7 +78,7 @@ class ApiError extends Error {
   }
 }
 
-async function handleResponse<T>(response: Response): Promise<T> {
+async function handleResponse<T>(response: Response, url?: string): Promise<T> {
   if (!response.ok) {
     let errorData: { error?: string; message?: string; field?: string } = {};
     try {
@@ -81,6 +101,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
     } else if (response.status === 408) {
       errorMessage = 'Request timeout - the server took too long to respond';
     }
+
+    // Log error for debugging
+    logNetworkError(errorMessage, url);
 
     throw new ApiError(
       errorMessage,
@@ -108,7 +131,7 @@ export async function matchPigeon(request: MatchRequest): Promise<MatchResponse>
     30000 // 30 second timeout for image matching
   );
 
-  return handleResponse<MatchResponse>(response);
+  return handleResponse<MatchResponse>(response, `${baseUrl}/api/images/match`);
 }
 
 // Register a new pigeon
@@ -132,7 +155,7 @@ export async function registerPigeon(pigeon: {
     30000 // 30 second timeout for pigeon registration
   );
 
-  return handleResponse<Pigeon>(response);
+  return handleResponse<Pigeon>(response, `${baseUrl}/api/pigeons`);
 }
 
 // Get pigeon details
@@ -149,7 +172,7 @@ export async function getPigeon(id: string): Promise<Pigeon> {
     15000 // 15 second timeout for single pigeon fetch
   );
 
-  return handleResponse<Pigeon>(response);
+  return handleResponse<Pigeon>(response, `${baseUrl}/api/pigeons/${id}`);
 }
 
 // List all pigeons with pagination
@@ -175,7 +198,7 @@ export async function listPigeons(params?: {
     15000 // 15 second timeout for listing pigeons
   );
 
-  return handleResponse<{ pigeons: Pigeon[]; pagination: { page: number; limit: number; total: number; pages: number } }>(response);
+  return handleResponse<{ pigeons: Pigeon[]; pagination: { page: number; limit: number; total: number; pages: number } }>(response, `${baseUrl}/api/pigeons?${query.toString()}`);
 }
 
 // Report a sighting
@@ -198,7 +221,7 @@ export async function reportSighting(sighting: {
     30000 // 30 second timeout for sighting report
   );
 
-  return handleResponse<{ id: string; pigeon_id: string; timestamp: string }>(response);
+  return handleResponse<{ id: string; pigeon_id: string; timestamp: string }>(response, `${baseUrl}/api/sightings`);
 }
 
 // Health check
@@ -215,9 +238,9 @@ export async function healthCheck(): Promise<{ status: string; timestamp: string
     10000 // 10 second timeout for health check
   );
 
-  return handleResponse<{ status: string; timestamp: string; services: Record<string, string> }>(response);
+  return handleResponse<{ status: string; timestamp: string; services: Record<string, string> }>(response, `${baseUrl}/health`);
 }
 
-export { ApiError };
+export { ApiError, getApiBaseUrl };
 
 export default { matchPigeon, registerPigeon, getPigeon, listPigeons, reportSighting, healthCheck };
