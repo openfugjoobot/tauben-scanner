@@ -56,7 +56,7 @@ export const BackendUrlInput: React.FC = () => {
           onChange={handleChange}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          placeholder="https://tauben-scanner.fugjoo.duckdns.org/"
+          placeholder="https://tauben-scanner.fugjoo.duckdns.org"
           className="setting-input"
         />
         {isSaving ? (

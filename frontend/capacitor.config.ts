@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Tauben Scanner',
   webDir: 'dist',
   server: {
-    cleartext: true,
+    cleartext: false,
     androidScheme: 'https'
   },
   android: {
