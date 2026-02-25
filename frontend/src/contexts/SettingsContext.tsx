@@ -15,7 +15,7 @@ export interface Settings {
 }
 
 const DEFAULT_SETTINGS: Settings = {
-  backendUrl: 'https://api.tauben-scanner.example.com',
+  backendUrl: 'https://tauben-scanner.fugjoo.duckdns.org/',
   matchThreshold: 0.80,
   theme: 'system',
   enablePushNotifications: false,
