@@ -14,6 +14,16 @@ export function getLastModelError(): string | null {
 export async function loadEmbeddingModel(): Promise<void> {
   if (model) return;
   
+  // Initialize TensorFlow.js backend before loading model
+  // This fixes 'No backend found in registry' error in Capacitor/React apps
+  try {
+    await tf.setBackend('cpu');
+    await tf.ready();
+    console.log('[Embedding] TensorFlow.js backend initialized:', tf.getBackend());
+  } catch (backendError) {
+    console.warn('[Embedding] Failed to set CPU backend:', backendError);
+  }
+  
   modelLoadError = null;
   
   try {
