@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { pool } from '../config/database';
+import { extractEmbeddingFromBase64 } from '../services/embedding';
 
 const router = Router();
 
@@ -55,12 +56,26 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
     
-    const { name, description, location, is_public = true } = req.body;
+    const { name, description, location, is_public = true, photo } = req.body;
     
-    // Insert pigeon into database
+    let embedding = null;
+    
+    // Extract embedding if photo is provided
+    if (photo && typeof photo === 'string' && photo.startsWith('data:image')) {
+      try {
+        console.log('[Pigeons] Extracting embedding from photo...');
+        embedding = await extractEmbeddingFromBase64(photo);
+        console.log(`[Pigeons] Extracted ${embedding.length} dimensions`);
+      } catch (err) {
+        console.error('[Pigeons] Failed to extract embedding:', err);
+        // Continue without embedding - we'll save the pigeon anyway
+      }
+    }
+    
+    // Insert pigeon into database (with embedding if available)
     const query = `
-      INSERT INTO pigeons (name, description, location_lat, location_lng, location_name, is_public, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, NOW())
+      INSERT INTO pigeons (name, description, location_lat, location_lng, location_name, is_public, embedding, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7::vector, NOW())
       RETURNING id, name, description, location_lat, location_lng, location_name, is_public, first_seen, created_at
     `;
     
@@ -70,7 +85,8 @@ router.post('/', async (req: Request, res: Response) => {
       location?.lat || null,
       location?.lng || null,
       location?.name || null,
-      is_public
+      is_public,
+      embedding ? `[${embedding.join(',')}]` : null
     ];
     
     const result = await pool.query(query, values);
@@ -87,8 +103,8 @@ router.post('/', async (req: Request, res: Response) => {
         name: pigeon.location_name
       },
       first_seen: pigeon.first_seen,
-      photo_url: null, // Will be set when photo is uploaded
-      embedding_generated: false, // Will be set when embedding is generated
+      photo_url: null,
+      embedding_generated: !!embedding,
       created_at: pigeon.created_at
     };
     
