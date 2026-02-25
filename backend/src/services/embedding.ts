@@ -83,8 +83,12 @@ export async function extractEmbeddingFromBuffer(imageBuffer: Buffer): Promise<n
     const imageData = ctx.getImageData(0, 0, 224, 224);
     
     // Create tensor from image data
+    // Convert to Uint8Array for TensorFlow compatibility
+    const pixelData = new Uint8Array(imageData.data.buffer);
+    
     // Shape: [1, 224, 224, 3]
-    const tensor = tf.browser.fromPixels(imageData)
+    // @ts-ignore - canvas ImageData vs DOM ImageData compatibility
+    const tensor = tf.browser.fromPixels(imageData as unknown as ImageData)
       .expandDims(0)
       .toFloat()
       .div(255.0); // Normalize to [0, 1]
