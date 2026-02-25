@@ -241,6 +241,6 @@ export async function healthCheck(): Promise<{ status: string; timestamp: string
   return handleResponse<{ status: string; timestamp: string; services: Record<string, string> }>(response, `${baseUrl}/health`);
 }
 
-export { ApiError, getApiBaseUrl };
+export { ApiError };
 
 export default { matchPigeon, registerPigeon, getPigeon, listPigeons, reportSighting, healthCheck };

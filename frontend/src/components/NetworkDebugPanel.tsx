@@ -49,15 +49,15 @@ export const NetworkDebugPanel: React.FC = () => {
       
       if (response.ok) {
         setServerStatus('online');
-        setCheckDetails(`✓ Server antwortet (HTTP ${response.status})`);
+        setCheckDetails(`OK - Server antwortet (HTTP ${response.status})`);
       } else {
         setServerStatus('offline');
-        setCheckDetails(`✗ Server Fehler: HTTP ${response.status} ${response.statusText}`);
+        setCheckDetails(`FEHLER: HTTP ${response.status} ${response.statusText}`);
       }
     } catch (error) {
       setServerStatus('offline');
       const errorMsg = error instanceof Error ? error.message : 'Unbekannter Fehler';
-      setCheckDetails(`✗ Verbindung fehlgeschlagen: ${errorMsg}`);
+      setCheckDetails(`FEHLER: ${errorMsg}`);
     }
     
     setLastCheck(new Date().toLocaleTimeString());
@@ -70,15 +70,15 @@ export const NetworkDebugPanel: React.FC = () => {
 
   return (
     <div className="network-debug-panel">
-      <h3>🔧 Netzwerk-Diagnose</h3>
+      <h3>Netzwerk-Diagnose</h3>
       
       <div className="status-section">
         <div className="status-row">
-          <span className="status-label">Server-Status:</span>
-          <span className={`status-value ${serverStatus}`}`}>
-            {serverStatus === 'checking' && '🟡 Wird geprüft...'}
-            {serverStatus === 'online' && '🟢 Online'}
-            {serverStatus === 'offline' && '🔴 Offline'}
+          <span className="status-label">Server:</span>
+          <span className={`status-value ${serverStatus}`}>
+            {serverStatus === 'checking' && 'Wird geprüft...'}
+            {serverStatus === 'online' && 'Online'}
+            {serverStatus === 'offline' && 'Offline'}
           </span>
         </div>
         
@@ -103,10 +103,10 @@ export const NetworkDebugPanel: React.FC = () => {
 
       <div className="button-row">
         <button onClick={checkHealth} className="test-button">
-          🔄 Verbindung testen
+          Verbindung testen
         </button>
         <button onClick={clearErrors} className="clear-button">
-          🗑️ Fehler löschen
+          Fehler löschen
         </button>
       </div>
 

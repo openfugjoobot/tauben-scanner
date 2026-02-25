@@ -15,12 +15,12 @@ type UploadProgressProps = {
   error?: string | null;
 };
 
-export const UploadProgress: React.FC<UploadProgressProps> = ({ steps, currentStep, error }) => {
+export const UploadProgress: React.FC<UploadProgressProps> = ({ steps, error }) => {
   return (
     <div className="upload-progress-container">
       <h4>Scan wird durchgeführt...</h4>
       <div className="steps-list">
-        {steps.map((step, index) => (
+        {steps.map((step) => (
           <div
             key={step.id}
             className={`step-item ${step.status}`}
