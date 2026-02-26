@@ -2,10 +2,15 @@
  * Storage Konfiguration für Zustand Persistenz
  * T3: State Management
  *
- * Für React Native: AsyncStorage
+ * Verwendet react-native-mmkv für bessere Performance
  */
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {MMKV} from 'react-native-mmkv';
+
+const mmkv = new MMKV({
+  id: 'tauben-scanner-storage',
+  encryptionKey: 'tauben-scanner-secure-key',
+});
 
 // Storage Interface für Zustand persist
 interface Storage {
@@ -14,33 +19,30 @@ interface Storage {
   removeItem: (name: string) => void | Promise<void>;
 }
 
-// AsyncStorage für React Native
-const createAsyncStorage = (): Storage => ({
-  getItem: async (name: string): Promise<string | null> => {
+// MMKV Storage für React Native
+export const mmkvStorage: Storage = {
+  getItem: (name: string): string | null => {
     try {
-      return await AsyncStorage.getItem(name);
+      return mmkv.getString(name) ?? null;
     } catch {
       return null;
     }
   },
-  setItem: async (name: string, value: string): Promise<void> => {
+  setItem: (name: string, value: string): void => {
     try {
-      await AsyncStorage.setItem(name, value);
+      mmkv.set(name, value);
     } catch {
       // ignore
     }
   },
-  removeItem: async (name: string): Promise<void> => {
+  removeItem: (name: string): void => {
     try {
-      await AsyncStorage.removeItem(name);
+      mmkv.delete(name);
     } catch {
       // ignore
     }
   },
-});
-
-// Exportiere die Storage-Instanz
-export const mmkvStorage: Storage = createAsyncStorage();
+};
 
 // Spezifische Storage-Keys
 export const StorageKeys = {
@@ -50,46 +52,43 @@ export const StorageKeys = {
 } as const;
 
 // Storage-Utility-Objekt mit zusätzlichen Methoden
-class StorageWrapper {
-  async getSize(): Promise<number> {
+export const storage = {
+  getSize: (): number => {
     try {
-      const keys = await AsyncStorage.getAllKeys();
-      return keys.length;
+      return mmkv.getAllKeys().length;
     } catch {
       return 0;
     }
-  }
+  },
 
-  async getAllKeys(): Promise<string[]> {
+  getAllKeys: (): string[] => {
     try {
-      return await AsyncStorage.getAllKeys();
+      return mmkv.getAllKeys();
     } catch {
       return [];
     }
-  }
+  },
 
-  async clearAll(): Promise<void> {
+  clearAll: (): void => {
     try {
-      await AsyncStorage.clear();
+      mmkv.clearAll();
     } catch {
       // ignore
     }
-  }
-}
-
-export const storage = new StorageWrapper();
+  },
+};
 
 // Debug-Funktion für Development
-export const clearAllStorage = async (): Promise<void> => {
+export const clearAllStorage = (): void => {
   if (__DEV__) {
-    await AsyncStorage.clear();
+    mmkv.clearAll();
   }
 };
 
 // Storage-Info für Debugging
-export const getStorageInfo = async () => {
+export const getStorageInfo = () => {
   return {
-    size: await storage.getSize(),
-    keys: await storage.getAllKeys(),
+    size: storage.getSize(),
+    keys: storage.getAllKeys(),
   };
 };
