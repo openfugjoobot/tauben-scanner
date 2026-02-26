@@ -1,246 +1,208 @@
-import { Preferences } from '@capacitor/preferences';
-import type { MatchRequest, MatchResponse, Pigeon } from '../types/api';
+/**
+ * T4 API Layer - API Service Functions
+ * Direct API calls using the axios client
+ */
 
-const DEFAULT_API_URL = 'https://tauben-scanner.fugjoo.duckdns.org';
+import { apiClient } from './apiClient';
+import {
+  PigeonsListResponse,
+  PigeonDetail,
+  CreatePigeonRequest,
+  CreatePigeonResponse,
+  SightingsListResponse,
+  CreateSightingRequest,
+  CreateSightingResponse,
+  MatchRequest,
+  MatchResponse,
+  ImageUploadResponse,
+  PigeonsQueryParams,
+  SightingsQueryParams,
+  HealthCheckResponse,
+  ApiErrorResponse,
+  ApiError,
+} from '../types';
+import type { AxiosError } from 'axios';
 
-// Store error for debugging
-function logNetworkError(error: string, url?: string) {
-  const errors = JSON.parse(localStorage.getItem('network_errors') || '[]');
-  errors.unshift({
-    timestamp: new Date().toLocaleString(),
-    error,
-    url
+// ==================== Pigeons API ====================
+
+/**
+ * Get paginated list of pigeons
+ * GET /api/pigeons
+ */
+export const fetchPigeons = async (params?: PigeonsQueryParams): Promise<PigeonsListResponse> => {
+  const response = await apiClient.get<PigeonsListResponse>('/api/pigeons', {
+    params: {
+      page: params?.page || 1,
+      limit: params?.limit || 20,
+      search: params?.search,
+    },
   });
-  // Keep only last 10 errors
-  localStorage.setItem('network_errors', JSON.stringify(errors.slice(0, 10)));
-}
+  return response.data;
+};
 
-export async function getApiBaseUrl(): Promise<string> {
+/**
+ * Get single pigeon by ID
+ * GET /api/pigeons/:id
+ */
+export const fetchPigeon = async (id: string): Promise<PigeonDetail> => {
+  const response = await apiClient.get<PigeonDetail>(`/api/pigeons/${id}`);
+  return response.data;
+};
+
+/**
+ * Create a new pigeon
+ * POST /api/pigeons
+ */
+export const createPigeon = async (data: CreatePigeonRequest): Promise<CreatePigeonResponse> => {
+  const response = await apiClient.post<CreatePigeonResponse>('/api/pigeons', data, {
+    timeout: 60000, // Longer timeout for image processing
+  });
+  return response.data;
+};
+
+// ==================== Images/Match API ====================
+
+/**
+ * Match a pigeon by image
+ * POST /api/images/match
+ */
+export const matchImage = async (data: MatchRequest): Promise<MatchResponse> => {
+  const response = await apiClient.post<MatchResponse>('/api/images/match', data, {
+    timeout: 60000, // Longer timeout for embedding extraction
+  });
+  return response.data;
+};
+
+/**
+ * Upload an image for a pigeon
+ * POST /api/images/upload
+ */
+export const uploadImage = async (
+  formData: FormData,
+  onProgress?: (progress: number) => void
+): Promise<ImageUploadResponse> => {
+  const response = await apiClient.post<ImageUploadResponse>('/api/images/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    timeout: 120000, // 2 minute timeout for image upload
+    onUploadProgress: (progressEvent) => {
+      if (onProgress && progressEvent.total) {
+        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        onProgress(progress);
+      }
+    },
+  });
+  return response.data;
+};
+
+// ==================== Sightings API ====================
+
+/**
+ * Get paginated list of sightings
+ * GET /api/sightings
+ */
+export const fetchSightings = async (params?: SightingsQueryParams): Promise<SightingsListResponse> => {
+  const response = await apiClient.get<SightingsListResponse>('/api/sightings', {
+    params: {
+      page: params?.page || 1,
+      limit: params?.limit || 20,
+    },
+  });
+  return response.data;
+};
+
+/**
+ * Create a new sighting
+ * POST /api/sightings
+ */
+export const createSighting = async (data: CreateSightingRequest): Promise<CreateSightingResponse> => {
+  const response = await apiClient.post<CreateSightingResponse>('/api/sightings', data);
+  return response.data;
+};
+
+// ==================== Health Check ====================
+
+/**
+ * Check API health status
+ * GET /health
+ */
+export const checkHealth = async (): Promise<HealthCheckResponse> => {
+  const response = await apiClient.get<HealthCheckResponse>('/health', {
+    timeout: 10000, // Short timeout for health check
+  });
+  return response.data;
+};
+
+// ==================== Error Handling ====================
+
+/**
+ * Type guard for Axios errors
+ */
+export const isAxiosError = (error: unknown): error is AxiosError => {
+  return error instanceof Error && 'isAxiosError' in error;
+};
+
+/**
+ * Parse API error response
+ */
+export const parseError = (error: unknown): ApiError => {
+  if (isAxiosError(error)) {
+    const response = error.response?.data as ApiErrorResponse | undefined;
+    return {
+      code: response?.error || 'HTTP_ERROR',
+      message: response?.message || error.message || 'Ein Fehler ist aufgetreten',
+      status: error.response?.status || 0,
+      field: response?.field,
+      details: undefined, // Could parse details if available
+    };
+  }
+
+  return {
+    code: 'UNKNOWN_ERROR',
+    message: error instanceof Error ? error.message : 'Ein Fehler ist aufgetreten',
+    status: 0,
+  };
+};
+
+// Alias exports for backward compatibility
+export const listPigeons = fetchPigeons;
+export const getPigeon = fetchPigeon;
+export const registerPigeon = createPigeon;
+export const matchPigeon = matchImage;
+export const reportSighting = createSighting;
+export const listSightings = fetchSightings;
+
+// Get current API base URL
+export const getApiBaseUrl = async (): Promise<string> => {
   try {
+    const { Preferences } = await import('@capacitor/preferences');
     const { value } = await Preferences.get({ key: 'app_settings' });
     if (value) {
       const settings = JSON.parse(value);
-      if (settings.backendUrl && settings.backendUrl !== 'https://api.tauben-scanner.example.com') {
-        // Ensure no trailing slash for consistent URL construction
-        return settings.backendUrl.replace(/\/+$/, '');
-      }
+      return settings.backendUrl || 'https://tauben-scanner.fugjoo.duckdns.org';
     }
-  } catch (error) {
-    console.error('Failed to load API URL from settings:', error);
+  } catch {
+    // Default fallback
   }
-  return DEFAULT_API_URL;
-}
+  return 'https://tauben-scanner.fugjoo.duckdns.org';
+};
 
-// Helper function to add timeout to fetch requests
-async function fetchWithTimeout(
-  url: string,
-  options: RequestInit = {},
-  timeoutMs: number = 30000
-): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    let errorMessage = 'Network error - please check your internet connection';
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        errorMessage = 'Network timeout - please check your connection';
-      } else if (error.message.includes('Failed to fetch')) {
-        errorMessage = `Connection failed - check if server is reachable: ${url}`;
-      } else {
-        errorMessage = error.message;
-      }
-    }
-    logNetworkError(errorMessage, url);
-    throw new Error(errorMessage);
-  }
-}
-
-class ApiError extends Error {
-  public readonly code: string;
-  public readonly status: number;
-  public readonly field?: string;
-
-  constructor(message: string, code: string, status: number, field?: string) {
-    super(message);
-    this.name = 'ApiError';
-    this.code = code;
-    this.status = status;
-    this.field = field;
-  }
-}
-
-async function handleResponse<T>(response: Response, url?: string): Promise<T> {
-  if (!response.ok) {
-    let errorData: { error?: string; message?: string; field?: string } = {};
-    try {
-      errorData = await response.json();
-    } catch {
-      // If JSON parsing fails, use default error
-      console.warn('Failed to parse error response as JSON');
-    }
-
-    // Provide more helpful error messages based on status code
-    let errorMessage = errorData.message || `HTTP ${response.status}: ${response.statusText}`;
-    if (response.status === 0) {
-      errorMessage = 'Network error - please check your internet connection';
-    } else if (response.status === 404) {
-      errorMessage = 'Resource not found - the requested endpoint does not exist';
-    } else if (response.status === 500) {
-      errorMessage = 'Server error - please try again later';
-    } else if (response.status === 503) {
-      errorMessage = 'Service temporarily unavailable - please try again later';
-    } else if (response.status === 408) {
-      errorMessage = 'Request timeout - the server took too long to respond';
-    }
-
-    // Log error for debugging
-    logNetworkError(errorMessage, url);
-
-    throw new ApiError(
-      errorMessage,
-      errorData.error || 'UNKNOWN_ERROR',
-      response.status,
-      errorData.field
-    );
-  }
-
-  return response.json() as Promise<T>;
-}
-
-// Send a match request with photo
-export async function matchPigeon(request: MatchRequest): Promise<MatchResponse> {
-  const baseUrl = await getApiBaseUrl();
-  const response = await fetchWithTimeout(
-    `${baseUrl}/api/images/match`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    },
-    30000 // 30 second timeout for image matching
-  );
-
-  return handleResponse<MatchResponse>(response, `${baseUrl}/api/images/match`);
-}
-
-// Register a new pigeon
-export async function registerPigeon(pigeon: {
-  name: string;
-  description?: string;
-  photo: string;
-  location?: { lat: number; lng: number; name?: string };
-  is_public?: boolean;
-}): Promise<Pigeon> {
-  const baseUrl = await getApiBaseUrl();
-  const response = await fetchWithTimeout(
-    `${baseUrl}/api/pigeons`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(pigeon),
-    },
-    30000 // 30 second timeout for pigeon registration
-  );
-
-  return handleResponse<Pigeon>(response, `${baseUrl}/api/pigeons`);
-}
-
-// Get pigeon details
-export async function getPigeon(id: string): Promise<Pigeon> {
-  const baseUrl = await getApiBaseUrl();
-  const response = await fetchWithTimeout(
-    `${baseUrl}/api/pigeons/${id}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-    15000 // 15 second timeout for single pigeon fetch
-  );
-
-  return handleResponse<Pigeon>(response, `${baseUrl}/api/pigeons/${id}`);
-}
-
-// List all pigeons with pagination
-export async function listPigeons(params?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-}): Promise<{ pigeons: Pigeon[]; pagination: { page: number; limit: number; total: number; pages: number } }> {
-  const query = new URLSearchParams();
-  if (params?.page) query.append('page', params.page.toString());
-  if (params?.limit) query.append('limit', params.limit.toString());
-  if (params?.search) query.append('search', params.search);
-
-  const baseUrl = await getApiBaseUrl();
-  const response = await fetchWithTimeout(
-    `${baseUrl}/api/pigeons?${query.toString()}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-    15000 // 15 second timeout for listing pigeons
-  );
-
-  return handleResponse<{ pigeons: Pigeon[]; pagination: { page: number; limit: number; total: number; pages: number } }>(response, `${baseUrl}/api/pigeons?${query.toString()}`);
-}
-
-// Report a sighting
-export async function reportSighting(sighting: {
-  pigeon_id: string;
-  location?: { lat: number; lng: number; name?: string };
-  notes?: string;
-  photo?: string;
-}): Promise<{ id: string; pigeon_id: string; timestamp: string }> {
-  const baseUrl = await getApiBaseUrl();
-  const response = await fetchWithTimeout(
-    `${baseUrl}/api/sightings`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(sighting),
-    },
-    30000 // 30 second timeout for sighting report
-  );
-
-  return handleResponse<{ id: string; pigeon_id: string; timestamp: string }>(response, `${baseUrl}/api/sightings`);
-}
-
-// Health check
-export async function healthCheck(): Promise<{ status: string; timestamp: string; services: Record<string, string> }> {
-  const baseUrl = await getApiBaseUrl();
-  const response = await fetchWithTimeout(
-    `${baseUrl}/health`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
-    10000 // 10 second timeout for health check
-  );
-
-  return handleResponse<{ status: string; timestamp: string; services: Record<string, string> }>(response, `${baseUrl}/health`);
-}
-
-export { ApiError };
-
-export default { matchPigeon, registerPigeon, getPigeon, listPigeons, reportSighting, healthCheck };
+// Export all as default object
+export default {
+  fetchPigeons,
+  fetchPigeon,
+  createPigeon,
+  matchImage,
+  uploadImage,
+  fetchSightings,
+  createSighting,
+  checkHealth,
+  // Backward compatibility
+  listPigeons,
+  getPigeon,
+  registerPigeon,
+  matchPigeon,
+  reportSighting,
+  listSightings,
+};
