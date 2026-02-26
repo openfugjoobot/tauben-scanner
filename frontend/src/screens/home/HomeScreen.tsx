@@ -1,8 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../types/navigation';
 
-export const HomeScreen: React.FC = () => {
+type Props = NativeStackScreenProps<RootStackParamList, 'MainTabs'>;
+
+export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const stats = {
     totalPigeons: 42,
     sightingsToday: 7,
@@ -40,12 +44,18 @@ export const HomeScreen: React.FC = () => {
       <View style={styles.actionSection}>
         <Text style={styles.sectionTitle}>Schnellzugriff</Text>
         
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('ScanTab')}
+        >
           <MaterialCommunityIcons name="camera-iris" size={24} color="white" />
           <Text style={styles.actionButtonText}>Neue Sichtung scannen</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.actionButton, styles.secondaryButton]}>
+        <TouchableOpacity 
+          style={[styles.actionButton, styles.secondaryButton]}
+          onPress={() => navigation.navigate('PigeonsTab')}
+        >
           <MaterialCommunityIcons name="format-list-bulleted" size={24} color="#4A90D9" />
           <Text style={[styles.actionButtonText, styles.secondaryButtonText]}>
             Alle Tauben anzeigen
