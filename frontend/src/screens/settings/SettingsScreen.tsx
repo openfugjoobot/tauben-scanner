@@ -6,6 +6,8 @@ import {
   Switch,
   TouchableOpacity,
   ScrollView,
+  TextInput,
+  Alert,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -69,9 +71,32 @@ export const SettingsScreen: React.FC = () => {
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [locationEnabled, setLocationEnabled] = useState(true);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [apiUrl, setApiUrl] = useState('https://api.tauben-scanner.de');
+  const [testing, setTesting] = useState(false);
 
   const appVersion = '1.0.0';
-  const backendUrl = 'https://api.tauben-scanner.de';
+
+  const testConnection = async () => {
+    if (!apiUrl) {
+      Alert.alert('Fehler', 'Bitte API URL eingeben');
+      return;
+    }
+    
+    setTesting(true);
+    try {
+      // Test with simple GET request
+      const response = await fetch(`${apiUrl}/health`);
+      if (response.ok) {
+        Alert.alert('✅ Erfolg', 'Verbindung zum Backend erfolgreich!');
+      } else {
+        Alert.alert('⚠️ Warnung', `Backend antwortet mit Status ${response.status}`);
+      }
+    } catch (error) {
+      Alert.alert('❌ Fehler', `Keine Verbindung möglich:\n${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+    } finally {
+      setTesting(false);
+    }
+  };
 
   const handleClearCache = () => {
     // Cache leeren
@@ -154,13 +179,31 @@ export const SettingsScreen: React.FC = () => {
             onToggle={setAutoSyncEnabled}
           />
           <View style={styles.divider} />
-          <SettingItem
-            icon="cloud-upload"
-            title="Backend-URL"
-            description={backendUrl}
-            onPress={() => console.log('Backend-URL bearbeiten')}
-            showArrow
-          />
+          <View style={styles.urlInputContainer}>
+            <View style={styles.urlInputHeader}>
+              <View style={styles.settingIcon}>
+                <MaterialCommunityIcons name="cloud-upload" size={24} color="#4A90D9" />
+              </View>
+              <Text style={styles.settingTitle}>Backend-URL</Text>
+            </View>
+            <TextInput
+              style={styles.urlInput}
+              value={apiUrl}
+              onChangeText={setApiUrl}
+              placeholder="http://localhost:3000/api"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity 
+              style={[styles.testButton, testing && styles.disabled]} 
+              onPress={testConnection}
+              disabled={testing}
+            >
+              <Text style={styles.testButtonText}>
+                {testing ? 'Teste...' : '🔗 Verbindung testen'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -334,5 +377,38 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#BDC3C7',
     marginTop: 4,
+  },
+  urlInputContainer: {
+    padding: 16,
+  },
+  urlInputHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  urlInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: '#f9f9f9',
+    marginBottom: 12,
+    marginLeft: 52,
+  },
+  testButton: {
+    backgroundColor: '#4CAF50',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginLeft: 52,
+  },
+  disabled: { 
+    backgroundColor: '#ccc' 
+  },
+  testButtonText: { 
+    color: '#fff', 
+    fontSize: 16, 
+    fontWeight: '600' 
   },
 });
