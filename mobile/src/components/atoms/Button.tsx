@@ -4,10 +4,10 @@ import { Text } from './Text';
 import { Icon } from './Icon';
 import { useTheme } from '../../theme';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-type ButtonSize = 'small' | 'medium' | 'large';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type ButtonSize = 'small' | 'medium' | 'large';
 
-interface ButtonProps {
+export interface ButtonProps {
   children: React.ReactNode;
   onPress: () => void;
   variant?: ButtonVariant;
