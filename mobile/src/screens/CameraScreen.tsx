@@ -3,6 +3,7 @@ import {
   View,
   StyleSheet,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { useCameraPermissions } from 'expo-camera';
 import { CameraView } from '../components/Camera/CameraView';
@@ -21,7 +22,13 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onScanComplete }) =>
   const [screenState, setScreenState] = useState<ScreenState>('camera');
 
   const requestCameraPermission = useCallback(async () => {
-    await requestPermission();
+    try {
+      console.log('🔄 Requesting camera permission...');
+      const result = await requestPermission();
+      console.log('✅ Permission request result:', result);
+    } catch (error) {
+      console.error('❌ Error requesting camera permission:', error);
+    }
   }, [requestPermission]);
 
   const handleCapture = useCallback((uri: string) => {
@@ -46,13 +53,22 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onScanComplete }) =>
     setScreenState('camera');
   }, []);
 
+  // Show loading indicator if permission state is not yet loaded
+  if (!permission) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
   // Show permission screen if permission not granted
-  if (!permission?.granted) {
+  if (!permission.granted) {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#F2F2F7" />
         <PermissionScreen
-          permission={permission?.status || null}
+          permission={permission}
           onRequestPermission={requestCameraPermission}
         />
       </View>
@@ -85,6 +101,11 @@ export const CameraScreen: React.FC<CameraScreenProps> = ({ onScanComplete }) =>
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F2F2F7',
   },
 });
 

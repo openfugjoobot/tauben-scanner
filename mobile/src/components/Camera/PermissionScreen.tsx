@@ -7,10 +7,10 @@ import {
   Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { PermissionStatus } from 'expo-camera';
+import { PermissionResponse } from 'expo-camera';
 
 interface PermissionScreenProps {
-  permission: PermissionStatus | null;
+  permission: PermissionResponse | null;
   onRequestPermission: () => Promise<void>;
 }
 
@@ -22,7 +22,9 @@ export const PermissionScreen: React.FC<PermissionScreenProps> = ({
     Linking.openSettings();
   }, []);
 
-  const isDenied = permission === 'denied';
+  const isDenied = permission?.status === 'denied';
+  const canAskAgain = permission?.canAskAgain ?? true;
+  const shouldShowSettings = isDenied && !canAskAgain;
 
   return (
     <View style={styles.container}>
@@ -38,7 +40,7 @@ export const PermissionScreen: React.FC<PermissionScreenProps> = ({
         zu identifizieren.
       </Text>
 
-      {isDenied ? (
+      {shouldShowSettings ? (
         <>
           <View style={styles.warningBox}>
             <Ionicons
@@ -48,7 +50,7 @@ export const PermissionScreen: React.FC<PermissionScreenProps> = ({
               style={styles.warningIcon}
             />
             <Text style={styles.warningText}>
-              Der Kamera-Zugriff wurde in den Systemeinstellungen deaktiviert.
+              Der Kamera-Zugriff wurde dauerhaft deaktiviert. Bitte aktiviere ihn in den Einstellungen.
             </Text>
           </View>
 
