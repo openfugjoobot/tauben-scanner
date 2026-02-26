@@ -38,7 +38,7 @@ export const ResultsScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <MaterialCommunityIcons name="magnify-plus-outline" size={48} color="#4A90D9" />
+        <MaterialCommunityIcons name="magnify-check" size={48} color="#4A90D9" />
         <Text style={styles.title}>Scan-Ergebnis</Text>
         <Text style={styles.subtitle}>KI-Analyse abgeschlossen</Text>
       </View>

@@ -38,6 +38,14 @@ export type RootStackParamList = {
 // ==================== NAVIGATION PROP TYPES ====================
 export type RootTabNavigationProp = NavigationProp<RootTabParamList>;
 
+// ==================== NAVIGATION EXPORTS ====================
+export type {
+  ScanStackParamList,
+  PigeonsStackParamList,
+  RootTabParamList,
+  RootStackParamList,
+};
+
 // ==================== GLOBAL TYPE DECLARATION ====================
 declare global {
   namespace ReactNavigation {
