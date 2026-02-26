@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSettings, useApp } from '../../stores';
 
 type SettingItemProps = {
   icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -30,13 +31,6 @@ const SettingItem: React.FC<SettingItemProps> = ({
   onPress,
   showArrow = false,
 }) => {
-  const [isEnabled, setIsEnabled] = useState(value ?? false);
-
-  const handleToggle = (newValue: boolean) => {
-    setIsEnabled(newValue);
-    onToggle?.(newValue);
-  };
-
   return (
     <TouchableOpacity
       style={styles.settingItem}
@@ -54,10 +48,10 @@ const SettingItem: React.FC<SettingItemProps> = ({
       </View>
       {onToggle ? (
         <Switch
-          value={isEnabled}
-          onValueChange={handleToggle}
+          value={value}
+          onValueChange={onToggle}
           trackColor={{ false: '#ECF0F1', true: '#4A90D9' }}
-          thumbColor={isEnabled ? 'white' : '#95A5A6'}
+          thumbColor={value ? 'white' : '#95A5A6'}
         />
       ) : showArrow ? (
         <MaterialCommunityIcons name="chevron-right" size={24} color="#BDC3C7" />
@@ -67,10 +61,15 @@ const SettingItem: React.FC<SettingItemProps> = ({
 };
 
 export const SettingsScreen: React.FC = () => {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-  const [locationEnabled, setLocationEnabled] = useState(true);
-  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const { 
+    showNotifications, 
+    toggleNotifications,
+    autoSync,
+    toggleAutoSync 
+  } = useSettings();
+  
+  const { isDarkMode, toggleTheme } = useApp();
+  
   const [apiUrl, setApiUrl] = useState('https://api.tauben-scanner.de');
   const [testing, setTesting] = useState(false);
 
@@ -128,6 +127,26 @@ export const SettingsScreen: React.FC = () => {
     console.log('Kontaktiere Support...');
   };
 
+  const handleReset = () => {
+    Alert.alert(
+      'Einstellungen zurücksetzen',
+      'Möchtest du alle Einstellungen zurücksetzen?',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        { 
+          text: 'Zurücksetzen', 
+          style: 'destructive',
+          onPress: () => {
+            // Use store reset if available, or manual reset
+            toggleNotifications(false);
+            toggleAutoSync(false);
+            if (isDarkMode) toggleTheme();
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -145,24 +164,24 @@ export const SettingsScreen: React.FC = () => {
             icon="bell-outline"
             title="Benachrichtigungen"
             description="Erhältlich über neue Sichtungen"
-            value={notificationsEnabled}
-            onToggle={setNotificationsEnabled}
+            value={showNotifications}
+            onToggle={toggleNotifications}
           />
           <View style={styles.divider} />
           <SettingItem
             icon="theme-light-dark"
             title="Dunkler Modus"
             description="Dunkles Design aktivieren"
-            value={darkModeEnabled}
-            onToggle={setDarkModeEnabled}
+            value={isDarkMode}
+            onToggle={toggleTheme}
           />
           <View style={styles.divider} />
           <SettingItem
             icon="map-marker-radius"
             title="Standortdienste"
             description="Automatische Ortung aktivieren"
-            value={locationEnabled}
-            onToggle={setLocationEnabled}
+            value={true}
+            onToggle={() => {}}
           />
         </View>
       </View>
@@ -175,8 +194,8 @@ export const SettingsScreen: React.FC = () => {
             icon="sync"
             title="Automatische Synchronisation"
             description="Daten automatisch mit Server synchronisieren"
-            value={autoSyncEnabled}
-            onToggle={setAutoSyncEnabled}
+            value={autoSync}
+            onToggle={toggleAutoSync}
           />
           <View style={styles.divider} />
           <View style={styles.urlInputContainer}>
