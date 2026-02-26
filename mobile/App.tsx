@@ -6,6 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './src/services/queryClient';
 import { paperLightTheme, paperDarkTheme } from './src/theme/paperTheme';
 import { migrateStorageData } from './src/stores';
+import { RootNavigator } from './src/navigation';
 
 export default function App() {
   const colorScheme = useColorScheme();
@@ -23,7 +24,7 @@ export default function App() {
             barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
             backgroundColor={theme.colors.background}
           />
-          {/* Navigation or main screen will go here */}
+          <RootNavigator />
         </PaperProvider>
       </SafeAreaProvider>
     </QueryClientProvider>
