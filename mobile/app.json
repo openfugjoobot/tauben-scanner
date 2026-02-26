@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "tauben-scanner-rn",
+    "slug": "tauben-scanner-rn",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Die Kamera wird verwendet, um Fotos von Tauben aufzunehmen.",
+        "NSPhotoLibraryUsageDescription": "Zugriff auf die Galerie für Taubenfotos."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Die Kamera wird verwendet, um Fotos von Tauben aufzunehmen.",
+          "microphonePermission": "Mikrofonzugriff wird für Videoaufnahmen benötigt."
+        }
+      ]
+    ]
+  }
+}
