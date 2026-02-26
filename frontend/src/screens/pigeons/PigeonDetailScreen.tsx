@@ -32,7 +32,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <!-- Header mit Back-Button -->
+      {/* Header mit Back-Button */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -48,11 +48,11 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <!-- Profil-Sektion -->
+      {/* Profil-Sektion */}
       <View style={styles.profileSection}>
         <View style={styles.profileImageContainer}>
           <View style={styles.profileImagePlaceholder}>
-            <MaterialCommunityIcons name="pigeon" size={64} color="#BDC3C7" />
+            <MaterialCommunityIcons name="bird" size={64} color="#BDC3C7" />
           </View>
           <View style={styles.statusBadge}>
             <MaterialCommunityIcons name="check-circle" size={20} color="#27AE60" />
@@ -77,7 +77,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
       </View>
 
-      <!-- Info-Karten -->
+      {/* Info-Karten */}
       <View style={styles.infoSection}>
         <Text style={styles.sectionTitle}>Informationen</Text>
 
@@ -123,7 +123,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         )}
       </View>
 
-      <!-- Sichtungen -->
+      {/* Sichtungen */}
       <View style={styles.sightingsSection}>
         <Text style={styles.sectionTitle}>Letzte Sichtungen</Text>
         <View style={styles.sightingsList}>
@@ -145,7 +145,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
       </View>
 
-      <!-- Aktionen -->
+      {/* Aktionen */}
       <View style={styles.actions}>
         <TouchableOpacity style={styles.actionButton}>
           <MaterialCommunityIcons name="share-variant" size={20} color="#4A90D9" />

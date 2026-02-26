@@ -142,9 +142,11 @@ export const storage = new StorageWrapper();
 
 // Debug-Funktion für Development
 export const clearAllStorage = (): void => {
-  if (import.meta.env.DEV) {
+  try {
     localStorage.clear();
     console.log('All storage cleared');
+  } catch {
+    // ignore
   }
 };
 

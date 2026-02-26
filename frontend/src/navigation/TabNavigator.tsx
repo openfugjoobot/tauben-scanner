@@ -38,7 +38,7 @@ export const TabNavigator: React.FC = () => {
               iconName = focused ? 'scan-helper' : 'scan-helper';
               break;
             case 'PigeonsTab':
-              iconName = focused ? 'pigeon' : 'pigeon';
+              iconName = focused ? 'bird' : 'bird';
               break;
             case 'Settings':
               iconName = focused ? 'cog' : 'cog-outline';
