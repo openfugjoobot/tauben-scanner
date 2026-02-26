@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Settings Screen
  * Configuration UI mit Settings Store Integration
@@ -5,10 +6,14 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
+=======
+import React, { useState } from 'react';
+>>>>>>> main
 import {
   View,
   Text,
   StyleSheet,
+<<<<<<< HEAD
   ScrollView,
   TouchableOpacity,
   Alert,
@@ -370,12 +375,172 @@ export const SettingsScreen: React.FC = () => {
             value={settings.debugMode}
             onValueChange={settings.toggleDebugMode}
             trackColor={{ true: '#F39C12', false: '#ECF0F1' }}
+=======
+  Switch,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+type SettingItemProps = {
+  icon: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+  title: string;
+  description?: string;
+  value?: boolean;
+  onToggle?: (value: boolean) => void;
+  onPress?: () => void;
+  showArrow?: boolean;
+};
+
+const SettingItem: React.FC<SettingItemProps> = ({
+  icon,
+  title,
+  description,
+  value,
+  onToggle,
+  onPress,
+  showArrow = false,
+}) => {
+  const [isEnabled, setIsEnabled] = useState(value ?? false);
+
+  const handleToggle = (newValue: boolean) => {
+    setIsEnabled(newValue);
+    onToggle?.(newValue);
+  };
+
+  return (
+    <TouchableOpacity
+      style={styles.settingItem}
+      onPress={onPress}
+      disabled={!onPress && !onToggle}
+    >
+      <View style={styles.settingIcon}>
+        <MaterialCommunityIcons name={icon} size={24} color="#4A90D9" />
+      </View>
+      <View style={styles.settingContent}>
+        <Text style={styles.settingTitle}>{title}</Text>
+        {description && (
+          <Text style={styles.settingDescription}>{description}</Text>
+        )}
+      </View>
+      {onToggle ? (
+        <Switch
+          value={isEnabled}
+          onValueChange={handleToggle}
+          trackColor={{ false: '#ECF0F1', true: '#4A90D9' }}
+          thumbColor={isEnabled ? 'white' : '#95A5A6'}
+        />
+      ) : showArrow ? (
+        <MaterialCommunityIcons name="chevron-right" size={24} color="#BDC3C7" />
+      ) : null}
+    </TouchableOpacity>
+  );
+};
+
+export const SettingsScreen: React.FC = () => {
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  const [locationEnabled, setLocationEnabled] = useState(true);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+
+  const appVersion = '1.0.0';
+  const backendUrl = 'https://api.tauben-scanner.de';
+
+  const handleClearCache = () => {
+    // Cache leeren
+    console.log('Cache wird geleert...');
+  };
+
+  const handleExportData = () => {
+    // Daten exportieren
+    console.log('Daten werden exportiert...');
+  };
+
+  const handleOpenPrivacy = () => {
+    // Datenschutz-Seite öffnen
+    console.log('Öffne Datenschutz...');
+  };
+
+  const handleOpenTerms = () => {
+    // AGB-Seite öffnen
+    console.log('Öffne AGB...');
+  };
+
+  const handleRateApp = () => {
+    // App bewerten
+    console.log('Öffne Bewertung...');
+  };
+
+  const handleContactSupport = () => {
+    // Support kontaktieren
+    console.log('Kontaktiere Support...');
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <MaterialCommunityIcons name="cog" size={48} color="#4A90D9" />
+        <Text style={styles.title}>Einstellungen</Text>
+        <Text style={styles.subtitle}>Verwalte deine Präferenzen</Text>
+      </View>
+
+      {/* App Settings */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>App-Einstellungen</Text>
+        <View style={styles.card}>
+          <SettingItem
+            icon="bell-outline"
+            title="Benachrichtigungen"
+            description="Erhältlich über neue Sichtungen"
+            value={notificationsEnabled}
+            onToggle={setNotificationsEnabled}
+          />
+          <View style={styles.divider} />
+          <SettingItem
+            icon="theme-light-dark"
+            title="Dunkler Modus"
+            description="Dunkles Design aktivieren"
+            value={darkModeEnabled}
+            onToggle={setDarkModeEnabled}
+          />
+          <View style={styles.divider} />
+          <SettingItem
+            icon="map-marker-radius"
+            title="Standortdienste"
+            description="Automatische Ortung aktivieren"
+            value={locationEnabled}
+            onToggle={setLocationEnabled}
+          />
+        </View>
+      </View>
+
+      {/* Sync Settings */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Synchronisation</Text>
+        <View style={styles.card}>
+          <SettingItem
+            icon="sync"
+            title="Automatische Synchronisation"
+            description="Daten automatisch mit Server synchronisieren"
+            value={autoSyncEnabled}
+            onToggle={setAutoSyncEnabled}
+          />
+          <View style={styles.divider} />
+          <SettingItem
+            icon="cloud-upload"
+            title="Backend-URL"
+            description={backendUrl}
+            onPress={() => console.log('Backend-URL bearbeiten')}
+            showArrow
+>>>>>>> main
           />
         </View>
       </View>
 
       {/* Data Management */}
       <View style={styles.section}>
+<<<<<<< HEAD
         <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>
           Datenverwaltung
         </Text>
@@ -385,10 +550,20 @@ export const SettingsScreen: React.FC = () => {
               <MaterialCommunityIcons name="trash-can-outline" size={24} color="#E74C3C" />
             </View>
             <Text style={[styles.actionText, dynamicStyles.text]}>Cache leeren</Text>
+=======
+        <Text style={styles.sectionTitle}>Datenverwaltung</Text>
+        <View style={styles.card}>
+          <TouchableOpacity style={styles.actionRow} onPress={handleClearCache}>
+            <View style={styles.actionIcon}>
+              <MaterialCommunityIcons name="trash-can-outline" size={24} color="#E74C3C" />
+            </View>
+            <Text style={styles.actionText}>Cache leeren</Text>
+>>>>>>> main
             <MaterialCommunityIcons name="chevron-right" size={24} color="#BDC3C7" />
           </TouchableOpacity>
           <View style={styles.divider} />
           <TouchableOpacity style={styles.actionRow} onPress={handleExportData}>
+<<<<<<< HEAD
             <View style={[styles.actionIcon, { backgroundColor: '#E8F8F5' }]}>
               <MaterialCommunityIcons name="download" size={24} color="#27AE60" />
             </View>
@@ -403,6 +578,12 @@ export const SettingsScreen: React.FC = () => {
             <Text style={[styles.actionText, { color: '#E74C3C' }]}>
               Einstellungen zurücksetzen
             </Text>
+=======
+            <View style={styles.actionIcon}>
+              <MaterialCommunityIcons name="download" size={24} color="#27AE60" />
+            </View>
+            <Text style={styles.actionText}>Daten exportieren</Text>
+>>>>>>> main
             <MaterialCommunityIcons name="chevron-right" size={24} color="#BDC3C7" />
           </TouchableOpacity>
         </View>
@@ -410,15 +591,24 @@ export const SettingsScreen: React.FC = () => {
 
       {/* About */}
       <View style={styles.section}>
+<<<<<<< HEAD
         <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>
           Über
         </Text>
         <View style={[styles.card, dynamicStyles.card]}>
+=======
+        <Text style={styles.sectionTitle}>Über</Text>
+        <View style={styles.card}>
+>>>>>>> main
           <TouchableOpacity style={styles.actionRow} onPress={handleOpenPrivacy}>
             <View style={styles.actionIcon}>
               <MaterialCommunityIcons name="shield-check" size={24} color="#7F8C8D" />
             </View>
+<<<<<<< HEAD
             <Text style={[styles.actionText, dynamicStyles.text]}>Datenschutz</Text>
+=======
+            <Text style={styles.actionText}>Datenschutz</Text>
+>>>>>>> main
             <MaterialCommunityIcons name="chevron-right" size={24} color="#BDC3C7" />
           </TouchableOpacity>
           <View style={styles.divider} />
@@ -426,7 +616,19 @@ export const SettingsScreen: React.FC = () => {
             <View style={styles.actionIcon}>
               <MaterialCommunityIcons name="file-document" size={24} color="#7F8C8D" />
             </View>
+<<<<<<< HEAD
             <Text style={[styles.actionText, dynamicStyles.text]}>Nutzungsbedingungen</Text>
+=======
+            <Text style={styles.actionText}>Nutzungsbedingungen</Text>
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#BDC3C7" />
+          </TouchableOpacity>
+          <View style={styles.divider} />
+          <TouchableOpacity style={styles.actionRow} onPress={handleRateApp}>
+            <View style={styles.actionIcon}>
+              <MaterialCommunityIcons name="star" size={24} color="#F39C12" />
+            </View>
+            <Text style={styles.actionText}>App bewerten</Text>
+>>>>>>> main
             <MaterialCommunityIcons name="chevron-right" size={24} color="#BDC3C7" />
           </TouchableOpacity>
           <View style={styles.divider} />
@@ -434,7 +636,11 @@ export const SettingsScreen: React.FC = () => {
             <View style={styles.actionIcon}>
               <MaterialCommunityIcons name="help-circle" size={24} color="#7F8C8D" />
             </View>
+<<<<<<< HEAD
             <Text style={[styles.actionText, dynamicStyles.text]}>Support kontaktieren</Text>
+=======
+            <Text style={styles.actionText}>Support kontaktieren</Text>
+>>>>>>> main
             <MaterialCommunityIcons name="chevron-right" size={24} color="#BDC3C7" />
           </TouchableOpacity>
         </View>
@@ -442,6 +648,7 @@ export const SettingsScreen: React.FC = () => {
 
       {/* Footer */}
       <View style={styles.footer}>
+<<<<<<< HEAD
         <Text style={styles.versionText}>
           Tauben Scanner v{APP_VERSION}
         </Text>
@@ -538,6 +745,11 @@ export const SettingsScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
+=======
+        <Text style={styles.versionText}>Tauben Scanner v{appVersion}</Text>
+        <Text style={styles.copyrightText}>© 2025 OpenFugjooBot</Text>
+      </View>
+>>>>>>> main
     </ScrollView>
   );
 };
@@ -578,6 +790,36 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
   },
+<<<<<<< HEAD
+=======
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+  },
+  settingIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#EBF4FD',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  settingContent: {
+    flex: 1,
+  },
+  settingTitle: {
+    fontSize: 16,
+    color: '#2C3E50',
+    fontWeight: '500',
+  },
+  settingDescription: {
+    fontSize: 12,
+    color: '#95A5A6',
+    marginTop: 2,
+  },
+>>>>>>> main
   divider: {
     height: 1,
     backgroundColor: '#F5F7FA',
@@ -609,7 +851,11 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 14,
+<<<<<<< HEAD
     color: '#4A90D9',
+=======
+    color: '#95A5A6',
+>>>>>>> main
     fontWeight: '600',
   },
   copyrightText: {
@@ -617,6 +863,7 @@ const styles = StyleSheet.create({
     color: '#BDC3C7',
     marginTop: 4,
   },
+<<<<<<< HEAD
   buildInfo: {
     fontSize: 10,
     color: '#95A5A6',
@@ -691,3 +938,6 @@ const styles = StyleSheet.create({
 });
 
 export default SettingsScreen;
+=======
+});
+>>>>>>> main

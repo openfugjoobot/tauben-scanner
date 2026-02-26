@@ -1,11 +1,20 @@
 /**
  * Scan Stack Navigator
+<<<<<<< HEAD
  * - ScanScreen → PreviewScreen → ResultsScreen
+=======
+ * T7: Scan Flow - Camera → Preview → Results → Detail
+ * - ScanScreen → PreviewScreen → ResultsScreen → PigeonDetailScreen
+>>>>>>> main
  */
 
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+<<<<<<< HEAD
 import { ScanScreen, PreviewScreen, ResultsScreen } from '../screens';
+=======
+import { ScanScreen, PreviewScreen, ResultsScreen, PigeonDetailScreen } from '../screens';
+>>>>>>> main
 import type { ScanStackParamList } from '../types/navigation';
 
 const Stack = createNativeStackNavigator<ScanStackParamList>();
@@ -39,6 +48,16 @@ export const ScanStackNavigator: React.FC = () => {
           title: 'Ergebnis',
         }}
       />
+<<<<<<< HEAD
+=======
+      <Stack.Screen
+        name="PigeonDetailScreen"
+        component={PigeonDetailScreen}
+        options={{
+          title: 'Taube',
+        }}
+      />
+>>>>>>> main
     </Stack.Navigator>
   );
 };

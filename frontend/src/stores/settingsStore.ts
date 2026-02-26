@@ -1,12 +1,19 @@
 /**
  * Settings Store - API-URL, Benutzereinstellungen
  * T3: State Management
+<<<<<<< HEAD
  * T9: Settings Screen
+=======
+>>>>>>> main
  */
 
 import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
+<<<<<<< HEAD
 import {SettingsState, ThemeMode, Language} from '../types/store';
+=======
+import {SettingsState} from '../types/store';
+>>>>>>> main
 import {mmkvStorage, StorageKeys} from './storage';
 
 // Default-Werte
@@ -14,9 +21,12 @@ const DEFAULT_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/a
 const DEFAULT_MATCH_THRESHOLD = 75;
 const DEFAULT_CACHE_DURATION = 60;
 
+<<<<<<< HEAD
 // App Version
 const APP_VERSION = '1.0.0';
 
+=======
+>>>>>>> main
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set, get) => ({
@@ -30,9 +40,12 @@ export const useSettingsStore = create<SettingsState>()(
       matchThreshold: DEFAULT_MATCH_THRESHOLD,
       savePhotos: true,
       compressPhotos: true,
+<<<<<<< HEAD
       theme: 'system' as ThemeMode,
       language: 'de' as Language,
       offlineMode: false,
+=======
+>>>>>>> main
       debugMode: false,
       cacheDuration: DEFAULT_CACHE_DURATION,
       
@@ -79,6 +92,7 @@ export const useSettingsStore = create<SettingsState>()(
         set({compressPhotos: !current});
       },
       
+<<<<<<< HEAD
       setTheme: (theme) => {
         set({theme});
         // Trigger theme change event
@@ -105,6 +119,8 @@ export const useSettingsStore = create<SettingsState>()(
         set({offlineMode});
       },
       
+=======
+>>>>>>> main
       toggleDebugMode: () => {
         const current = get().debugMode;
         const newValue = !current;
@@ -122,6 +138,7 @@ export const useSettingsStore = create<SettingsState>()(
         set({cacheDuration: clamped});
       },
       
+<<<<<<< HEAD
       testApiConnection: async () => {
         const {apiUrl} = get();
         try {
@@ -142,6 +159,8 @@ export const useSettingsStore = create<SettingsState>()(
         }
       },
       
+=======
+>>>>>>> main
       resetSettings: () => {
         set({
           apiUrl: DEFAULT_API_URL,
@@ -153,9 +172,12 @@ export const useSettingsStore = create<SettingsState>()(
           matchThreshold: DEFAULT_MATCH_THRESHOLD,
           savePhotos: true,
           compressPhotos: true,
+<<<<<<< HEAD
           theme: 'system',
           language: 'de',
           offlineMode: false,
+=======
+>>>>>>> main
           debugMode: false,
           cacheDuration: DEFAULT_CACHE_DURATION,
         });
@@ -181,9 +203,12 @@ export const useSettingsStore = create<SettingsState>()(
         matchThreshold: state.matchThreshold,
         savePhotos: state.savePhotos,
         compressPhotos: state.compressPhotos,
+<<<<<<< HEAD
         theme: state.theme,
         language: state.language,
         offlineMode: state.offlineMode,
+=======
+>>>>>>> main
         debugMode: state.debugMode,
         cacheDuration: state.cacheDuration,
       }),
@@ -217,6 +242,7 @@ export const useSettings = () => {
     matchThreshold: store.matchThreshold,
     savePhotos: store.savePhotos,
     compressPhotos: store.compressPhotos,
+<<<<<<< HEAD
     theme: store.theme,
     language: store.language,
     offlineMode: store.offlineMode,
@@ -226,6 +252,12 @@ export const useSettings = () => {
     // Computed
     isConfigured: !!store.apiUrl,
     isDarkMode: store.theme === 'dark' || (store.theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches),
+=======
+    debugMode: store.debugMode,
+    cacheDuration: store.cacheDuration,
+    // Computed
+    isConfigured: !!store.apiUrl,
+>>>>>>> main
     // Actions
     setApiUrl: store.setApiUrl,
     setApiKey: store.setApiKey,
@@ -236,6 +268,7 @@ export const useSettings = () => {
     setMatchThreshold: store.setMatchThreshold,
     toggleSavePhotos: store.toggleSavePhotos,
     toggleCompressPhotos: store.toggleCompressPhotos,
+<<<<<<< HEAD
     setTheme: store.setTheme,
     setLanguage: store.setLanguage,
     toggleOfflineMode: store.toggleOfflineMode,
@@ -243,6 +276,10 @@ export const useSettings = () => {
     toggleDebugMode: store.toggleDebugMode,
     setCacheDuration: store.setCacheDuration,
     testApiConnection: store.testApiConnection,
+=======
+    toggleDebugMode: store.toggleDebugMode,
+    setCacheDuration: store.setCacheDuration,
+>>>>>>> main
     resetSettings: store.resetSettings,
   };
 };
@@ -253,9 +290,12 @@ export const useApiKey = () => useSettingsStore((state) => state.apiKey);
 export const useMatchThreshold = () => useSettingsStore((state) => state.matchThreshold);
 export const useDebugMode = () => useSettingsStore((state) => state.debugMode);
 export const useCacheDuration = () => useSettingsStore((state) => state.cacheDuration);
+<<<<<<< HEAD
 export const useTheme = () => useSettingsStore((state) => state.theme);
 export const useLanguage = () => useSettingsStore((state) => state.language);
 export const useOfflineMode = () => useSettingsStore((state) => state.offlineMode);
 
 // Export app version
 export {APP_VERSION};
+=======
+>>>>>>> main

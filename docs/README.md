@@ -1,17 +1,25 @@
 # KI Tauben Scanner Dokumentation
 
-Willkommen in der offiziellen Dokumentation des KI Tauben Scanner!
+Willkommen in der offiziellen Dokumentation des KI Tauben Scanners!
+
+**Tech Stack**: React Native + Expo SDK 51 + Express.js + PostgreSQL + pgvector
+
+---
 
 ## 📚 Dokumentation Index
 
 | Dokument | Beschreibung |
 |----------|--------------|
 | [**README.md**](../README.md) | Hauptdokumentation mit Überblick, Features, Quick Start |
-| [**API.md**](API.md) | Vollständige API Referenz aller Endpoints |
-| [**ARCHITECTURE.md**](ARCHITECTURE.md) | Systemarchitektur und Komponenten |
+| [**API.md**](API.md) | Vollständige API Referenz mit Axios + React Query |
+| [**ARCHITECTURE.md**](ARCHITECTURE.md) | Systemarchitektur (React Native + Expo + Zustand) |
 | [**DATABASE.md**](DATABASE.md) | Datenbank Schema, Indizes, Queries |
-| [**DEPLOYMENT.md**](DEPLOYMENT.md) | Docker-, SSL-, Backup- und Deployment-Guide |
-| [**MOBILE.md**](MOBILE.md) | Android App Entwicklung und Build-Anleitung |
+| [**DEPLOYMENT.md**](DEPLOYMENT.md) | Docker-, SSL-, EAS Build- und Deployment-Guide |
+| [**MOBILE.md**](MOBILE.md) | Mobile App Entwicklung (React Native + Expo) |
+| [**SETUP.md**](SETUP.md) | Development Setup für React Native Expo |
+| [**WORKFLOW.md**](WORKFLOW.md) | Entwicklungs- und Deployment-Workflow |
+| [**../frontend/README.md**](../frontend/README.md) | Frontend Dokumentation |
+| [**../frontend/STATE_MANAGEMENT.md**](../frontend/STATE_MANAGEMENT.md) | Zustand + React Query Docs |
 
 ---
 
@@ -20,84 +28,114 @@ Willkommen in der offiziellen Dokumentation des KI Tauben Scanner!
 ### Für Entwickler
 
 1. **[Hauptdokumentation](../README.md)** lesen - Überblick über das Projekt
-2. **[API.md](API.md)** - API Endpoints verstehen
-3. **[DATABASE.md](DATABASE.md)** - Datenbank Schema kennenlernen
+2. **[SETUP.md](SETUP.md)** - Development Setup
+3. **[API.md](API.md)** - API Endpoints verstehen
+4. **[ARCHITECTURE.md](ARCHITECTURE.md)** - Tech Stack verstehen
+
+### Für Mobile Entwickler
+
+1. **[SETUP.md](SETUP.md)** - React Native Expo Setup
+2. **[../frontend/README.md](../frontend/README.md)** - Frontend Struktur
+3. **[../frontend/STATE_MANAGEMENT.md](../frontend/STATE_MANAGEMENT.md)** - State Management
+4. **[API.md](API.md)** - API Integration
 
 ### Für Administratoren
 
 1. **[DEPLOYMENT.md](DEPLOYMENT.md)** - System aufsetzen
 2. **[DATABASE.md](DATABASE.md)** - Backup-Strategie
-3. **[API.md](API.md)** - Integration mit externen Systemen
-
-### Für Mobile Entwickler
-
-1. **[MOBILE.md](MOBILE.md)** - App-Entwicklung und Build-Prozess
-2. **[API.md](API.md)** - API Integration
-3. **[Hauptdokumentation](../README.md)** - Project Vision
+3. **[WORKFLOW.md](WORKFLOW.md)** - CI/CD Prozess
 
 ---
 
 ## 🏗️ Architektur Überblick
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│    Mobile App   │────▶│   REST API       │────▶│   PostgreSQL    │
-│   (Capacitor)   │◄────│   (Express.js)   │◄────│   + pgvector    │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                               │                            │
-                               ▼                            ▼
-                     ┌──────────────────┐          ┌─────────────────┐
-                     │  TensorFlow.js   │          │   HNSW Index    │
-                     │  MobileNet-V3   │          │  (Cosine Sim.)  │
-                     │  (Server-side)   │          └─────────────────┘
-                     └──────────────────┘
-                               │
-                               ▼
-                     ┌──────────────────┐
-                     │  MinIO (S3)      │
-                     │  Image Storage   │
-                     └──────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                      React Native App                        │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
+│  │  Scan    │  │ Pigeons  │  │ History  │  │ Settings │    │
+│  │  (Expo   │  │ (React   │  │ (Tab     │  │ (Stack)  │    │
+│  │  Camera) │  │  Query)  │  │  View)   │  │          │    │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘    │
+│       │             │             │             │           │
+│       └─────────────┴──────┬──────┴─────────────┘           │
+│                            │                               │
+│                    Zustand Stores                            │
+└────────────────────────────┼────────────────────────────────┘
+                             │
+                           Axios
+                             │
+┌────────────────────────────┼────────────────────────────────┐
+│                      Express.js API                          │
+│  ┌──────────┬──────────────┴──────────────┬──────────┐    │
+│  │ POST     │ /api/images/match           │ Embed    │    │
+│  │ POST     │ /api/pigeons                │ & Store │    │
+│  │ GET      │ /api/pigeons/:id            │          │    │
+│  └──────────┴─────────────────────────────┴──────────┘    │
+│                                                             │
+│  MobileNet-V3 (TensorFlow.js) - Server-side ML              │
+└─────────────────────────────┬───────────────────────────────┘
+                              │
+┌─────────────────────────────┼───────────────────────────────┐
+│                      PostgreSQL + pgvector                   │
+│  ┌──────────┬───────────────┴───────────────┬──────────┐     │
+│  │ pigeons  │ embeddings (1024-d)         │ HNSW     │     │
+│  │ images   │ sightings                   │ Index    │     │
+│  └──────────┴───────────────────────────────┴──────────┘     │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-**Architektur-Wechsel:** 
-- Früher: TensorFlow.js client-side im Frontend
-- Jetzt: Server-side Embedding Extraction im Backend
+**Architektur-Migration:**
+- Früher: Capacitor (WebView Hybrid)
+- Jetzt: React Native (Native UI) + Expo SDK 51
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend (Mobile)
-- **React 19** - UI Framework
-- **TypeScript 5.9** - Typisierung
-- **Capacitor 8** - Mobile Wrapper
-- **Timeout-Handling** - AbortController (30s)
+| Technologie | Zweck |
+|-------------|-------|
+| **React Native** | Native Mobile UI |
+| **Expo SDK 51** | Development & Build Platform |
+| **React Navigation v7** | Screen Navigation |
+| **React Native Paper** | Material Design 3 UI |
+| **Zustand** | Global State Management |
+| **React Query** | Server-State & Caching |
+| **Axios** | HTTP Requests |
+| **MMKV** | Local Persistence |
 
 ### Backend
-- **Node.js** + **Express.js 5** - API Server
-- **TensorFlow.js** + **MobileNet-V3** - Server-side ML
-- **TypeScript** - Server-Code
-- **Helmet** - Security
-- **CORS** - Backend-reguliert (reflect origin)
+| Technologie | Zweck |
+|-------------|-------|
+| **Express.js 5** | API Server |
+| **TypeScript** | Typisierung |
+| **MobileNet-V3** | Server-side ML |
+| **pg 8** | PostgreSQL Client |
 
 ### Datenbank
-- **PostgreSQL 15+** - Hauptdatenbank
-- **pgvector** - Vektor-Erweiterung
-- **HNSW** - Approximate Nearest Neighbor
-- **GIN** - Full-Text Search
+| Technologie | Zweck |
+|-------------|-------|
+| **PostgreSQL 15+** | Hauptdatenbank |
+| **pgvector** | Vektor-Erweiterung |
+| **HNSW** | Nearest Neighbor Search |
 
 ### DevOps
-- **Docker** - Containerisierung
-- **Docker Compose** - Orchestration
-- **Nginx Proxy Manager** - Reverse Proxy
+| Technologie | Zweck |
+|-------------|-------|
+| **Docker** | Containerisierung |
+| **Docker Compose** | Multi-Service Orchestration |
+| **EAS Build** | Cloud-Builds für Mobile |
+| **EAS Update** | OTA Updates |
 
 ---
 
 ## 📞 Support
 
 - **GitHub Issues:** [github.com/openfugjoobot/tauben-scanner/issues](https://github.com/openfugjoobot/tauben-scanner/issues)
-- **API Fehler:** Siehe [API.md#fehlerbehandlung](API.md#fehlerbehandlung)
-- **Deployment:** Siehe [DEPLOYMENT.md#troubleshooting](DEPLOYMENT.md#troubleshooting)
+- **Backend Fehler:** Siehe [DEPLOYMENT.md#troubleshooting](DEPLOYMENT.md#troubleshooting)
+- **App Fehler:** Siehe [SETUP.md#troubleshooting](SETUP.md#troubleshooting)
+- **Expo Docs:** [docs.expo.dev](https://docs.expo.dev)
 
 ---
 
@@ -114,4 +152,5 @@ Wir freuen uns über Verbesserungen an der Dokumentation!
 
 **Made with ❤️ by OpenFugjooBot**
 
-_Letzte Aktualisierung: 2024-02-24_
+*Migration complete: Capacitor → React Native + Expo SDK 51*  
+*Letzte Aktualisierung: 2026-02-26*

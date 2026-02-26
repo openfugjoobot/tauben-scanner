@@ -6,6 +6,8 @@
 [![Docker](https://img.shields.io/badge/Docker-ready-blue.svg)](https://www.docker.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791.svg)](https://www.postgresql.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6.svg)](https://www.typescriptlang.org/)
+[![Expo](https://img.shields.io/badge/Expo-SDK%2051-000020.svg)](https://expo.dev/)
+[![React Native](https://img.shields.io/badge/React%20Native-0.72+-61dafb.svg)](https://reactnative.dev/)
 
 ---
 
@@ -31,7 +33,7 @@
 Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadttauben per Smartphone-Kamera zu fotografieren und mit Hilfe von Machine Learning zu identifizieren.
 
 **Architektur-Überblick:**
-- Frontend sendet Fotos an Backend
+- React Native App sendet Fotos an Backend
 - Backend extrahiert Embeddings server-seitig (MobileNet-V3)
 - PostgreSQL mit pgvector speichert 1024-dimensionale Vektoren
 - Cosine Similarity für Bild-Matching
@@ -53,31 +55,35 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 - **Mehrwinkelsupport** durch Speicherung mehrerer Bilder pro Taube
 
 ### 📱 Mobile App
-- **Native Android-App** via Capacitor
-- **Kamera-Zugriff** mit Bilderfassung
-- **Debug-UI**: UploadProgress, NetworkDebugPanel
-- **Timeout-Handling** mit AbortController (30s Standard)
+- **Native Cross-Platform App** via React Native + Expo SDK 51
+- **Kamera-Zugriff** mit Bilderfassung (expo-camera)
+- **Material Design 3** UI mit React Native Paper
+- **React Navigation v7** für Screen-Navigation
+- **Offline-Support** mit Zustand + MMKV Persistenz
+- **React Query** für API-State-Management
 
 ### 🗄️ Datenbank & API
 - **PostgreSQL 15+** mit pgvector-Extension
 - **HNSW-Index** für schnelle Vektor-Suche
 - **RESTful API** mit Express.js
-- **CORS** vom Backend geregelt (reflect origin für Android WebView)
+- **CORS** vom Backend geregelt
+- **Axios** für HTTP-Requests mit Timeout-Handling
 
 ### 🗺️ Standortverwaltung
-- **GPS-Tracking** bei Sichtungen
+- **GPS-Tracking** bei Sichtungen (expo-location)
 - **Geografische Suche**
 - **Standort-basierte Historie**
 
 ### 📝 Sichtungsprotokoll
 - **Zeitgestempelte Sichtungen**
 - **Zustandsbewertung** (gesund, verletzt, unbekannt)
-- **Notizfunktion** für Beobachtungen
+- **Notizfunktion** für Beobachtungen**
 
 ### 🔧 Build-System
-- **GitHub Actions**: Automatische Debug + Release APK Builds
-- **Release**: webContentsDebuggingEnabled=false, optimiert
-- **Debug**: webContentsDebuggingEnabled=true
+- **EAS (Expo Application Services)**: Cloud-Builds für Android & iOS
+- **GitHub Actions**: Automatische Preview-Updates auf PRs
+- **React Query DevTools**: Für Entwicklung und Debugging
+- **Metro Bundler**: Für lokale Entwicklung
 
 ---
 
@@ -86,10 +92,15 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 ### Frontend (Mobile App)
 | Technologie | Zweck |
 |-------------|-------|
-| **React 19** | UI-Framework |
+| **React Native 0.72+** | Native Mobile UI |
+| **Expo SDK 51** | Development & Build Platform |
 | **TypeScript 5.9** | Typisierung |
-| **Vite 7** | Build-Tool |
-| **Capacitor 8** | Native Mobile Wrapper |
+| **React Navigation v7** | Screen Navigation |
+| **React Native Paper v5** | Material Design 3 Komponenten |
+| **Zustand** | Global State Management |
+| **React Query** | Server-State & Caching |
+| **MMKV** | Lokale Datenspeicherung |
+| **Axios** | HTTP Client |
 
 ### Backend (API Server)
 | Technologie | Zweck |
@@ -117,7 +128,8 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 | **Docker** | Containerisierung |
 | **Docker Compose** | Multi-Service Orchestration |
 | **Nginx Proxy Manager** | Reverse Proxy & SSL |
-| **GitHub Actions** | CI/CD für APK Builds |
+| **EAS Build** | Cloud-Builds für Mobile Apps |
+| **EAS Update** | OTA Updates für Expo |
 
 ---
 
@@ -125,60 +137,62 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 
 ```mermaid
 graph TB
-    subgraph "Mobile App"
-        A[📱 Capacitor App] --> B[📷 Camera Component]
-        B --> C[Base64 Photo]
+    subgraph "React Native App"
+        A[📱 Expo App] --> B[📷 Camera Component]
+        B --> C[FormData Photo Upload]
         C --> D[POST /api/images/match]
+        A --> E[Zustand Stores]
+        A --> F[React Query]
     end
     
     subgraph "Backend API"
-        E[🌐 Express.js API] --> F[MobileNet-V3 Embedding]
-        F --> G[1024-d Vector]
-        E --> H[/api/pigeons\]
-        E --> I[/api/sightings\]
-        E --> J[/health\]
+        G[🌐 Express.js API] --> H[MobileNet-V3 Embedding]
+        H --> I[1024-d Vector]
+        G --> J[/api/pigeons\]
+        G --> K[/api/sightings\]
+        G --> L[/health\]
     end
     
     subgraph "Datenbank"
-        K[🐘 PostgreSQL + pgvector]
-        L[hnsw_index<br/>vector_cosine_ops]
-        M[Tables:<br/>pigeons, images, sightings]
+        M[🐘 PostgreSQL + pgvector]
+        N[hnsw_index<br/>vector_cosine_ops]
+        O[Tables:<br/>pigeons, images, sightings]
     end
     
     subgraph "Storage"
-        N[📦 MinIO S3]
-        O[Image Files]
+        P[📦 MinIO S3]
+        Q[Image Files]
     end
     
-    D -->|Photo Upload| E
-    G -->|Similarity Search| K
-    H --> K
-    I --> K
-    K --> L
-    K --> M
-    E --> N
-    N --> O
+    D -->|Photo Upload| G
+    F -->|API Calls| G
+    I -->|Similarity Search| M
+    J --> K --> M
+    M --> N
+    M --> O
+    G --> P
+    P --> Q
 ```
 
-### Datenfluss beim Matching
+### Datenfluss beim Matching (React Native)
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Nutzer macht  │────▶│  Base64 Photo    │────▶│  POST /api/     │
-│    Foto         │     │  (Frontend)      │     │  images/match   │
+│   Camera Capture │────▶│  FormData Photo │────▶│  POST /api/     │
+│  (expo-camera)  │     │  (Axios)        │     │  images/match   │
 └─────────────────┘     └──────────────────┘     └────────┬────────┘
                                                           │
                                                           ▼
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
 │  Match-         │◀────│  Cosine Similar. │◀────│  MobileNet-V3   │
 │  Ergebnis       │     │  1 - (vec<=>q)  │     │  (Backend)      │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                                                          │
-                                                          ▼
-                                                 ┌─────────────────┐
-                                                 │  pgvector       │
-                                                 │  HNSW Index     │
-                                                 └─────────────────┘
+│  (Navigation)   │     └──────────────────┘     └─────────────────┘
+└─────────────────┘                                          │
+                                                           ▼
+                                                  ┌─────────────────┐
+                                                  │  pgvector       │
+                                                  │  HNSW Index     │
+                                                  └─────────────────┘
 ```
 
 ---
@@ -188,9 +202,10 @@ graph TB
 ### Voraussetzungen
 - Docker & Docker Compose
 - Node.js 20+ (für lokale Entwicklung)
-- Android Studio (für Mobile Build)
+- Android Studio (für lokale Android Builds)
+- Expo Account (für EAS Builds)
 
-### In 5 Minuten loslegen
+### Backend in 5 Minuten starten
 
 ```bash
 # 1. Repository klonen
@@ -221,11 +236,25 @@ curl http://localhost:3000/health
 }
 ```
 
+### Mobile App starten
+
+```bash
+# 1. Frontend dependencies installieren
+cd frontend
+npm install
+
+# 2. Expo Development Server starten
+npx expo start
+
+# 3. Expo Go App auf dem Handy öffnen
+# QR-Code scannen oder i für iOS Simulator / a für Android Emulator
+```
+
 ---
 
 ## 📦 Installation
 
-### Docker Deployment (empfohlen)
+### Docker Deployment (empfohlen für Backend)
 
 ```bash
 # Alle Services starten
@@ -242,22 +271,24 @@ docker-compose down
 docker-compose down -v
 ```
 
-### Manuelle Installation
+### Mobile App Entwicklung
 
 ```bash
-# 1. PostgreSQL mit pgvector installieren
-# Siehe: https://github.com/pgvector/pgvector
+# Expo CLI installieren (global)
+npm install -g @expo/cli
 
-# 2. Backend einrichten
-cd backend
+# Frontend dependencies installieren
+cd frontend
 npm install
-npm run build
-npm start
 
-# 3. Frontend einrichten
-cd ../frontend
-npm install
-npm run dev
+# iOS Simulator (nur macOS)
+npx expo run:ios
+
+# Android Emulator
+npx expo run:android
+
+# Expo Go (einfachste Methode)
+npx expo start
 ```
 
 ### Ports
@@ -268,6 +299,7 @@ npm run dev
 | PostgreSQL | 5432 | Datenbank |
 | MinIO API | 9000 | Object Storage |
 | MinIO Console | 9001 | Storage Web UI |
+| Metro Bundler | 8081 | React Native Dev Server |
 
 ---
 
@@ -287,37 +319,37 @@ Die vollständige API-Dokumentation findest du unter [`docs/API.md`](docs/API.md
 | `GET` | `/api/pigeons/:id/sightings` | Sichtungen einer Taube |
 | `GET` | `/health` | Health Check |
 
-### Beispiel: Taube erstellen (NEU)
+### Frontend API Client (Axios)
 
-```bash
-curl -X POST http://localhost:3000/api/pigeons \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Rudi Rothen",
-    "description": "Roter Ring am linken Fuß",
-    "photo": "base64EncodedImageString...",
-    "location": {
-      "lat": 52.5200,
-      "lng": 13.4050,
-      "name": "Alexanderplatz, Berlin"
+```typescript
+// Beispiel mit axios
+import axios from 'axios';
+
+const apiClient = axios.create({
+  baseURL: 'https://api.tauben-scanner.de',
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Bild-Matching mit FormData
+const matchImage = async (imageUri: string) => {
+  const formData = new FormData();
+  formData.append('photo', {
+    uri: imageUri,
+    type: 'image/jpeg',
+    name: 'scan.jpg',
+  });
+  
+  const response = await apiClient.post('/api/images/match', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
     },
-    "is_public": true
-  }'
-```
-
-### Beispiel: Bild-Matching (NEU)
-
-```bash
-curl -X POST http://localhost:3000/api/images/match \
-  -H "Content-Type: application/json" \
-  -d '{
-    "photo": "base64EncodedImageString...",
-    "threshold": 0.80,
-    "location": {
-      "lat": 52.52,
-      "lng": 13.405
-    }
-  }'
+  });
+  
+  return response.data;
+};
 ```
 
 ---
@@ -335,7 +367,7 @@ NODE_ENV=production
 DATABASE_URL=postgresql://tauben:password@postgres:5432/tauben_scanner
 DB_PASSWORD=secure_test_password_123
 
-# CORS (Backend regelt CORS allein - keine Nginx CORS Headers!)
+# CORS
 CORS_ORIGINS=https://tauben-scanner.fugjoo.duckdns.org,capacitor://localhost
 
 # MinIO Storage
@@ -343,13 +375,31 @@ MINIO_USER=minioadmin
 MINIO_PASSWORD=minioadmin123
 ```
 
-### CORS-Konfiguration
+### EAS Build Konfiguration
 
-Das Backend regelt CORS allein. Nginx sollte KEINE CORS-Headers hinzufügen.
-
-- Erlaubt: `null` Origin (Android Capacitor WebView)
-- Reflect origin für bekannte Origins
-- Credentials werden unterstützt
+**eas.json:**
+```json
+{
+  "cli": {
+    "version": ">= 5.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "distribution": "store"
+    }
+  }
+}
+```
 
 ### Wichtige Einstellungen
 
@@ -364,39 +414,70 @@ Das Backend regelt CORS allein. Nginx sollte KEINE CORS-Headers hinzufügen.
 
 ## 📱 Mobile App
 
-Die Mobile App wird mit Capacitor gebaut. Detaillierte Anleitungen findest du unter [`docs/MOBILE.md`](docs/MOBILE.md).
+Die Mobile App ist eine **React Native + Expo** Anwendung. Detaillierte Anleitungen findest du unter:
+- [`frontend/README.md`](frontend/README.md) - Frontend Setup
+- [`docs/SETUP.md`](docs/SETUP.md) - Entwicklungs-Setup
+- [`frontend/STATE_MANAGEMENT.md`](frontend/STATE_MANAGEMENT.md) - State Management Docs
 
-### Android Berechtigungen
+### Navigation
 
-```xml
-<!-- AndroidManifest.xml -->
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+```typescript
+// React Navigation v7 - Tab + Stack Navigator
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+// Screens: Scan, Pigeons, History, Settings
+// Stack für: PigeonDetails, ScanResult, AddSighting
 ```
 
-### Schnellstart (Android)
+### State Management
+
+- **Zustand**: App-Store, Scan-Store, Settings-Store
+- **React Query**: API-Queries, Caching, Invalidierung
+- **MMKV**: Persistenter lokaler Storage
+
+### Berechtigungen
+
+**app.json:**
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Für Tauben-Scans benötigt"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationPermission": "Für Standort-Sichtungen benötigt"
+        }
+      ]
+    ]
+  }
+}
+```
+
+### EAS Build
 
 ```bash
-cd frontend
+# Login bei Expo
+npx expo login
 
-# Abhängigkeiten installieren
-npm install
+# Build starten (Preview APK)
+eas build --platform android --profile preview
 
-# Build für Android
-npm run android
+# iOS Build
+eas build --platform ios --profile production
+
+# OTA Update veröffentlichen
+eas update --channel production --message "Bugfixes"
 ```
-
-Dies öffnet Android Studio automatisch.
-
-### GitHub Actions CI/CD
-
-- **Automatische Builds** bei Push auf main/tags
-- **Debug APK**: `app-debug.apk`
-- **Release APK**: `app-release-unsigned.apk`
-- Ablage als Artifacts und Release-Assets
 
 ---
 
@@ -405,16 +486,22 @@ Dies öffnet Android Studio automatisch.
 Für produktive Deployments empfehlen wir:
 
 1. **Docker Compose** mit SSL-Zertifikaten
-2. **Nginx Proxy Manager** als Reverse Proxy (keine CORS-Headers!)
+2. **Nginx Proxy Manager** als Reverse Proxy
 3. **Automatische Backups** der PostgreSQL-Datenbank
-4. **GitHub Actions** für APK-Builds
+4. **EAS Build** für Mobile App Distribution
+5. **EAS Update** für OTA Updates
 
 Siehe [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) für:
 - SSL-Konfiguration
-- CORS-Setup (Backend-only)
+- CORS-Setup
+- EAS Build & Update
 - Backup-Strategie
 - Troubleshooting
-- Performance-Optimierung
+
+Siehe [`docs/SETUP.md`](docs/SETUP.md) für:
+- Development Setup
+- Expo Go Testing
+- Simulator/Emulator Setup
 
 ---
 
@@ -443,8 +530,8 @@ Wir freuen uns über Beiträge! So kannst du helfen:
 # Backend im Dev-Modus
 npm run dev
 
-# Frontend im Dev-Modus
-npm run dev
+# Frontend im Dev-Modus (Expo)
+npx expo start
 
 # Tests ausführen
 npm test
@@ -462,7 +549,8 @@ MIT License - siehe [LICENSE](LICENSE) für Details.
 
 - **MobileNet-V3** - Für effiziente Feature Extraction
 - **pgvector** - Für Vektor-Suche in PostgreSQL
-- **Capacitor** - Für native Mobile Apps
+- **Expo** - Für React Native Entwicklung & Build Process
+- **React Navigation** - Für Navigation in der App
 - **TensorFlow.js** - Für serverseitiges ML
 
 ---
@@ -477,3 +565,5 @@ Bei Problemen:
 ---
 
 **Made with ❤️ by OpenFugjooBot**
+
+*Migration complete: Capacitor → React Native + Expo SDK 51*
