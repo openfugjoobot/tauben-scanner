@@ -3,53 +3,55 @@
  * T3: State Management
  */
 
+import {Appearance} from 'react-native';
 import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
 import {AppState} from '../types/store';
 import {mmkvStorage, StorageKeys} from './storage';
+
+// Hilfsfunktion für Dark Mode Erkennung
+const getIsDarkMode = (theme: 'light' | 'dark' | 'system'): boolean => {
+  if (theme === 'dark') return true;
+  if (theme === 'light') return false;
+  // System theme
+  return Appearance.getColorScheme() === 'dark';
+};
 
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       // Initial State
       theme: 'system',
-      isDarkMode: false,
+      isDarkMode: getIsDarkMode('system'),
       isOnline: true,
       lastOnlineCheck: null,
       language: 'de',
       onboardingCompleted: false,
       appVersion: '1.0.0',
-      
+
       // Actions
       setTheme: (theme) => {
-        const isDarkMode = 
-          theme === 'dark' || 
-          (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        
+        const isDarkMode = getIsDarkMode(theme);
         set({theme, isDarkMode});
-        
-        // DOM-Klasse aktualisieren für CSS
-        document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
       },
-      
+
       toggleTheme: () => {
         const currentTheme = get().theme;
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         get().setTheme(newTheme);
       },
-      
+
       setOnlineStatus: (isOnline) => {
         set({
           isOnline,
           lastOnlineCheck: Date.now(),
         });
       },
-      
+
       setLanguage: (language) => {
         set({language});
-        document.documentElement.setAttribute('lang', language);
       },
-      
+
       completeOnboarding: () => {
         set({onboardingCompleted: true});
       },
@@ -67,15 +69,10 @@ export const useAppStore = create<AppState>()(
       onRehydrateStorage: () => (state) => {
         if (state) {
           // Theme nach Rehydration anwenden
-          const isDarkMode = 
-            state.theme === 'dark' || 
-            (state.theme === 'system' && 
-              window.matchMedia('(prefers-color-scheme: dark)').matches);
-          
-          document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-          document.documentElement.setAttribute('lang', state.language);
+          const isDarkMode = getIsDarkMode(state.theme);
+          // Update store with correct dark mode value
+          useAppStore.setState({isDarkMode});
         }
-        console.log('AppStore rehydrated');
       },
     }
   )

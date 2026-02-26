@@ -1,10 +1,11 @@
 /**
  * Storage Konfiguration für Zustand Persistenz
  * T3: State Management
- * 
- * Für React Native: MMKV Storage
- * Für Web: localStorage Fallback
+ *
+ * Für React Native: AsyncStorage
  */
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Storage Interface für Zustand persist
 interface Storage {
@@ -13,91 +14,33 @@ interface Storage {
   removeItem: (name: string) => void | Promise<void>;
 }
 
-// MMKV-ähnliche Storage für Web
-const createWebStorage = (): Storage => ({
-  getItem: (name: string): string | null => {
+// AsyncStorage für React Native
+const createAsyncStorage = (): Storage => ({
+  getItem: async (name: string): Promise<string | null> => {
     try {
-      return localStorage.getItem(name);
+      return await AsyncStorage.getItem(name);
     } catch {
       return null;
     }
   },
-  setItem: (name: string, value: string): void => {
+  setItem: async (name: string, value: string): Promise<void> => {
     try {
-      localStorage.setItem(name, value);
+      await AsyncStorage.setItem(name, value);
     } catch {
       // ignore
     }
   },
-  removeItem: (name: string): void => {
+  removeItem: async (name: string): Promise<void> => {
     try {
-      localStorage.removeItem(name);
+      await AsyncStorage.removeItem(name);
     } catch {
       // ignore
     }
   },
 });
 
-// Lazy-loaded MMKV für React Native
-let mmkvInstance: Storage | null = null;
-
-const getMMKVStorage = (): Storage => {
-  if (mmkvInstance) return mmkvInstance;
-  
-  try {
-    // @ts-ignore - MMKV ist nur in React Native verfügbar
-    const {MMKV} = require('react-native-mmkv');
-    const mmkv = new MMKV({
-      id: 'tauben-scanner-storage',
-      encryptionKey: 'tauben-scanner-secure-key',
-    });
-    
-    mmkvInstance = {
-      getItem: (name: string): string | null => {
-        try {
-          return mmkv.getString(name) ?? null;
-        } catch {
-          return null;
-        }
-      },
-      setItem: (name: string, value: string): void => {
-        try {
-          mmkv.set(name, value);
-        } catch {
-          // ignore
-        }
-      },
-      removeItem: (name: string): void => {
-        try {
-          mmkv.delete(name);
-        } catch {
-          // ignore
-        }
-      },
-    };
-    
-    return mmkvInstance;
-  } catch {
-    // Fallback zu localStorage wenn MMKV nicht verfügbar
-    return createWebStorage();
-  }
-};
-
-// Storage-Instanz (wahlweise MMKV oder localStorage)
-const getStorage = (): Storage => {
-  try {
-    // Prüfe ob wir in React Native sind
-    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return getMMKVStorage();
-    }
-  } catch {
-    // ignore
-  }
-  return createWebStorage();
-};
-
 // Exportiere die Storage-Instanz
-export const mmkvStorage: Storage = getStorage();
+export const mmkvStorage: Storage = createAsyncStorage();
 
 // Spezifische Storage-Keys
 export const StorageKeys = {
@@ -108,30 +51,26 @@ export const StorageKeys = {
 
 // Storage-Utility-Objekt mit zusätzlichen Methoden
 class StorageWrapper {
-  getSize(): number {
+  async getSize(): Promise<number> {
     try {
-      return localStorage.length;
+      const keys = await AsyncStorage.getAllKeys();
+      return keys.length;
     } catch {
       return 0;
     }
   }
 
-  getAllKeys(): string[] {
+  async getAllKeys(): Promise<string[]> {
     try {
-      const keys: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key) keys.push(key);
-      }
-      return keys;
+      return await AsyncStorage.getAllKeys();
     } catch {
       return [];
     }
   }
 
-  clearAll(): void {
+  async clearAll(): Promise<void> {
     try {
-      localStorage.clear();
+      await AsyncStorage.clear();
     } catch {
       // ignore
     }
@@ -141,17 +80,16 @@ class StorageWrapper {
 export const storage = new StorageWrapper();
 
 // Debug-Funktion für Development
-export const clearAllStorage = (): void => {
+export const clearAllStorage = async (): Promise<void> => {
   if (__DEV__) {
-    localStorage.clear();
-    console.log('All storage cleared');
+    await AsyncStorage.clear();
   }
 };
 
 // Storage-Info für Debugging
-export const getStorageInfo = () => {
+export const getStorageInfo = async () => {
   return {
-    size: storage.getSize(),
-    keys: storage.getAllKeys(),
+    size: await storage.getSize(),
+    keys: await storage.getAllKeys(),
   };
 };

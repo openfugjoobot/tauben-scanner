@@ -1,12 +1,14 @@
 /**
  * Store Provider - Integration der Zustand Stores
  * T3: State Management
- * 
+ *
  * Diese Komponente initialisiert Network-Status-Erkennung
  * und synchronisiert Stores mit der App-Lifecycle
  */
 
 import {ReactNode, useEffect} from 'react';
+import NetInfo from '@react-native-community/netinfo';
+import {AppState} from 'react-native';
 import {useApp} from '../../stores';
 
 interface StoreProviderProps {
@@ -17,50 +19,26 @@ export const StoreProvider = ({children}: StoreProviderProps) => {
   const {setOnlineStatus, isOnline} = useApp();
 
   useEffect(() => {
-    // Online/Offline-Status erkennen
-    const handleOnline = () => {
-      console.log('[StoreProvider] App went online');
-      setOnlineStatus(true);
-    };
+    // Network-Status mit NetInfo erkennen
+    const unsubscribeNetInfo = NetInfo.addEventListener((state) => {
+      setOnlineStatus(state.isConnected ?? true);
+    });
 
-    const handleOffline = () => {
-      console.log('[StoreProvider] App went offline');
-      setOnlineStatus(false);
-    };
-
-    // Event Listener hinzufügen
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    // Initialen Status setzen
-    setOnlineStatus(navigator.onLine);
-
-    // Visibility API für App-Lifecycle
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        console.log('[StoreProvider] App in background');
-      } else {
-        console.log('[StoreProvider] App in foreground');
-        // Re-check online status wenn App wieder sichtbar
-        setOnlineStatus(navigator.onLine);
+    // AppState für Lifecycle-Events
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        // Re-check online status wenn App wieder aktiv
+        NetInfo.fetch().then((state) => {
+          setOnlineStatus(state.isConnected ?? true);
+        });
       }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    });
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      unsubscribeNetInfo();
+      subscription.remove();
     };
   }, [setOnlineStatus]);
-
-  // Debug Logging in Entwicklung
-  useEffect(() => {
-    if (__DEV__) {
-      console.log('[StoreProvider] Online Status:', isOnline);
-    }
-  }, [isOnline]);
 
   return <>{children}</>;
 };
