@@ -3,7 +3,7 @@
  * Combined: T3 State Management + T4 API Layer
  */
 
-// Re-export all API hooks from api.ts (T4)
+// Export all API hooks from api.ts (T4) - primary source
 export {
   usePigeons,
   usePigeon,
@@ -18,22 +18,17 @@ export {
   queryKeys,
 } from './api';
 
-// Re-export React Query hooks (T3)
+// Also export from usePigeonQueries.ts (T3) for backward compatibility
 export {
-  usePigeon as usePigeonQuery,
-  usePigeons as usePigeonsQuery,
-  useSightings as useSightingsQuery,
-  useSightingsByPigeon,
-  useCreatePigeon as useCreatePigeonMutation,
+  usePigeons as usePigeonsLegacy,
+  usePigeon as usePigeonLegacy,
+  useCreatePigeon as useCreatePigeonLegacy,
   useUpdatePigeon,
   useDeletePigeon,
-  useCreateSighting as useCreateSightingMutation,
-  useMatchImage as useMatchImageMutation,
+  useSightings as useSightingsLegacy,
+  useSightingsByPigeon,
+  useCreateSighting as useCreateSightingLegacy,
+  useMatchImage as useMatchImageLegacy,
 } from './usePigeonQueries';
 
-// Legacy hooks
-export {useAddPigeonForm} from './useAddPigeon';
-export {useGeolocation} from './useGeolocation';
-export {useMultiStepForm} from './useMultiStepForm';
-export {usePigeonApi} from './usePigeonApi';
-export {useSettingsHook, useAppSettings} from './useSettings';
+export { default } from './api';
