@@ -1,36 +1,34 @@
 /**
  * Hooks Barrel Export
- * Combined T3 + T4 API Layer
+ * Combined: T3 State Management + T4 API Layer
  */
 
-// T4 API Layer - Query Client and Provider
+// Export all API hooks from api.ts (T4) - primary source
 export {
+  usePigeons,
+  usePigeon,
+  useCreatePigeon,
+  useMatchImage,
+  useUploadImage,
+  useSightings,
+  useCreateSighting,
   QueryClient,
   QueryClientProvider,
   createQueryClient,
   queryKeys,
 } from './api';
 
-// T4 API Layer - API hooks
+// Also export from usePigeonQueries.ts (T3) for backward compatibility
 export {
-  usePigeons as usePigeonsAPI,
-  usePigeon as usePigeonAPI,
-  useCreatePigeon as useCreatePigeonAPI,
-  useMatchImage as useMatchImageAPI,
-  useUploadImage as useUploadImageAPI,
-  useSightings as useSightingsAPI,
-  useCreateSighting as useCreateSightingAPI,
-} from './api';
-
-// T3 State Management - React Query Hooks
-export {
-  usePigeons,
-  usePigeon,
-  useSightings,
-  useSightingsByPigeon,
-  useCreatePigeon,
+  usePigeons as usePigeonsLegacy,
+  usePigeon as usePigeonLegacy,
+  useCreatePigeon as useCreatePigeonLegacy,
   useUpdatePigeon,
   useDeletePigeon,
-  useCreateSighting,
-  useMatchImage,
+  useSightings as useSightingsLegacy,
+  useSightingsByPigeon,
+  useCreateSighting as useCreateSightingLegacy,
+  useMatchImage as useMatchImageLegacy,
 } from './usePigeonQueries';
+
+export { default } from './api';

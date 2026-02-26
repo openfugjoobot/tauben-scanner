@@ -9,7 +9,7 @@ import {SettingsState} from '../types/store';
 import {mmkvStorage, StorageKeys} from './storage';
 
 // Default-Werte
-const DEFAULT_API_URL = import.meta.env?.VITE_API_URL || 'http://localhost:3000/api';
+const DEFAULT_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const DEFAULT_MATCH_THRESHOLD = 75;
 const DEFAULT_CACHE_DURATION = 60;
 
