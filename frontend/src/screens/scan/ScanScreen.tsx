@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { Button, View } from "react-native";
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { ScanStackParamList } from '../../types/navigation';
 import { useScan } from '../../stores';
