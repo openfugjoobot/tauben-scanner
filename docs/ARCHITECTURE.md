@@ -4,60 +4,157 @@
 
 ---
 
-## Architektur-Wechsel
+## Tech Stack
 
-### Früher: Client-Side ML
+### Frontend (React Native + Expo)
+
+| Technologie | Zweck | Version |
+|-------------|-------|---------|
+| **React Native** | Native Mobile UI | 0.72+ |
+| **Expo SDK** | Development & Build Platform | 51 |
+| **TypeScript** | Typisierung | 5.9 |
+| **React Navigation v7** | Navigation | ^7.0 |
+| **React Native Paper** | Material Design 3 | ^5.x |
+| **Zustand** | State Management | ^4.x |
+| **React Query** | Server-State & Caching | ^5.x |
+| **Axios** | HTTP Client | ^1.x |
+| **MMKV** | Lokale Persistenz | ^2.x |
+
+### Backend (Node.js + Express)
+
+| Technologie | Zweck |
+|-------------|-------|
+| **Express.js 5** | Web-Framework |
+| **TypeScript 5.9** | Typisierung |
+| **MobileNet-V3** | Server-side Feature Extraction |
+| **TensorFlow.js** | ML Runtime |
+
+### Navigation Flow
 
 ```
-Frontend (TensorFlow.js) → 1024-d Embedding → POST /api/images/match
+┌─────────────────────────────────────────────────────────────┐
+│                    Tab Navigator                             │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │   Scan   │  │ Pigeons  │  │  History │  │ Settings │   │
+│  │   Tab    │◀─┤   Tab    │  │   Tab    │  │   Tab    │   │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘   │
+│       │             │             │             │          │
+│       ▼             ▼             ▼             ▼          │
+│  ┌──────────┐  ┌──────────┐  ╔══════════╗  ┌──────────┐   │
+│  │ Scan     │  │ Pigeons  │  ║ History  ║  │ Settings │   │
+│  │ Screen   │  │ Screen   │  ║ Screen   ║  │ Screen   │   │
+│  └────┬─────┘  └────┬─────┘  ╚══════════╝  └──────────┘   │
+│       │             │                                      │
+│       ▼             ▼                                      │
+│  ┌──────────┐  ╔══════════════╗                            │
+│  │ Result   │  ║ Pigeon       ║                            │
+│  │ Screen   │  ║ Details      ║                            │
+│  └──────────┘  ╚══════════════╝                            │
+│                                                                 │
+└─────────────────────────────────────────────────────────────┘
+
+Legende: ═══ Stack.Navigator()  ─── Tab.Screen
 ```
 
-- MobileNet-V3 lief im Browser/App
-- Frontend generierte Embeddings
-- Backend empfing nur Vektoren
+---
 
-### Jetzt: Server-Side ML
+## Architektur-Wechsel: Capacitor → React Native
+
+### Früher: Capacitor (WebView)
 
 ```
-Frontend (Photo) → POST /api/images/match → Backend (MobileNet-V3) → Embedding
+Frontend (Capacitor WebView) ──▶ Photo ──▶ POST /api/images/match
 ```
 
-- Frontend sendet Base64-Photos
-- Backend extrahiert Embeddings
-- Einheitliche Verarbeitung
+- Hybrid-App im WebView Container
+- Web-basierte UI (React + Vite)
+- Native APIs via Capacitor Plugins
+- Gradlew/Android Studio Builds
+
+### Jetzt: React Native + Expo
+
+```
+Frontend (React Native + Expo) ──▶ Photo ──▶ POST /api/images/match
+```
+
+- Native UI Components (kein WebView)
+- Expo SDK für native Features (Camera, Location)
+- Material Design 3 (React Native Paper)
+- EAS Build für Cloud-Builds
+- OTA Updates via EAS Update
 
 ---
 
 ## Komponenten
 
-### Frontend (React + Capacitor)
+### Frontend (React Native + Expo)
 
 **Aufgaben:**
-- Kamera-Zugriff
-- Photo-Capture als Base64
-- API-Requests mit Timeout-Handling
-- Debug-UI (UploadProgress, NetworkDebugPanel)
+- Kamera-Zugriff via `expo-camera`
+- Photo-Capture für Upload
+- API-Requests mit Axios & React Query
+- State Management via Zustand
+- Lokale Persistenz via MMKV
+- Navigation via React Navigation v7
+- Material Design 3 UI mit React Native Paper
 
 **Key Technologies:**
-- React 19
-- TypeScript 5.9
-- Capacitor 8
-- Vite 7
+- React Native 0.72+
+- Expo SDK 51
+- React Navigation v7
+- React Native Paper v5
+- Zustand
+- React Query
+- Axios
+- MMKV
 
-**Timeout-Konfiguration:**
+**State Flow:**
 
-| Operation | Timeout |
-|-----------|---------|
-| Health Check | 10s |
-| Pigeon List | 15s |
-| Pigeon Registration | 30s |
-| Image Match | 30s |
-| Sighting | 30s |
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   React      │◀────│   Zustand    │◀────│     UI       │
+│   Native     │     │   Stores     │     │  Components  │
+│   Screen     │     │              │     │              │
+└──────┬───────┘     └──────┬───────┘     └──────┬───────┘
+       │                    │                    │
+       │                    │                    │
+       ▼                    ▼                    │
+┌──────────────┐     ┌──────────────┐            │
+│   React      │     │     MMKV     │────────────┘
+│   Query      │────▶│   Persistenz │
+│   (API)      │     └──────────────┘
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│   Backend    │
+│   API        │
+└──────────────┘
+```
+
+**Navigation Architecture:**
+
+```typescript
+// Bottom Tab Navigator (Haupt-Navigation)
+const Tab = createBottomTabNavigator();
+
+// Tab Screens:
+// - ScanTab (Stack)
+// - PigeonsTab (Stack)
+// - HistoryTab (Stack)
+// - SettingsTab (Stack)
+
+// Jeder Tab hat einen eigenen Stack Navigator:
+// Scan Stack: ScanScreen → ResultScreen → RegisterScreen
+// Pigeons Stack: PigeonsScreen → PigeonDetailScreen → AddSightingScreen
+// History Stack: HistoryScreen → DetailScreen
+// Settings Stack: SettingsScreen → ApiConfigScreen → AboutScreen
+```
 
 ### Backend (Express.js)
 
 **Aufgaben:**
-- Photo-Empfang (Base64)
+- Photo-Empfang (FormData multipart)
 - Embedding-Extraktion (MobileNet-V3)
 - Ähnlichkeitssuche (pgvector)
 - CORS-Regelung
@@ -67,60 +164,58 @@ Frontend (Photo) → POST /api/images/match → Backend (MobileNet-V3) → Embed
 - TypeScript 5.9
 - MobileNet-V3 (TensorFlow.js)
 - pg 8 (PostgreSQL)
+- Multer (File Upload)
 
-**CORS-Konfiguration:**
+---
+
+## State Management
+
+### Zustand Stores
 
 ```typescript
-// Backend regelt CORS - kein Nginx-Proxy für CORS
-app.use(cors({
-  origin: function(origin, callback) {
-    const allowedOrigins = [
-      'https://tauben-scanner.fugjoo.duckdns.org',
-      'capacitor://localhost',
-      'http://localhost:5173',
-      // ...
-    ];
-    
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, origin || '*');
-    } else {
-      callback(new Error('Not allowed'));
-    }
+// AppStore - Globale App-Einstellungen
+interface AppState {
+  theme: 'light' | 'dark' | 'system';
+  isOnline: boolean;
+  language: string;
+  onboardingCompleted: boolean;
+}
+
+// ScanStore - Scan-Workflow State
+interface ScanState {
+  status: 'idle' | 'capturing' | 'uploading' | 'processing' | 'completed' | 'error';
+  capturedPhoto: string | null;
+  result: ScanResult | null;
+  scanHistory: ScanResult[];
+}
+
+// SettingsStore - User & API Settings
+interface SettingsState {
+  apiUrl: string;
+  apiKey: string | null;
+  matchThreshold: number;
+  debugMode: boolean;
+}
+```
+
+### React Query Integration
+
+```typescript
+// API Queries mit Caching
+const { data: pigeons } = useQuery({
+  queryKey: ['pigeons'],
+  queryFn: fetchPigeons,
+  staleTime: 5 * 60 * 1000, // 5 Minuten
+});
+
+// Mutations
+const mutation = useMutation({
+  mutationFn: uploadPhoto,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['pigeons'] });
   },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+});
 ```
-
-### Datenbank (PostgreSQL + pgvector)
-
-**Schema:**
-
-| Tabelle | Zweck |
-|---------|-------|
-| `pigeons` | Registrierte Tauben mit Embedding |
-| `images` | Bilder (optional) |
-| `sightings` | Sichtungen |
-
-**Indizes:**
-
-```sql
--- HNSW für Vektor-Suche
-CREATE INDEX pigeons_embedding_idx ON pigeons 
-USING hnsw (embedding vector_cosine_ops)
-WITH (m = 16, ef_construction = 64);
-
--- GIN für Full-Text-Suche
-CREATE INDEX pigeons_name_search_idx ON pigeons 
-USING gin(to_tsvector('german', name));
-```
-
-### Storage (MinIO)
-
-- S3-kompatibler Object Storage
-- Speichert Original-Bilder
-- Zugriff über API
 
 ---
 
@@ -130,29 +225,29 @@ USING gin(to_tsvector('german', name));
 
 ```
 ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
-│  Camera  │────▶│  Base64  │────▶│  Backend │────▶│  MinIO   │
-│  Capture │     │  Photo   │     │  Upload  │     │ Storage  │
-└──────────┘     └──────────┘     └──────────┘     └──────────┘
-                                         │
-                                         ▼
-                                  ┌──────────┐
-                                  │ MobileNet│
-                                  │ Embedding│
-                                  └────┬─────┘
-                                       │
-                                       ▼
-                                  ┌──────────┐
-                                  │PostgreSQL│
-                                  │ (pgvector)
-                                  └──────────┘
+│  Camera  │────▶│  FormData │────▶│ Backend  │────▶│  MinIO   │
+│  Capture │     │  (Axios) │     │  Upload  │     │ Storage  │
+└──────────┘     └──────────┘     └────┬─────┘     └──────────┘
+                                     │
+                                     ▼
+                              ┌──────────┐
+                              │ MobileNet│
+                              │ Embedding│
+                              └────┬─────┘
+                                   │
+                                   ▼
+                              ┌──────────┐
+                              │PostgreSQL│
+                              │ (pgvector)
+                              └──────────┘
 ```
 
 ### Photo-Matching
 
 ```
 ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
-│  Camera  │────▶│  Base64  │────▶│  Backend │────▶│ MobileNet│
-│  Capture │     │  Photo   │     │  Upload  │     │ Embedding│
+│  Camera  │────▶│  FormData │────▶│ Backend  │────▶│ MobileNet│
+│  Capture │     │  (Axios) │     │  Upload  │     │ Embedding│
 └──────────┘     └──────────┘     └────┬─────┘     └────┬─────┘
                                        │                │
                                        │                ▼
@@ -181,89 +276,132 @@ USING gin(to_tsvector('german', name));
 | `/api/sightings` | POST | Sichtung erstellen |
 | `/health` | GET | Health-Check |
 
-### Request/Response Beispiele
+### Frontend API Client
 
-**POST /api/pigeons:**
+```typescript
+// axios instance
+import axios from 'axios';
 
-```json
-{
-  "name": "Rudi",
-  "photo": "iVBORw0KGgoAAAANSUhEUgAAABAAAA...",
-  "location": { "lat": 52.5200, "lng": 13.4050 }
-}
-```
+const api = axios.create({
+  baseURL: 'https://api.tauben-scanner.de',
+  timeout: 30000,
+  headers: { 'Content-Type': 'application/json' },
+});
 
-**POST /api/images/match:**
+// Request Interceptor für Auth
+api.interceptors.request.use((config) => {
+  const apiKey = useSettingsStore.getState().apiKey;
+  if (apiKey) {
+    config.headers.Authorization = `Bearer ${apiKey}`;
+  }
+  return config;
+});
 
-```json
-{
-  "photo": "iVBORw0KGgoAAAANSUhEUgAAABAAAA...",
-  "threshold": 0.80
-}
+// Bild-Upload mit FormData
+export const uploadImage = async (uri: string, name: string) => {
+  const formData = new FormData();
+  formData.append('photo', {
+    uri,
+    name,
+    type: 'image/jpeg',
+  });
+  
+  const { data } = await api.post('/api/images/match', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  
+  return data;
+};
 ```
 
 ---
 
-## Mobile App
+## Mobile App Struktur
 
-### Android-Konfiguration
-
-**capacitor.config.ts:**
-
-```typescript
-const isDebugBuild = process.env.NODE_ENV !== 'production' 
-  && process.env.BUILD_TYPE !== 'release';
-
-const config: CapacitorConfig = {
-  appId: 'com.taubenscanner.app',
-  webDir: 'dist',
-  android: {
-    webContentsDebuggingEnabled: isDebugBuild
-  }
-};
 ```
-
-### Berechtigungen
-
-```xml
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+frontend/
+├── src/
+│   ├── navigation/
+│   │   └── TabNavigator.tsx          # Bottom Tab Navigator
+│   ├── screens/
+│   │   ├── scan/
+│   │   │   ├── ScanScreen.tsx
+│   │   │   └── ResultScreen.tsx
+│   │   ├── pigeons/
+│   │   │   ├── PigeonsScreen.tsx
+│   │   │   └── PigeonDetailScreen.tsx
+│   │   └── settings/
+│   │       └── SettingsScreen.tsx
+│   ├── components/
+│   │   ├── ui/                        # Reusable UI components
+│   │   │   ├── PaperCard.tsx
+│   │   │   └── PaperButton.tsx
+│   │   └── camera/
+│   │       └── CameraView.tsx        # Expo Camera Wrapper
+│   ├── stores/
+│   │   ├── appStore.ts
+│   │   ├── scanStore.ts
+│   │   └── settingsStore.ts
+│   ├── hooks/
+│   │   ├── usePigeons.ts             # React Query hooks
+│   │   ├── useScanImage.ts
+│   │   └── useSightings.ts
+│   ├── services/
+│   │   └── api.ts                    # Axios setup
+│   └── types/
+│       └── index.ts
+├── App.tsx                           # Root App Component
+├── app.json                          # Expo Configuration
+└── state_management.md               # State Management Docs
 ```
 
 ---
 
 ## Build-System
 
-### GitHub Actions
+### EAS Build
 
-**Workflow:**
+```bash
+# Login
+npx expo login
 
-1. Checkout
-2. Node.js Setup (v22)
-3. Java Setup (v21)
-4. Android SDK Setup
-5. Dependencies installieren
-6. Web-Assets bilden
-7. Capacitor Sync
-8. Debug APK bilden
-9. Release APK bilden
-10. Artefakte hochladen
+# Build für interne Preview
+ eas build --platform android --profile preview
 
-**Build-Outputs:**
+# Production Build
+ eas build --platform android --profile production
 
-| Typ | Datei | Debugging |
-|-----|-------|-----------|
-| Debug | `app-debug.apk` | webContentsDebuggingEnabled=true |
-| Release | `app-release-unsigned.apk` | webContentsDebuggingEnabled=false |
+# OTA Update
+eas update --channel production --message "Update"
+```
+
+### EAS Konfiguration (eas.json)
+
+```json
+{
+  "cli": {
+    "version": ">= 5.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "android": { "buildType": "apk" }
+    },
+    "production": {
+      "distribution": "store"
+    }
+  }
+}
+```
 
 ---
 
 ## Deployment
 
-### Docker-Compose
+### Docker-Compose (Backend)
 
 ```yaml
 services:
@@ -274,8 +412,7 @@ services:
     build: ./backend
     environment:
       - NODE_ENV=production
-      - CORS_ORIGINS=https://...
-    
+
   minio:
     image: minio/minio:latest
 ```
@@ -284,9 +421,9 @@ services:
 
 ⚠️ **Backend regelt CORS allein.**
 
-- Nginx Proxy Manager: KEINE CORS-Headers hinzufügen
-- Backend: `Access-Control-Allow-Origin` mit reflected origin
-- Null-Origin wird für Android WebView erlaubt
+- Erlaubte Origins in `CORS_ORIGINS` konfigurieren
+- React Native App verwendet oft `null` Origin
+- Credentials unterstützt
 
 ---
 
@@ -297,8 +434,9 @@ services:
 - ✅ HTTPS-only (kein cleartext)
 - ✅ CORS vom Backend
 - ✅ Security Headers (Helmet)
-- ✅ Request-Timeouts
+- ✅ Request-Timeouts (Axios)
 - ✅ Input-Validierung
+- ✅ MMKV verschlüsselt (optional)
 
 ### Empfohlen
 
@@ -310,3 +448,5 @@ services:
 ---
 
 **Zurück zur [Hauptdokumentation](../README.md)**
+
+*Letzte Aktualisierung: React Native + Expo SDK 51 Migration*
