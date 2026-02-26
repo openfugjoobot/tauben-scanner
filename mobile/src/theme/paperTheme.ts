@@ -1,5 +1,5 @@
 import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
-import { lightColors, darkColors } from './colors';
+import { lightColors, darkColors, palette } from './colors';
 import { typography } from './typography';
 
 const fontConfig = {
@@ -124,6 +124,8 @@ export const paperLightTheme = {
     error: lightColors.error,
     onError: lightColors.onError,
     outline: lightColors.outline,
+    success: lightColors.success,
+    warning: palette.warning,
   },
 };
 
@@ -141,5 +143,7 @@ export const paperDarkTheme = {
     error: darkColors.error,
     onError: darkColors.onError,
     outline: darkColors.outline,
+    success: darkColors.success,
+    warning: palette.warning,
   },
 };
