@@ -13,7 +13,7 @@ interface QueryProviderProps {
 }
 
 export const QueryProvider = ({children}: QueryProviderProps) => {
-  const isDev = (__DEV__ === true) || process?.env?.NODE_ENV === 'development';
+  const isDev = (__DEV__ === true) || process?.env?.NODE_ENV === 'development' || import.meta.env.DEV;
   
   return (
     <QueryClientProvider client={queryClient}>

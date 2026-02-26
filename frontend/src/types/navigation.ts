@@ -1,25 +1,43 @@
 /**
  * Navigation Types für Tauben Scanner App
  * React Navigation v7 mit TypeScript
+ * T7: Scan Flow - Erweiterte Navigation Types
  */
 
 import { NavigatorScreenParams, NavigationProp } from '@react-navigation/native';
 
+// Match-Result für Scan Flow
+export interface MatchResult {
+  pigeonId: string;
+  name: string;
+  confidence: number;
+  photoUrl?: string;
+}
+
 // ==================== SCAN STACK ====================
 export type ScanStackParamList = {
   ScanScreen: undefined;
-  PreviewScreen: { imageUri: string };
+  PreviewScreen: { imageUri: string; imageBase64?: string };
   ResultsScreen: {
-    pigeonId: string;
-    matchScore: number;
     imageUri: string;
+    matches: MatchResult[];
+    isNewPigeon: boolean;
+  };
+  PigeonDetailScreen?: { 
+    pigeonId?: string;
+    isNew?: boolean;
+    initialPhotoUri?: string;
   };
 };
 
 // ==================== PIGEONS STACK ====================
 export type PigeonsStackParamList = {
   PigeonListScreen: undefined;
-  PigeonDetailScreen: { pigeonId: string };
+  PigeonDetailScreen: { 
+    pigeonId?: string;
+    isNew?: boolean;
+    initialPhotoUri?: string;
+  };
 };
 
 // ==================== ROOT TAB ====================
