@@ -313,7 +313,12 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
       {/* Aktionen */}
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => {
+            Alert.alert('Teilen', 'Teilen-Funktion kommt bald!');
+          }}
+        >
           <MaterialCommunityIcons name="share-variant" size={20} color="#4A90D9" />
           <Text style={styles.actionButtonText}>Taube teilen</Text>
         </TouchableOpacity>
