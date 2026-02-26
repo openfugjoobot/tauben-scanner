@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { ScanStackParamList } from '../../types/navigation';
-=======
 /**
  * ScanScreen - Kamera-Screen mit Overlay UI
  * T7: Scan Flow - Camera → Preview → Results Flow
@@ -24,51 +17,10 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { ScanStackParamList } from '../../types/navigation';
 import { useScan } from '../../stores';
->>>>>>> main
 
 type Props = NativeStackScreenProps<ScanStackParamList, 'ScanScreen'>;
 
 export const ScanScreen: React.FC<Props> = ({ navigation }) => {
-<<<<<<< HEAD
-  const handleTakePhoto = () => {
-    // Placeholder für Kamera-Funktionalität
-    const mockImageUri = 'file://mock/photo.jpg';
-    navigation.navigate('PreviewScreen', { imageUri: mockImageUri });
-  };
-
-  const handleSelectFromGallery = () => {
-    // Placeholder für Galerie-Funktionalität
-    const mockImageUri = 'file://mock/gallery.jpg';
-    navigation.navigate('PreviewScreen', { imageUri: mockImageUri });
-  };
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <MaterialCommunityIcons name="scan-helper" size={64} color="#4A90D9" />
-        <Text style={styles.title}>Taube scannen</Text>
-        <Text style={styles.subtitle}>Wähle eine Methode um eine Taube zu scannen</Text>
-      </View>
-
-      <View style={styles.optionsContainer}>
-        <TouchableOpacity style={styles.optionCard} onPress={handleTakePhoto}>
-          <View style={styles.iconContainer}>
-            <MaterialCommunityIcons name="camera-iris" size={40} color="white" />
-          </View>
-          <Text style={styles.optionTitle}>Foto aufnehmen</Text>
-          <Text style={styles.optionDescription}>Verwende die Kamera um eine Taube zu fotografieren</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.optionCard} onPress={handleSelectFromGallery}>
-          <View style={[styles.iconContainer, styles.secondaryIconContainer]}>
-            <MaterialCommunityIcons name="image-multiple" size={40} color="#4A90D9" />
-          </View>
-          <Text style={styles.optionTitle}>Aus Galerie wählen</Text>
-          <Text style={styles.optionDescription}>Wähle ein vorhandenes Foto aus deiner Galerie</Text>
-        </TouchableOpacity>
-      </View>
-
-=======
   const [isLoading, setIsLoading] = useState(false);
   const { setCapturedPhoto, setStatus, setLocation } = useScan();
 
@@ -272,16 +224,11 @@ export const ScanScreen: React.FC<Props> = ({ navigation }) => {
       </View>
 
       {/* Tips */}
->>>>>>> main
       <View style={styles.tipContainer}>
         <MaterialCommunityIcons name="lightbulb-outline" size={20} color="#F39C12" />
         <Text style={styles.tipText}>
           <Text style={styles.tipBold}>Tipp: </Text>
-<<<<<<< HEAD
-          Achte auf gute Beleuchtung für beste Ergebnisse.
-=======
           Achte auf gute Beleuchtung und positioniere die Taube mittig im Bild.
->>>>>>> main
         </Text>
       </View>
     </View>
@@ -294,14 +241,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F7FA',
     padding: 20,
   },
-<<<<<<< HEAD
-  header: {
-    alignItems: 'center',
-    paddingVertical: 30,
-  },
-  title: {
-    fontSize: 24,
-=======
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -312,7 +251,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
->>>>>>> main
     fontWeight: 'bold',
     color: '#2C3E50',
     marginTop: 16,
@@ -324,50 +262,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 20,
   },
-<<<<<<< HEAD
-  optionsContainer: {
-    gap: 16,
-  },
-  optionCard: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#4A90D9',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  secondaryIconContainer: {
-    backgroundColor: '#EBF4FD',
-  },
-  optionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2C3E50',
-    marginBottom: 8,
-  },
-  optionDescription: {
-    fontSize: 14,
-    color: '#7F8C8D',
-    textAlign: 'center',
-  },
-  tipContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 24,
-=======
   instructionCard: {
     backgroundColor: 'white',
     borderRadius: 16,
@@ -463,7 +357,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginTop: 20,
->>>>>>> main
     padding: 16,
     backgroundColor: '#FEF9E7',
     borderRadius: 12,
@@ -471,28 +364,18 @@ const styles = StyleSheet.create({
     borderColor: '#FCE8B2',
   },
   tipText: {
-<<<<<<< HEAD
-    fontSize: 14,
-    color: '#8B6914',
-    marginLeft: 8,
-    flex: 1,
-=======
     fontSize: 13,
     color: '#8B6914',
     marginLeft: 8,
     flex: 1,
     lineHeight: 18,
->>>>>>> main
   },
   tipBold: {
     fontWeight: '600',
   },
-<<<<<<< HEAD
-=======
   loadingText: {
     marginTop: 12,
     fontSize: 14,
     color: '#7F8C8D',
   },
->>>>>>> main
 });

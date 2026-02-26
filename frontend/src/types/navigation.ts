@@ -1,11 +1,6 @@
 /**
  * Navigation Types für Tauben Scanner App
  * React Navigation v7 mit TypeScript
-<<<<<<< HEAD
- */
-
-import { NavigatorScreenParams } from '@react-navigation/native';
-=======
  * T7: Scan Flow - Erweiterte Navigation Types
  */
 
@@ -18,18 +13,10 @@ export interface MatchResult {
   confidence: number;
   photoUrl?: string;
 }
->>>>>>> main
 
 // ==================== SCAN STACK ====================
 export type ScanStackParamList = {
   ScanScreen: undefined;
-<<<<<<< HEAD
-  PreviewScreen: { imageUri: string };
-  ResultsScreen: {
-    pigeonId: string;
-    matchScore: number;
-    imageUri: string;
-=======
   PreviewScreen: { imageUri: string; imageBase64?: string };
   ResultsScreen: {
     imageUri: string;
@@ -40,22 +27,17 @@ export type ScanStackParamList = {
     pigeonId?: string;
     isNew?: boolean;
     initialPhotoUri?: string;
->>>>>>> main
   };
 };
 
 // ==================== PIGEONS STACK ====================
 export type PigeonsStackParamList = {
   PigeonListScreen: undefined;
-<<<<<<< HEAD
-  PigeonDetailScreen: { pigeonId: string };
-=======
   PigeonDetailScreen: { 
     pigeonId?: string;
     isNew?: boolean;
     initialPhotoUri?: string;
   };
->>>>>>> main
 };
 
 // ==================== ROOT TAB ====================
@@ -77,13 +59,3 @@ declare global {
     interface RootParamList extends RootTabParamList {}
   }
 }
-<<<<<<< HEAD
-
-export type {
-  ScanStackParamList,
-  PigeonsStackParamList,
-  RootTabParamList,
-  RootStackParamList,
-};
-=======
->>>>>>> main

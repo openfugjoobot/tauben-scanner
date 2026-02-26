@@ -12,13 +12,6 @@ const queryClient = createQueryClient();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-<<<<<<< HEAD
-    <QueryProvider>
-      <StoreProvider>
-        <App />
-      </StoreProvider>
-    </QueryProvider>
-=======
     <QueryClientProvider client={queryClient}>
       <QueryProvider>
         <StoreProvider>
@@ -26,6 +19,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </StoreProvider>
       </QueryProvider>
     </QueryClientProvider>
->>>>>>> main
   </React.StrictMode>,
 );

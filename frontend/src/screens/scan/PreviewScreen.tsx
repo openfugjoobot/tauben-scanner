@@ -1,33 +1,3 @@
-<<<<<<< HEAD
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { ScanStackParamList } from '../../types/navigation';
-
-type Props = NativeStackScreenProps<ScanStackParamList, 'PreviewScreen'>;
-
-export const PreviewScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { imageUri } = route.params;
-
-  const handleConfirm = () => {
-    // Placeholder: Sende Bild zur Analyse
-    navigation.navigate('ResultsScreen', {
-      pigeonId: 'mock-pigeon-123',
-      matchScore: 0.87,
-      imageUri,
-    });
-  };
-
-  const handleRetake = () => {
-    navigation.goBack();
-  };
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <MaterialCommunityIcons name="image-check" size={32} color="#4A90D9" />
-=======
 /**
  * PreviewScreen - Zeigt aufgenommenes Bild mit Upload-Progress
  * T7: Scan Flow - Preview → Upload → Results
@@ -219,48 +189,10 @@ export const PreviewScreen: React.FC<Props> = ({ route, navigation }) => {
       {/* Header */}
       <View style={styles.header}>
         <MaterialCommunityIcons name="image-check-outline" size={32} color="#4A90D9" />
->>>>>>> main
         <Text style={styles.title}>Vorschau</Text>
         <Text style={styles.subtitle}>Überprüfe das Bild vor dem Scannen</Text>
       </View>
 
-<<<<<<< HEAD
-      <View style={styles.imageContainer}>
-        <View style={styles.imagePlaceholder}>
-          <MaterialCommunityIcons name="image" size={64} color="#BDC3C7" />
-          <Text style={styles.placeholderText}>{imageUri}</Text>
-        </View>
-      </View>
-
-      <View style={styles.checklist}>
-        <Text style={styles.checklistTitle}>Prüfung:</Text>
-        <View style={styles.checklistItem}>
-          <MaterialCommunityIcons name="check-circle" size={20} color="#27AE60" />
-          <Text style={styles.checklistText}>Taube ist gut sichtbar</Text>
-        </View>
-        <View style={styles.checklistItem}>
-          <MaterialCommunityIcons name="check-circle" size={20} color="#27AE60" />
-          <Text style={styles.checklistText}>Bild ist scharf</Text>
-        </View>
-        <View style={styles.checklistItem}>
-          <MaterialCommunityIcons name="check-circle" size={20} color="#F39C12" />
-          <Text style={styles.checklistText}>Genug Licht</Text>
-        </View>
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.retakeButton} onPress={handleRetake}>
-          <MaterialCommunityIcons name="camera-retake" size={20} color="#7F8C8D" />
-          <Text style={styles.retakeButtonText}>Neu aufnehmen</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-          <MaterialCommunityIcons name="magnify-scan" size={20} color="white" />
-          <Text style={styles.confirmButtonText}>Taube scannen</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-=======
       {/* Image Display */}
       <View style={styles.imageContainer}>
         {imageUri ? (
@@ -333,7 +265,6 @@ export const PreviewScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
       )}
     </ScrollView>
->>>>>>> main
   );
 };
 
@@ -341,13 +272,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F7FA',
-<<<<<<< HEAD
-    padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    paddingVertical: 20,
-=======
   },
   content: {
     padding: 20,
@@ -356,45 +280,19 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginBottom: 20,
->>>>>>> main
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#2C3E50',
     marginTop: 12,
-<<<<<<< HEAD
-    marginBottom: 8,
-=======
     marginBottom: 4,
->>>>>>> main
   },
   subtitle: {
     fontSize: 14,
     color: '#7F8C8D',
   },
   imageContainer: {
-<<<<<<< HEAD
-    flex: 1,
-    marginVertical: 16,
-  },
-  imagePlaceholder: {
-    flex: 1,
-    backgroundColor: '#ECF0F1',
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: '#BDC3C7',
-  },
-  placeholderText: {
-    marginTop: 12,
-    fontSize: 12,
-    color: '#95A5A6',
-    paddingHorizontal: 20,
-    textAlign: 'center',
-=======
     backgroundColor: '#2C3E50',
     borderRadius: 16,
     overflow: 'hidden',
@@ -415,54 +313,34 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 14,
     color: '#95A5A6',
->>>>>>> main
   },
   checklist: {
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 20,
-<<<<<<< HEAD
-    marginBottom: 16,
-=======
     marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
->>>>>>> main
   },
   checklistTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#2C3E50',
-<<<<<<< HEAD
-    marginBottom: 12,
-=======
     marginBottom: 16,
->>>>>>> main
   },
   checklistItem: {
     flexDirection: 'row',
     alignItems: 'center',
-<<<<<<< HEAD
-    marginBottom: 8,
-    gap: 8,
-=======
     marginBottom: 12,
     gap: 10,
->>>>>>> main
   },
   checklistText: {
     fontSize: 14,
     color: '#34495E',
   },
-<<<<<<< HEAD
-  buttonContainer: {
-    gap: 12,
-  },
-  retakeButton: {
-=======
   // Progress Bar
   progressContainer: {
     backgroundColor: 'white',
@@ -581,7 +459,6 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
   },
   newPhotoButton: {
->>>>>>> main
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -592,20 +469,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 8,
   },
-<<<<<<< HEAD
-  retakeButtonText: {
-=======
   newPhotoButtonText: {
->>>>>>> main
     color: '#7F8C8D',
     fontSize: 16,
     fontWeight: '500',
   },
-<<<<<<< HEAD
-  confirmButton: {
-=======
   searchButton: {
->>>>>>> main
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -614,11 +483,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 8,
   },
-<<<<<<< HEAD
-  confirmButtonText: {
-=======
   searchButtonText: {
->>>>>>> main
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
