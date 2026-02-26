@@ -22,8 +22,8 @@
     "android": {
       "package": "com.openfugjoobot.taubenscanner",
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/adaptive-icon.png"
+        "backgroundColor": "#4A90D9",
+        "foregroundImage": "./assets/adaptive-icon-foreground.png"
       },
       "permissions": [
         "CAMERA",
