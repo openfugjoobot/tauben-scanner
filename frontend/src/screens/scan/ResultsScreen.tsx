@@ -59,7 +59,7 @@ export const ResultsScreen: React.FC<Props> = ({ route, navigation }) => {
 
       <View style={styles.resultCard}>
         <View style={styles.resultHeader}>
-          <MaterialCommunityIcons name="pigeon" size={32} color="#4A90D9" />
+          <MaterialCommunityIcons name="bird" size={32} color="#4A90D9" />
           <View style={styles.pigeonInfo}>
             <Text style={styles.pigeonName}>Taube #{pigeonId.slice(-4)}</Text>
             <Text style={styles.pigeonId}>ID: {pigeonId}</Text>

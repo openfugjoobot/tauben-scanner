@@ -13,10 +13,12 @@ interface QueryProviderProps {
 }
 
 export const QueryProvider = ({children}: QueryProviderProps) => {
+  const isDev = (__DEV__ === true) || process?.env?.NODE_ENV === 'development';
+  
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {import.meta.env.DEV && (
+      {isDev && (
         <ReactQueryDevtools {...getDevtoolsOptions()} />
       )}
     </QueryClientProvider>

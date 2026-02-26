@@ -3,7 +3,7 @@
  * React Navigation v7 mit TypeScript
  */
 
-import { NavigatorScreenParams } from '@react-navigation/native';
+import { NavigatorScreenParams, NavigationProp } from '@react-navigation/native';
 
 // ==================== SCAN STACK ====================
 export type ScanStackParamList = {
@@ -35,16 +35,20 @@ export type RootStackParamList = {
   MainTabs: undefined;
 };
 
-// ==================== NAVIGATION EXPORTS ====================
-declare global {
-  namespace ReactNavigation {
-    interface RootParamList extends RootTabParamList {}
-  }
-}
+// ==================== NAVIGATION PROP TYPES ====================
+export type RootTabNavigationProp = NavigationProp<RootTabParamList>;
 
+// ==================== NAVIGATION EXPORTS ====================
 export type {
   ScanStackParamList,
   PigeonsStackParamList,
   RootTabParamList,
   RootStackParamList,
 };
+
+// ==================== GLOBAL TYPE DECLARATION ====================
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootTabParamList {}
+  }
+}
