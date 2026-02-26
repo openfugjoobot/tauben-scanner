@@ -1,19 +1,5 @@
-/**
- * PigeonDetailScreen - Zeigt Details einer Taube oder erstellt neue
- * T7: Scan Flow - Unterstützt isNew Parameter für neue Tauben
- */
-
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-  TextInput,
-  Alert,
-} from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { PigeonsStackParamList } from '../../types/navigation';
@@ -41,154 +27,12 @@ const SIGHTINGS_DATA = [
 ];
 
 export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { pigeonId, isNew = false, initialPhotoUri } = route.params || {};
-  const [isEditing, setIsEditing] = useState(isNew);
-  const [pigeonName, setPigeonName] = useState('');
-  const [pigeonNotes, setPigeonNotes] = useState('');
-
-  // Für bestehende Tauben
-  const pigeon = pigeonId && !isNew ? getMockPigeon(pigeonId) : null;
-
-  const handleSaveNewPigeon = () => {
-    if (!pigeonName.trim()) {
-      Alert.alert('Fehler', 'Bitte gib einen Namen für die Taube ein.');
-      return;
-    }
-
-    // TODO: API call to create new pigeon
-    Alert.alert(
-      'Taube erstellt',
-      `"${pigeonName}" wurde erfolgreich hinzugefügt.`,
-      [
-        {
-          text: 'OK',
-          onPress: () => navigation.navigate('PigeonListScreen'),
-        },
-      ]
-    );
-  };
-
-  const handleCancel = () => {
-    if (isNew) {
-      navigation.goBack();
-    } else {
-      setIsEditing(false);
-    }
-  };
-
-  const handleDelete = () => {
-    Alert.alert(
-      'Taube löschen',
-      'Möchtest du diese Taube wirklich löschen?',
-      [
-        { text: 'Abbrechen', style: 'cancel' },
-        {
-          text: 'Löschen',
-          style: 'destructive',
-          onPress: () => {
-            // TODO: API call to delete pigeon
-            navigation.goBack();
-          },
-        },
-      ]
-    );
-  };
-
-  // Neuen Taube Formular
-  if (isNew) {
-    return (
-      <ScrollView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
-            <MaterialCommunityIcons name="arrow-left" size={24} color="#2C3E50" />
-          </TouchableOpacity>
-          <View style={styles.headerTitle}>
-            <Text style={styles.title}>Neue Taube</Text>
-          </View>
-          <View style={{ width: 40 }} />
-        </View>
-
-        {/* Photo Preview */}
-        <View style={styles.profileSection}>
-          <View style={styles.profileImageContainer}>
-            <View style={[styles.profileImagePlaceholder, styles.newPigeonImage]}>
-              {initialPhotoUri ? (
-                <Image
-                  source={{ uri: initialPhotoUri }}
-                  style={styles.initialPhoto}
-                  resizeMode="cover"
-                />
-              ) : (
-                <MaterialCommunityIcons name="pigeon" size={64} color="#BDC3C7" />
-              )}
-            </View>
-          </View>
-          <Text style={styles.newPigeonHint}>
-            Das aufgenommene Foto wird als Referenzbild verwendet.
-          </Text>
-        </View>
-
-        {/* Form */}
-        <View style={styles.formSection}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Name der Taube *</Text>
-            <TextInput
-              style={styles.textInput}
-              value={pigeonName}
-              onChangeText={setPigeonName}
-              placeholder="z.B. Hansi"
-              placeholderTextColor="#95A5A6"
-              autoFocus
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Notizen</Text>
-            <TextInput
-              style={[styles.textInput, styles.textArea]}
-              value={pigeonNotes}
-              onChangeText={setPigeonNotes}
-              placeholder="Optionale Notizen zur Taube..."
-              placeholderTextColor="#95A5A6"
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-            />
-          </View>
-        </View>
-
-        {/* Actions */}
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.primaryActionButton}
-            onPress={handleSaveNewPigeon}
-          >
-            <MaterialCommunityIcons name="check" size={20} color="white" />
-            <Text style={styles.primaryActionText}>Taube speichern</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-            <Text style={styles.cancelText}>Abbrechen</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    );
-  }
-
-  // Bestehende Taube anzeigen
-  if (!pigeon) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <MaterialCommunityIcons name="alert" size={48} color="#E74C3C" />
-        <Text style={styles.errorText}>Taube nicht gefunden</Text>
-      </View>
-    );
-  }
+  const { pigeonId } = route.params;
+  const pigeon = getMockPigeon(pigeonId);
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header */}
+      {/* Header mit Back-Button */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -199,10 +43,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.headerTitle}>
           <Text style={styles.title}>{pigeon.name}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => setIsEditing(!isEditing)}
-        >
+        <TouchableOpacity style={styles.editButton}>
           <MaterialCommunityIcons name="pencil" size={20} color="#4A90D9" />
         </TouchableOpacity>
       </View>
@@ -211,7 +52,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       <View style={styles.profileSection}>
         <View style={styles.profileImageContainer}>
           <View style={styles.profileImagePlaceholder}>
-            <MaterialCommunityIcons name="pigeon" size={64} color="#BDC3C7" />
+            <MaterialCommunityIcons name="bird" size={64} color="#BDC3C7" />
           </View>
           <View style={styles.statusBadge}>
             <MaterialCommunityIcons name="check-circle" size={20} color="#27AE60" />
@@ -268,12 +109,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="earth" size={20} color="#7F8C8D" />
             <Text style={styles.infoLabel}>Sichtbarkeit:</Text>
-            <Text
-              style={[
-                styles.infoValue,
-                { color: pigeon.isPublic ? '#27AE60' : '#E74C3C' },
-              ]}
-            >
+            <Text style={[styles.infoValue, { color: pigeon.isPublic ? '#27AE60' : '#E74C3C' }]}>
               {pigeon.isPublic ? 'Öffentlich' : 'Privat'}
             </Text>
           </View>
@@ -302,9 +138,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               </View>
               <View style={styles.confidenceBadge}>
                 <MaterialCommunityIcons name="percent" size={12} color="white" />
-                <Text style={styles.confidenceText}>
-                  {Math.round(sighting.confidence * 100)}
-                </Text>
+                <Text style={styles.confidenceText}>{Math.round(sighting.confidence * 100)}</Text>
               </View>
             </View>
           ))}
@@ -318,14 +152,9 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           <Text style={styles.actionButtonText}>Taube teilen</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.actionButton, styles.deleteButton]}
-          onPress={handleDelete}
-        >
+        <TouchableOpacity style={[styles.actionButton, styles.deleteButton]}>
           <MaterialCommunityIcons name="delete" size={20} color="#E74C3C" />
-          <Text style={[styles.actionButtonText, styles.deleteText]}>
-            Löschen
-          </Text>
+          <Text style={[styles.actionButtonText, styles.deleteText]}>Löschen</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -336,10 +165,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F7FA',
-  },
-  centered: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -399,23 +224,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 3,
     borderColor: '#EBF4FD',
-    overflow: 'hidden',
-  },
-  newPigeonImage: {
-    width: 160,
-    height: 160,
-    borderRadius: 16,
-  },
-  initialPhoto: {
-    width: '100%',
-    height: '100%',
-  },
-  newPigeonHint: {
-    fontSize: 13,
-    color: '#7F8C8D',
-    textAlign: 'center',
-    paddingHorizontal: 40,
-    marginTop: 8,
   },
   statusBadge: {
     position: 'absolute',
@@ -449,34 +257,6 @@ const styles = StyleSheet.create({
     width: 1,
     height: 40,
     backgroundColor: '#ECF0F1',
-  },
-  formSection: {
-    padding: 20,
-    gap: 20,
-  },
-  inputGroup: {
-    gap: 8,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2C3E50',
-  },
-  textInput: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#ECF0F1',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: '#2C3E50',
-  },
-  textArea: {
-    minHeight: 100,
-    paddingTop: 14,
-    paddingBottom: 14,
-    lineHeight: 20,
   },
   infoSection: {
     padding: 20,
@@ -612,33 +392,5 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     color: '#E74C3C',
-  },
-  primaryActionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#4A90D9',
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 8,
-  },
-  primaryActionText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  cancelText: {
-    color: '#7F8C8D',
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#7F8C8D',
-    marginTop: 12,
   },
 });

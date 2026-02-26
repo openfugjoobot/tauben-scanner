@@ -71,7 +71,7 @@ export const PigeonListScreen: React.FC<Props> = ({ navigation }) => {
       onPress={() => navigation.navigate('PigeonDetailScreen', { pigeonId: item.id })}
     >
       <View style={styles.pigeonImagePlaceholder}>
-        <MaterialCommunityIcons name="pigeon" size={32} color="#BDC3C7" />
+        <MaterialCommunityIcons name="bird" size={32} color="#BDC3C7" />
       </View>
 
       <View style={styles.pigeonInfo}>
@@ -132,7 +132,7 @@ export const PigeonListScreen: React.FC<Props> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <MaterialCommunityIcons name="pigeon-off" size={48} color="#BDC3C7" />
+            <MaterialCommunityIcons name="image-off" size={48} color="#BDC3C7" />
             <Text style={styles.emptyText}>Keine Tauben gefunden</Text>
           </View>
         }

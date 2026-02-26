@@ -4,7 +4,7 @@
  * T7: Scan Flow - Erweiterte Navigation Types
  */
 
-import type { NavigatorScreenParams } from '@react-navigation/native';
+import { NavigatorScreenParams, NavigationProp } from '@react-navigation/native';
 
 // Match-Result für Scan Flow
 export interface MatchResult {
@@ -53,7 +53,18 @@ export type RootStackParamList = {
   MainTabs: undefined;
 };
 
+// ==================== NAVIGATION PROP TYPES ====================
+export type RootTabNavigationProp = NavigationProp<RootTabParamList>;
+
 // ==================== NAVIGATION EXPORTS ====================
+export type {
+  ScanStackParamList,
+  PigeonsStackParamList,
+  RootTabParamList,
+  RootStackParamList,
+};
+
+// ==================== GLOBAL TYPE DECLARATION ====================
 declare global {
   namespace ReactNavigation {
     interface RootParamList extends RootTabParamList {}
