@@ -73,6 +73,9 @@ export interface ScanState {
 // ==========================================
 // Settings Store Types
 // ==========================================
+export type ThemeMode = 'light' | 'dark' | 'system';
+export type Language = 'de' | 'en';
+
 export interface SettingsState {
   // API Settings
   apiUrl: string;
@@ -88,6 +91,13 @@ export interface SettingsState {
   matchThreshold: number; // 0-100
   savePhotos: boolean;
   compressPhotos: boolean;
+  
+  // Theme & Language
+  theme: ThemeMode;
+  language: Language;
+  
+  // Connectivity
+  offlineMode: boolean;
   
   // Advanced
   debugMode: boolean;
@@ -105,6 +115,11 @@ export interface SettingsState {
   toggleCompressPhotos: () => void;
   toggleDebugMode: () => void;
   setCacheDuration: (minutes: number) => void;
+  setTheme: (theme: ThemeMode) => void;
+  setLanguage: (language: Language) => void;
+  toggleOfflineMode: () => void;
+  setOfflineMode: (value: boolean) => void;
+  testApiConnection: () => Promise<{success: boolean; message: string}>;
   resetSettings: () => void;
 }
 

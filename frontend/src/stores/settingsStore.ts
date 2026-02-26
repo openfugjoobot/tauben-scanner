@@ -1,17 +1,21 @@
 /**
  * Settings Store - API-URL, Benutzereinstellungen
  * T3: State Management
+ * T9: Settings Screen
  */
 
 import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
-import {SettingsState} from '../types/store';
+import {SettingsState, ThemeMode, Language} from '../types/store';
 import {mmkvStorage, StorageKeys} from './storage';
 
 // Default-Werte
 const DEFAULT_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 const DEFAULT_MATCH_THRESHOLD = 75;
 const DEFAULT_CACHE_DURATION = 60;
+
+// App Version
+const APP_VERSION = '1.0.0';
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
@@ -26,6 +30,9 @@ export const useSettingsStore = create<SettingsState>()(
       matchThreshold: DEFAULT_MATCH_THRESHOLD,
       savePhotos: true,
       compressPhotos: true,
+      theme: 'system' as ThemeMode,
+      language: 'de' as Language,
+      offlineMode: false,
       debugMode: false,
       cacheDuration: DEFAULT_CACHE_DURATION,
       
@@ -72,6 +79,32 @@ export const useSettingsStore = create<SettingsState>()(
         set({compressPhotos: !current});
       },
       
+      setTheme: (theme) => {
+        set({theme});
+        // Trigger theme change event
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('theme-change', {detail: theme}));
+        }
+      },
+      
+      setLanguage: (language) => {
+        set({language});
+        // Trigger language change event
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('language-change', {detail: language}));
+        }
+      },
+      
+      toggleOfflineMode: () => {
+        const current = get().offlineMode;
+        const newValue = !current;
+        set({offlineMode: newValue});
+      },
+      
+      setOfflineMode: (offlineMode) => {
+        set({offlineMode});
+      },
+      
       toggleDebugMode: () => {
         const current = get().debugMode;
         const newValue = !current;
@@ -89,6 +122,26 @@ export const useSettingsStore = create<SettingsState>()(
         set({cacheDuration: clamped});
       },
       
+      testApiConnection: async () => {
+        const {apiUrl} = get();
+        try {
+          const response = await fetch(`${apiUrl}/health`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (response.ok) {
+            return {success: true, message: 'Verbindung erfolgreich'};
+          } else {
+            return {success: false, message: `Fehler: ${response.status} ${response.statusText}`};
+          }
+        } catch (error) {
+          return {success: false, message: `Verbindungsfehler: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`};
+        }
+      },
+      
       resetSettings: () => {
         set({
           apiUrl: DEFAULT_API_URL,
@@ -100,6 +153,9 @@ export const useSettingsStore = create<SettingsState>()(
           matchThreshold: DEFAULT_MATCH_THRESHOLD,
           savePhotos: true,
           compressPhotos: true,
+          theme: 'system',
+          language: 'de',
+          offlineMode: false,
           debugMode: false,
           cacheDuration: DEFAULT_CACHE_DURATION,
         });
@@ -125,6 +181,9 @@ export const useSettingsStore = create<SettingsState>()(
         matchThreshold: state.matchThreshold,
         savePhotos: state.savePhotos,
         compressPhotos: state.compressPhotos,
+        theme: state.theme,
+        language: state.language,
+        offlineMode: state.offlineMode,
         debugMode: state.debugMode,
         cacheDuration: state.cacheDuration,
       }),
@@ -158,10 +217,15 @@ export const useSettings = () => {
     matchThreshold: store.matchThreshold,
     savePhotos: store.savePhotos,
     compressPhotos: store.compressPhotos,
+    theme: store.theme,
+    language: store.language,
+    offlineMode: store.offlineMode,
     debugMode: store.debugMode,
     cacheDuration: store.cacheDuration,
+    appVersion: APP_VERSION,
     // Computed
     isConfigured: !!store.apiUrl,
+    isDarkMode: store.theme === 'dark' || (store.theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches),
     // Actions
     setApiUrl: store.setApiUrl,
     setApiKey: store.setApiKey,
@@ -172,8 +236,13 @@ export const useSettings = () => {
     setMatchThreshold: store.setMatchThreshold,
     toggleSavePhotos: store.toggleSavePhotos,
     toggleCompressPhotos: store.toggleCompressPhotos,
+    setTheme: store.setTheme,
+    setLanguage: store.setLanguage,
+    toggleOfflineMode: store.toggleOfflineMode,
+    setOfflineMode: store.setOfflineMode,
     toggleDebugMode: store.toggleDebugMode,
     setCacheDuration: store.setCacheDuration,
+    testApiConnection: store.testApiConnection,
     resetSettings: store.resetSettings,
   };
 };
@@ -184,3 +253,9 @@ export const useApiKey = () => useSettingsStore((state) => state.apiKey);
 export const useMatchThreshold = () => useSettingsStore((state) => state.matchThreshold);
 export const useDebugMode = () => useSettingsStore((state) => state.debugMode);
 export const useCacheDuration = () => useSettingsStore((state) => state.cacheDuration);
+export const useTheme = () => useSettingsStore((state) => state.theme);
+export const useLanguage = () => useSettingsStore((state) => state.language);
+export const useOfflineMode = () => useSettingsStore((state) => state.offlineMode);
+
+// Export app version
+export {APP_VERSION};

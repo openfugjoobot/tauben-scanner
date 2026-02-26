@@ -27,7 +27,7 @@
     "expo-status-bar": "~55.0.4",
     "expo-vector-icons": "^10.0.1",
     "react": "19.2.0",
-    "react-dom": "^19.2.4",
+    "react-dom": "19.2.0",
     "react-hook-form": "^7.71.2",
     "react-native": "0.83.2",
     "react-native-mmkv": "^4.1.2",

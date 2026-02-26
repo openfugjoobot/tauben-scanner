@@ -27,6 +27,10 @@ export {
   useMatchThreshold,
   useDebugMode,
   useCacheDuration,
+  useTheme,
+  useLanguage,
+  useOfflineMode,
+  APP_VERSION,
 } from './settingsStore';
 
 // Re-export Types
