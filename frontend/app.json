@@ -42,7 +42,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-camera",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Kamera wird verwendet, um Tauben zu fotografieren und zu identifizieren.",
+          "microphonePermission": "Das Mikrofon wird für die Videoaufnahme verwendet (optional)."
+        }
+      ],
       "expo-location"
     ],
     "extra": {
