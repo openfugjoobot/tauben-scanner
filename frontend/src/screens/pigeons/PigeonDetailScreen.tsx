@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+=======
 /**
  * PigeonDetailScreen - Zeigt Details einer Taube oder erstellt neue
  * T7: Scan Flow - Unterstützt isNew Parameter für neue Tauben
@@ -14,6 +18,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+>>>>>>> main
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { PigeonsStackParamList } from '../../types/navigation';
@@ -41,6 +46,14 @@ const SIGHTINGS_DATA = [
 ];
 
 export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
+<<<<<<< HEAD
+  const { pigeonId } = route.params;
+  const pigeon = getMockPigeon(pigeonId);
+
+  return (
+    <ScrollView style={styles.container}>
+      <!-- Header mit Back-Button -->
+=======
   const { pigeonId, isNew = false, initialPhotoUri } = route.params || {};
   const [isEditing, setIsEditing] = useState(isNew);
   const [pigeonName, setPigeonName] = useState('');
@@ -189,6 +202,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
+>>>>>>> main
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -199,15 +213,23 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.headerTitle}>
           <Text style={styles.title}>{pigeon.name}</Text>
         </View>
+<<<<<<< HEAD
+        <TouchableOpacity style={styles.editButton}>
+=======
         <TouchableOpacity
           style={styles.editButton}
           onPress={() => setIsEditing(!isEditing)}
         >
+>>>>>>> main
           <MaterialCommunityIcons name="pencil" size={20} color="#4A90D9" />
         </TouchableOpacity>
       </View>
 
+<<<<<<< HEAD
+      <!-- Profil-Sektion -->
+=======
       {/* Profil-Sektion */}
+>>>>>>> main
       <View style={styles.profileSection}>
         <View style={styles.profileImageContainer}>
           <View style={styles.profileImagePlaceholder}>
@@ -236,7 +258,11 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
       </View>
 
+<<<<<<< HEAD
+      <!-- Info-Karten -->
+=======
       {/* Info-Karten */}
+>>>>>>> main
       <View style={styles.infoSection}>
         <Text style={styles.sectionTitle}>Informationen</Text>
 
@@ -268,12 +294,16 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           <View style={styles.infoRow}>
             <MaterialCommunityIcons name="earth" size={20} color="#7F8C8D" />
             <Text style={styles.infoLabel}>Sichtbarkeit:</Text>
+<<<<<<< HEAD
+            <Text style={[styles.infoValue, { color: pigeon.isPublic ? '#27AE60' : '#E74C3C' }]}>
+=======
             <Text
               style={[
                 styles.infoValue,
                 { color: pigeon.isPublic ? '#27AE60' : '#E74C3C' },
               ]}
             >
+>>>>>>> main
               {pigeon.isPublic ? 'Öffentlich' : 'Privat'}
             </Text>
           </View>
@@ -287,7 +317,11 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         )}
       </View>
 
+<<<<<<< HEAD
+      <!-- Sichtungen -->
+=======
       {/* Sichtungen */}
+>>>>>>> main
       <View style={styles.sightingsSection}>
         <Text style={styles.sectionTitle}>Letzte Sichtungen</Text>
         <View style={styles.sightingsList}>
@@ -302,22 +336,35 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               </View>
               <View style={styles.confidenceBadge}>
                 <MaterialCommunityIcons name="percent" size={12} color="white" />
+<<<<<<< HEAD
+                <Text style={styles.confidenceText}>{Math.round(sighting.confidence * 100)}</Text>
+=======
                 <Text style={styles.confidenceText}>
                   {Math.round(sighting.confidence * 100)}
                 </Text>
+>>>>>>> main
               </View>
             </View>
           ))}
         </View>
       </View>
 
+<<<<<<< HEAD
+      <!-- Aktionen -->
+=======
       {/* Aktionen */}
+>>>>>>> main
       <View style={styles.actions}>
         <TouchableOpacity style={styles.actionButton}>
           <MaterialCommunityIcons name="share-variant" size={20} color="#4A90D9" />
           <Text style={styles.actionButtonText}>Taube teilen</Text>
         </TouchableOpacity>
 
+<<<<<<< HEAD
+        <TouchableOpacity style={[styles.actionButton, styles.deleteButton]}>
+          <MaterialCommunityIcons name="delete" size={20} color="#E74C3C" />
+          <Text style={[styles.actionButtonText, styles.deleteText]}>Löschen</Text>
+=======
         <TouchableOpacity
           style={[styles.actionButton, styles.deleteButton]}
           onPress={handleDelete}
@@ -326,6 +373,7 @@ export const PigeonDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           <Text style={[styles.actionButtonText, styles.deleteText]}>
             Löschen
           </Text>
+>>>>>>> main
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -337,10 +385,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F7FA',
   },
+<<<<<<< HEAD
+=======
   centered: {
     justifyContent: 'center',
     alignItems: 'center',
   },
+>>>>>>> main
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -399,6 +450,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 3,
     borderColor: '#EBF4FD',
+<<<<<<< HEAD
+=======
     overflow: 'hidden',
   },
   newPigeonImage: {
@@ -416,6 +469,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 40,
     marginTop: 8,
+>>>>>>> main
   },
   statusBadge: {
     position: 'absolute',
@@ -450,6 +504,8 @@ const styles = StyleSheet.create({
     height: 40,
     backgroundColor: '#ECF0F1',
   },
+<<<<<<< HEAD
+=======
   formSection: {
     padding: 20,
     gap: 20,
@@ -478,6 +534,7 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     lineHeight: 20,
   },
+>>>>>>> main
   infoSection: {
     padding: 20,
   },
@@ -613,6 +670,8 @@ const styles = StyleSheet.create({
   deleteText: {
     color: '#E74C3C',
   },
+<<<<<<< HEAD
+=======
   primaryActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -641,4 +700,5 @@ const styles = StyleSheet.create({
     color: '#7F8C8D',
     marginTop: 12,
   },
+>>>>>>> main
 });

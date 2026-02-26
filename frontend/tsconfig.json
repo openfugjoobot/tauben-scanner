@@ -1,6 +1,10 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+<<<<<<< HEAD
+    "strict": true
+  }
+=======
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
@@ -23,4 +27,5 @@
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules"]
+>>>>>>> main
 }
