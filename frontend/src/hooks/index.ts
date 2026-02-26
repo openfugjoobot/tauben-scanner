@@ -1,22 +1,37 @@
 /**
  * Hooks Barrel Export
- * T3: State Management
+ * Combined: T3 State Management + T4 API Layer
  */
 
-// New React Query Hooks
+// Re-export all API hooks from api.ts (T4)
 export {
   usePigeons,
   usePigeon,
-  useSightings,
-  useSightingsByPigeon,
   useCreatePigeon,
+  useMatchImage,
+  useUploadImage,
+  useSightings,
+  useCreateSighting,
+  QueryClient,
+  QueryClientProvider,
+  createQueryClient,
+  queryKeys,
+} from './api';
+
+// Re-export React Query hooks (T3)
+export {
+  usePigeon as usePigeonQuery,
+  usePigeons as usePigeonsQuery,
+  useSightings as useSightingsQuery,
+  useSightingsByPigeon,
+  useCreatePigeon as useCreatePigeonMutation,
   useUpdatePigeon,
   useDeletePigeon,
-  useCreateSighting,
-  useMatchImage,
+  useCreateSighting as useCreateSightingMutation,
+  useMatchImage as useMatchImageMutation,
 } from './usePigeonQueries';
 
-// Re-export legacy hooks (kompatibel mit bestehendem Code)
+// Legacy hooks
 export {useAddPigeonForm} from './useAddPigeon';
 export {useGeolocation} from './useGeolocation';
 export {useMultiStepForm} from './useMultiStepForm';
