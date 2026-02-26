@@ -16,7 +16,7 @@ export const QueryProvider = ({children}: QueryProviderProps) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {import.meta.env.DEV && (
+      {__DEV__ && (
         <ReactQueryDevtools {...getDevtoolsOptions()} />
       )}
     </QueryClientProvider>

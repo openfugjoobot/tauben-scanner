@@ -57,7 +57,7 @@ export const StoreProvider = ({children}: StoreProviderProps) => {
 
   // Debug Logging in Entwicklung
   useEffect(() => {
-    if (import.meta.env.DEV) {
+    if (__DEV__) {
       console.log('[StoreProvider] Online Status:', isOnline);
     }
   }, [isOnline]);
