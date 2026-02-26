@@ -1,9 +1,29 @@
 /**
+/**
  * Hooks Barrel Export
- * T3: State Management
+ * Combined T3 + T4 API Layer
  */
 
-// New React Query Hooks
+// T4 API Layer - Query Client and Provider
+export {
+  QueryClient,
+  QueryClientProvider,
+  createQueryClient,
+  queryKeys,
+} from './api';
+
+// T4 API Layer - API hooks
+export {
+  usePigeons as usePigeonsAPI,
+  usePigeon as usePigeonAPI,
+  useCreatePigeon as useCreatePigeonAPI,
+  useMatchImage as useMatchImageAPI,
+  useUploadImage as useUploadImageAPI,
+  useSightings as useSightingsAPI,
+  useCreateSighting as useCreateSightingAPI,
+} from './api';
+
+// T3 State Management - React Query Hooks
 export {
   usePigeons,
   usePigeon,
