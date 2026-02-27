@@ -1,4 +1,4 @@
-import { MMKV } from 'react-native-mmkv';
+const { MMKV } = require('react-native-mmkv');
 
 // MMKV Storage Keys
 export const StorageKeys = {
@@ -30,7 +30,6 @@ export const getStorageInfo = (): { keys: string[] } => ({
 });
 
 export const initializeStorage = (): void => {
-  console.log('[Storage] Initialized with', mmkvStorage.getAllKeys().length, 'keys');
 };
 
 /**

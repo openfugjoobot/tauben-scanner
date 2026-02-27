@@ -39,7 +39,9 @@ export const PigeonSearchHeader: React.FC<PigeonSearchHeaderProps> = ({
           icon="plus"
           onPress={onAddPress}
           style={styles.addButton}
-        />
+        >
+          Neu
+        </Button>
       </View>
       
       {searchQuery.length > 0 && (

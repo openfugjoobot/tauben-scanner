@@ -45,8 +45,8 @@ export const SettingsScreen: React.FC = () => {
         </Text>
         
         <ApiSettings
-          apiUrl={formData.apiUrl}
-          apiKey={formData.apiKey}
+          apiUrl={formData.apiUrl || ''}
+          apiKey={formData.apiKey || ''}
           errors={errors}
           onApiUrlChange={(value) => updateField('apiUrl', value)}
           onApiKeyChange={(value) => updateField('apiKey', value)}
@@ -83,7 +83,7 @@ export const SettingsScreen: React.FC = () => {
         )}
         
         {showSaved && (
-          <View style={[styles.savedBanner, { backgroundColor: theme.colors.success }]}>
+          <View style={[styles.savedBanner, { backgroundColor: theme.colors.success as string }]}>
             <Text variant="caption" style={{ color: '#fff', textAlign: 'center' }}>
               Gespeichert!
             </Text>

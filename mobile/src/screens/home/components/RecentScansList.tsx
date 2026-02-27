@@ -6,10 +6,10 @@ import { Icon } from '../../../components/atoms/Icon';
 import { EmptyState } from '../../../components/molecules/EmptyState';
 import { useTheme } from '../../../theme';
 import { spacing } from '../../../theme/spacing';
-import type { ScanRecord } from '../../../stores/scans';
+import type { ScanResult } from '../../../stores/scans/scanStore.types';
 
 interface RecentScansListProps {
-  scans: ScanRecord[];
+  scans: (ScanResult & { status?: 'success' | 'error' | 'pending' })[];
 }
 
 export const RecentScansList: React.FC<RecentScansListProps> = ({ scans }) => {
@@ -30,9 +30,9 @@ export const RecentScansList: React.FC<RecentScansListProps> = ({ scans }) => {
     );
   }
 
-  const renderScanItem = ({ item }: { item: ScanRecord }) => {
+  const renderScanItem = ({ item }: { item: ScanResult & { status?: 'success' | 'error' | 'pending' } }) => {
     const date = new Date(item.timestamp);
-    const isSuccess = item.status === 'success';
+    const isSuccess = item.status === 'success' || (item.pigeonId !== undefined && item.pigeonId !== null);
     const isError = item.status === 'error';
 
     return (
@@ -41,7 +41,7 @@ export const RecentScansList: React.FC<RecentScansListProps> = ({ scans }) => {
           <Icon
             name={isSuccess ? 'check-circle' : isError ? 'alert-circle' : 'camera'}
             size={24}
-            color={isSuccess ? theme.colors.success : isError ? theme.colors.error : theme.colors.primary}
+            color={isSuccess ? (theme.colors.success as string) : isError ? (theme.colors.error as string) : theme.colors.primary}
           />
           
           <View style={styles.scanInfo}>
@@ -62,7 +62,7 @@ export const RecentScansList: React.FC<RecentScansListProps> = ({ scans }) => {
             <Text
               variant="caption"
               style={{
-                color: item.confidence > 0.8 ? theme.colors.success : theme.colors.warning,
+                color: item.confidence > 0.8 ? (theme.colors.success as string) : (theme.colors.warning as string),
               }}
             >
               {Math.round(item.confidence * 100)}%

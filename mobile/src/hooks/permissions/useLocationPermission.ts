@@ -21,7 +21,6 @@ export const useLocationPermission = (): UseLocationPermissionReturn => {
       const { status: locationStatus } = await Location.getForegroundPermissionsAsync();
       setStatus(locationStatus as LocationPermissionStatus);
     } catch (error) {
-      console.error('Error checking location permission:', error);
       setStatus('denied');
     } finally {
       setIsLoading(false);
@@ -35,7 +34,6 @@ export const useLocationPermission = (): UseLocationPermissionReturn => {
       setStatus(locationStatus as LocationPermissionStatus);
       return locationStatus === 'granted';
     } catch (error) {
-      console.error('Error requesting location permission:', error);
       setStatus('denied');
       return false;
     } finally {

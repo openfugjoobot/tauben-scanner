@@ -21,11 +21,12 @@ export const EmptyPigeonList: React.FC<EmptyPigeonListProps> = ({ onAddPigeon })
         Es wurden keine Tauben gefunden. Füge eine neue Taube hinzu, um zu beginnen.
       </Text>
       <Button
-        label="Taube hinzufügen"
         onPress={onAddPigeon}
         variant="primary"
         style={styles.button}
-      />
+      >
+        Taube hinzufügen
+      </Button>
     </View>
   );
 };

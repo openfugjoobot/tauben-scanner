@@ -45,14 +45,14 @@ export const SightingsList: React.FC<SightingsListProps> = ({ sightings }) => {
       
       <Card style={styles.content}>
         <View style={styles.header}>
-          <Text variant="body2" style={styles.date}>
+          <Text variant="caption" style={styles.date}>
             {formatDate(item.date)}
           </Text>
         </View>
         
         <View style={styles.locationContainer}>
-          <Icon name="map-pin" size={16} color={palette.gray[400]} />
-          <Text variant="body2" style={styles.location} numberOfLines={1}>
+          <Icon name="map-marker" size={16} color={palette.gray[400]} />
+          <Text variant="caption" style={styles.location} numberOfLines={1}>
             {item.location.address || `${item.location.lat.toFixed(4)}, ${item.location.lng.toFixed(4)}`}
           </Text>
         </View>

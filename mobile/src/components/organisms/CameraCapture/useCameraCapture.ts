@@ -69,7 +69,6 @@ export const useCameraCapture = (): [CameraCaptureState, CameraCaptureActions, R
         });
       }
     } catch (error) {
-      console.error('Failed to take photo:', error);
     } finally {
       setIsCapturing(false);
     }

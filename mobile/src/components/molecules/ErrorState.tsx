@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Icon } from '../atoms/Icon';
+import { Icon, IconName } from '../atoms/Icon';
 import { Text } from '../atoms/Text';
 import { Button } from '../atoms/Button';
 import { useTheme } from '../../theme';
@@ -9,7 +9,7 @@ interface ErrorStateProps {
   title?: string;
   message?: string;
   onRetry?: () => void;
-  icon?: string;
+  icon?: IconName;
 }
 
 export const ErrorState: React.FC<ErrorStateProps> = ({

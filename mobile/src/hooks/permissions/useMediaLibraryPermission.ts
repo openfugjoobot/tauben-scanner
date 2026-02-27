@@ -21,7 +21,6 @@ export const useMediaLibraryPermission = (): UseMediaLibraryPermissionReturn => 
       const { status: mediaStatus } = await MediaLibrary.getPermissionsAsync();
       setStatus(mediaStatus as MediaLibraryPermissionStatus);
     } catch (error) {
-      console.error('Error checking media library permission:', error);
       setStatus('denied');
     } finally {
       setIsLoading(false);
@@ -35,7 +34,6 @@ export const useMediaLibraryPermission = (): UseMediaLibraryPermissionReturn => 
       setStatus(mediaStatus as MediaLibraryPermissionStatus);
       return mediaStatus === 'granted';
     } catch (error) {
-      console.error('Error requesting media library permission:', error);
       setStatus('denied');
       return false;
     } finally {

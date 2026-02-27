@@ -1,10 +1,10 @@
 import React from 'react';
 import { TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import { Text } from './Text';
-import { Icon } from './Icon';
+import { Icon, IconName } from './Icon';
 import { useTheme } from '../../theme';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline';
 export type ButtonSize = 'small' | 'medium' | 'large';
 
 export interface ButtonProps {
@@ -14,7 +14,7 @@ export interface ButtonProps {
   size?: ButtonSize;
   disabled?: boolean;
   loading?: boolean;
-  icon?: string;
+  icon?: IconName;
   iconPosition?: 'left' | 'right';
   style?: any;
 }
@@ -38,6 +38,7 @@ export const Button: React.FC<ButtonProps> = ({
       case 'primary': return theme.colors.primary;
       case 'secondary': return theme.colors.secondary;
       case 'danger': return theme.colors.error;
+      case 'outline':
       case 'ghost': return 'transparent';
       default: return theme.colors.primary;
     }
@@ -46,6 +47,7 @@ export const Button: React.FC<ButtonProps> = ({
   const getTextColor = () => {
     if (disabled) return theme.colors.onSurfaceDisabled;
     switch (variant) {
+      case 'outline':
       case 'ghost': return theme.colors.primary;
       default: return theme.colors.onPrimary;
     }
@@ -67,6 +69,8 @@ export const Button: React.FC<ButtonProps> = ({
         styles.button,
         {
           backgroundColor: getBackgroundColor(),
+          borderWidth: variant === 'outline' ? 1 : 0,
+          borderColor: theme.colors.primary,
           ...getPadding(),
         },
         style,

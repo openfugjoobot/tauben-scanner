@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Icon } from '../atoms/Icon';
+import { Icon, IconName } from '../atoms/Icon';
 import { Text } from '../atoms/Text';
 import { Button } from '../atoms/Button';
 import { useTheme } from '../../theme';
 
 interface EmptyStateProps {
-  icon?: string;
+  icon?: IconName;
   title: string;
   message?: string;
   actionLabel?: string;

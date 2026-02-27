@@ -27,8 +27,8 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
         disabled={!onPress}
       >
         <View style={styles.row}>
-          <Text variant="body1" style={styles.label}>{label}</Text>
-          {value && <Text variant="body2" style={styles.value}>{value}</Text>}
+          <Text variant="body" style={styles.label}>{label}</Text>
+          {value && <Text variant="caption" style={styles.value}>{value}</Text>}
         </View>
         {children && <View style={styles.children}>{children}</View>}
       </Container>

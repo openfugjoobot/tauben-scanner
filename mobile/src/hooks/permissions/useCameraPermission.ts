@@ -22,7 +22,6 @@ export const useCameraPermission = (): UseCameraPermissionReturn => {
       const { status: cameraStatus } = await Camera.getCameraPermissionsAsync();
       setStatus(cameraStatus as CameraPermissionStatus);
     } catch (error) {
-      console.error('Error checking camera permission:', error);
       setStatus('denied');
     } finally {
       setIsLoading(false);
@@ -40,7 +39,6 @@ export const useCameraPermission = (): UseCameraPermissionReturn => {
       setStatus(cameraStatus as CameraPermissionStatus);
       return cameraStatus === 'granted';
     } catch (error) {
-      console.error('Error requesting camera permission:', error);
       setStatus('denied');
       return false;
     } finally {

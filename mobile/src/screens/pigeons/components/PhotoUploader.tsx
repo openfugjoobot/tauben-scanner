@@ -19,7 +19,6 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
 
   const handlePress = () => {
     // In a real app, this would open the image picker
-    console.log('Open image picker');
   };
 
   return (

@@ -27,7 +27,6 @@ export const PigeonDetailScreen: React.FC = () => {
       await deleteMutation.mutateAsync(pigeonId);
       navigation.goBack();
     } catch (err) {
-      console.error('Failed to delete pigeon:', err);
     }
   };
 

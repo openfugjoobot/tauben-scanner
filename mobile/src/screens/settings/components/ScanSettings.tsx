@@ -21,7 +21,7 @@ export const ScanSettings: React.FC<ScanSettingsProps> = ({
     <SettingsSection title="Scan-Einstellungen">
       <SettingsItem label="Übereinstimmungsschwellenwert">
         <View style={styles.container}>
-          <Text variant="body2" style={styles.valueText}>
+          <Text variant="caption" style={styles.valueText}>
             {(matchThreshold * 100).toFixed(0)}% Vertrauen erforderlich
           </Text>
           <Slider

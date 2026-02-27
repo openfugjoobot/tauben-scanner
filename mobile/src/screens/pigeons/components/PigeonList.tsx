@@ -3,14 +3,7 @@ import { View, StyleSheet, FlatList, ActivityIndicator, ListRenderItem } from 'r
 import { PigeonCard } from '../../../components/molecules/PigeonCard';
 import { spacing } from '../../../theme/spacing';
 import { useTheme } from '../../../theme';
-
-interface Pigeon {
-  id: string;
-  name: string;
-  ringNumber?: string;
-  color?: string;
-  imageUrl?: string;
-}
+import { Pigeon } from '../../../services/api/apiClient.types';
 
 interface PigeonListProps {
   pigeons: Pigeon[];

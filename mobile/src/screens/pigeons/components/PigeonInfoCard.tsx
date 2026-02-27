@@ -38,7 +38,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
             <Text variant="caption" style={styles.label}>
               Ringnummer
             </Text>
-            <Text variant="body1">
+            <Text variant="body">
               {pigeon.ringNumber || 'Keine'}
             </Text>
           </View>
@@ -50,7 +50,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
             <Text variant="caption" style={styles.label}>
               Zuerst gesehen
             </Text>
-            <Text variant="body1">
+            <Text variant="body">
               {formatDate(pigeon.firstSeen)}
             </Text>
           </View>
@@ -64,7 +64,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
             <Text variant="caption" style={styles.label}>
               Sichtungen
             </Text>
-            <Text variant="body1">
+            <Text variant="body">
               {pigeon.sightingsCount}
             </Text>
           </View>
@@ -76,7 +76,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
             <Text variant="caption" style={styles.label}>
               Zuletzt aktualisiert
             </Text>
-            <Text variant="body1">
+            <Text variant="body">
               {formatDate(pigeon.updatedAt)}
             </Text>
           </View>

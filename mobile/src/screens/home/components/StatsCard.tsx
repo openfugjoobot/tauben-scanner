@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Card } from '../../../components/atoms/Card';
 import { Text } from '../../../components/atoms/Text';
 import { Skeleton } from '../../../components/atoms/Skeleton';
-import { Icon } from '../../../components/atoms/Icon';
+import { Icon, IconName } from '../../../components/atoms/Icon';
 import { useTheme } from '../../../theme';
 import { spacing } from '../../../theme/spacing';
 
@@ -35,7 +35,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({
     );
   }
 
-  const stats = [
+  const stats: { icon: IconName; value: number; label: string }[] = [
     { icon: 'bird', value: totalPigeons, label: 'Tauben' },
     { icon: 'eye', value: totalSightings, label: 'Sichtungen' },
     { icon: 'camera', value: recentScans, label: 'Scans' },

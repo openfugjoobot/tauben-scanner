@@ -13,6 +13,7 @@ interface PigeonCardProps {
   pigeon: Pigeon;
   onPress?: () => void;
   showSightings?: boolean;
+  style?: any;
 }
 
 export const PigeonCard: React.FC<PigeonCardProps> = ({

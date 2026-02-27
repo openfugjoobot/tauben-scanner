@@ -17,7 +17,7 @@ export const TabNavigator: React.FC = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof MaterialCommunityIcons.glyphMap;
+          let iconName: keyof typeof MaterialCommunityIcons.glyphMap = 'help';
           
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';

@@ -39,7 +39,9 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
             icon="plus"
             onPress={onAddPigeonPress}
             style={styles.addButton}
-          />
+          >
+            +
+          </Button>
           <Text variant="caption" style={styles.actionLabel}>
             Hinzufügen
           </Text>

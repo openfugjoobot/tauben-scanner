@@ -26,7 +26,6 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
         url: pigeon.photoUrl,
       });
     } catch (error) {
-      console.error('Error sharing pigeon:', error);
     }
   };
 
@@ -47,7 +46,7 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
         <Image source={{ uri: pigeon.photoUrl }} style={styles.image} />
       ) : (
         <View style={[styles.image, styles.placeholder]}>
-          <Icon name="pigeon" size={80} color={palette.gray[400]} />
+          <Icon name="bird" size={80} color={palette.gray[400]} />
         </View>
       )}
 
@@ -61,13 +60,13 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
 
         <View style={styles.actions}>
           <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
-            <Icon name="share-2" size={20} color="white" />
+            <Icon name="share-variant" size={20} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={onEdit}>
-            <Icon name="edit-2" size={20} color="white" />
+            <Icon name="pencil" size={20} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton} onPress={confirmDelete}>
-            <Icon name="trash-2" size={20} color="white" />
+            <Icon name="trash-can" size={20} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -76,7 +75,7 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
         <Text variant="h1" style={styles.name}>
           {pigeon.name}
         </Text>
-        <Text variant="body1" style={styles.color}>
+        <Text variant="body" style={styles.color}>
           {pigeon.color}
         </Text>
       </View>

@@ -19,8 +19,8 @@ export const Badge: React.FC<BadgeProps> = ({
 
   const getBackgroundColor = () => {
     switch (variant) {
-      case 'success': return theme.colors.success;
-      case 'warning': return theme.colors.warning;
+      case 'success': return theme.colors.success as string;
+      case 'warning': return theme.colors.warning as string;
       case 'error': return theme.colors.error;
       default: return theme.colors.primary;
     }

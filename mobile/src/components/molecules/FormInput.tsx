@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import { Text } from '../atoms/Text';
-import { Icon } from '../atoms/Icon';
+import { Icon, IconName } from '../atoms/Icon';
 import { useTheme } from '../../theme';
 import { spacing } from '../../theme/spacing';
 
@@ -15,8 +15,8 @@ interface FormInputProps {
   secureTextEntry?: boolean;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  leftIcon?: string;
-  rightIcon?: string;
+  leftIcon?: IconName;
+  rightIcon?: IconName;
   onRightIconPress?: () => void;
   disabled?: boolean;
   multiline?: boolean;
