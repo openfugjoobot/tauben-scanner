@@ -13,7 +13,10 @@ export const useMatchImage = () => {
   
   return useMutation({
     mutationFn: (data: MatchRequest) =>
-      apiClient.post<MatchResponse>('/match', data),
+      apiClient.post<MatchResponse>('/images/match', {
+        photo: data.image,
+        threshold: data.threshold
+      }),
     onSuccess: (result) => {
       // Prefetch matched pigeon if found
       if (result.pigeon) {
