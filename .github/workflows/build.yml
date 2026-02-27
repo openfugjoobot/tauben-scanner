@@ -40,24 +40,20 @@ jobs:
           echo "EXPO_PUBLIC_API_URL=https://api.example.com/api/v1" > .env
           echo "EXPO_PUBLIC_STORAGE_KEY=default-key" >> .env
 
-      - name: Prebuild Android
+      - name: Build APK with Expo
         run: |
           cd mobile
-          npx expo prebuild --platform android --clean
+          npx expo run:android --variant release --no-dev --no-install
 
-      - name: Fix gradle wrapper permissions
+      - name: Find APK
         run: |
-          cd mobile/android
-          chmod +x gradlew
-
-      - name: Build APK
-        run: |
-          cd mobile/android
-          ./gradlew assembleRelease --no-daemon --warning-mode=none
+          find mobile -name "*.apk" -type f 2>/dev/null | head -5
+          ls -la mobile/android/app/build/outputs/apk/release/ 2>/dev/null || true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: tauben-scanner-apk
-          path: mobile/android/app/build/outputs/apk/release/app-release.apk
+          path: "mobile/**/app-release.apk"
           retention-days: 30
+          if-no-files-found: warn
