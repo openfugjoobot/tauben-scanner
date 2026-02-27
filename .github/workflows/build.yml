@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches: [main]
-  workflow_dispatch: # Manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,34 +17,41 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup EAS
-        uses: expo/expo-github-action@v8
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Install dependencies
         run: cd mobile && npm ci --legacy-peer-deps
 
-      - name: Build Android APK
-        run: cd mobile && eas build --platform android --profile production --non-interactive
-
-      - name: Download APK
+      - name: Create env file
         run: |
           cd mobile
-          BUILD_ID=$(eas build:list --platform android --json --limit 1 | jq -r '.[0].id')
-          eas build:download --platform android --non-interactive
-          ls -la *.apk || echo "APK not found"
+          echo "EXPO_PUBLIC_API_URL=https://api.example.com/api/v1" > .env
+          echo "EXPO_PUBLIC_STORAGE_KEY=default-key" >> .env
 
-      - name: Upload APK artifact
+      - name: Prebuild Android
+        run: cd mobile && npx expo prebuild --platform android --clean
+
+      - name: Build APK
+        run: |
+          cd mobile/android
+          ./gradlew assembleRelease
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: tauben-scanner-apk
-          path: mobile/*.apk
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 30
 
-      - name: Post build summary
+      - name: Build Summary
         if: success()
         run: |
           echo "✅ Build successful!"
-          echo "APK available as artifact: tauben-scanner-apk"
+          echo "APK: mobile/android/app/build/outputs/apk/release/app-release.apk"
