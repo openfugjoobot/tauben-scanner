@@ -26,27 +26,15 @@ jobs:
       - name: Install dependencies
         run: cd mobile && npm ci --legacy-peer-deps
 
-      - name: Configure EAS project
-        run: cd mobile && npx eas config --platform android --profile production
-
       - name: Build with EAS
         run: |
           cd mobile
-          npx eas build --platform android --profile production --non-interactive --local || \
-          npx eas build --platform android --profile production --non-interactive
-
-      - name: Download APK
-        if: success()
-        run: |
-          cd mobile
-          EAS_BUILD_ID=$(npx eas build:list --platform android --json --limit 1 | jq -r '.[0].id')
-          if [ -n "$EAS_BUILD_ID" ]; then
-            npx eas build:download --id "$EAS_BUILD_ID" --platform android --path tauben-scanner.apk
-          fi
+          npx eas build --platform android --profile production --non-interactive --json --output tauben-scanner.apk || npx eas build --platform android --profile production --non-interactive
 
       - name: Upload APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: tauben-scanner-apk
-          path: mobile/tauben-scanner.apk
+          path: mobile/*.apk
           retention-days: 30
