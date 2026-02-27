@@ -40,20 +40,29 @@ jobs:
           echo "EXPO_PUBLIC_API_URL=https://api.example.com/api/v1" > .env
           echo "EXPO_PUBLIC_STORAGE_KEY=default-key" >> .env
 
-      - name: Build APK with Expo
+      - name: Prebuild Android
         run: |
           cd mobile
-          npx expo run:android --variant release --no-install
+          npx expo prebuild --platform android --clean
 
-      - name: Find APK
+      - name: Fix Android build.gradle
         run: |
-          find mobile -name "*.apk" -type f 2>/dev/null | head -5
-          ls -la mobile/android/app/build/outputs/apk/release/ 2>/dev/null || true
+          cd mobile/android
+          # Add mavenCentral und Expo repo
+          sed -i 's/google()/mavenCentral()\n        google()/' build.gradle
+          sed -i '/google()/a\        maven { url "https://maven.pkg.jetbrains.space/public/p/kotlinx-coroutines/maven" }' build.gradle
+
+      - name: Make gradlew executable
+        run: chmod +x mobile/android/gradlew
+
+      - name: Build APK
+        run: |
+          cd mobile/android
+          ./gradlew assembleRelease --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: tauben-scanner-apk
-          path: "mobile/**/app-release.apk"
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 30
-          if-no-files-found: warn
