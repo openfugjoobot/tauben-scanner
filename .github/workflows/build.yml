@@ -43,7 +43,7 @@ jobs:
       - name: Build APK with Expo
         run: |
           cd mobile
-          npx expo run:android --variant release --no-dev --no-install
+          npx expo run:android --variant release --no-install
 
       - name: Find APK
         run: |
