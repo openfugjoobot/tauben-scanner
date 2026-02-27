@@ -1,0 +1,63 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: npm ci --legacy-peer-deps
+
+      - name: Create environment file
+        working-directory: ./mobile
+        run: |
+          echo "EXPO_PUBLIC_API_URL=${{ secrets.API_URL || 'https://api.example.com/api/v1' }}" > .env
+          echo "EXPO_PUBLIC_STORAGE_KEY=${{ secrets.STORAGE_KEY || 'default-key' }}" >> .env
+
+      - name: Build Android APK with EAS
+        working-directory: ./mobile
+        run: |
+          eas build \
+            --platform android \
+            --profile production \
+            --non-interactive \
+            --wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EAS_BUILD_NO_EXPO_GO_WARNING: "true"
+
+      - name: Download APK from EAS
+        if: success()
+        working-directory: ./mobile
+        run: |
+          # Get the latest build URL
+          BUILD_URL=$(eas build:list --platform android --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
+          echo "Build URL: $BUILD_URL"
+          echo "build_url=$BUILD_URL" >> $GITHUB_ENV
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "✅ Build completed successfully!"
+          echo "Download APK from: https://expo.dev/accounts/openfugjoobot/projects/tauben-scanner/builds"
