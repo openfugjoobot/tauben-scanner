@@ -24,7 +24,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
-        run: cd mobile && npm ci
+        run: cd mobile && npm ci --legacy-peer-deps
 
       - name: Build Android APK
         run: cd mobile && eas build --platform android --profile production --non-interactive

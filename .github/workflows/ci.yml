@@ -18,7 +18,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: cd mobile && npm ci
+        run: cd mobile && npm ci --legacy-peer-deps
 
       - name: TypeScript check
         run: cd mobile && npx tsc --noEmit
