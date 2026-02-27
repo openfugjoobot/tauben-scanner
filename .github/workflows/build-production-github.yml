@@ -44,11 +44,15 @@ jobs:
         working-directory: ./mobile/android
         run: ./gradlew assembleRelease
 
+      - name: Debug APK Path
+        working-directory: ./mobile/android
+        run: find app/build/outputs/apk -name "*.apk"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: mobile/android/app/build/outputs/apk/**/*.apk
 
       - name: Build Summary
         if: success()
