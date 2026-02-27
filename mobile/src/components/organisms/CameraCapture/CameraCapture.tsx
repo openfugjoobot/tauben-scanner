@@ -68,15 +68,20 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         facing={state.cameraType}
         flash={state.flashMode}
         zoom={state.zoom}
+        enableTorch={state.flashMode === 'on'}
       />
       
-      <CameraControls
-        flashMode={state.flashMode}
-        onToggleFlash={actions.toggleFlash}
-        onToggleCamera={actions.toggleCameraType}
-        onCapture={actions.takePhoto}
-        isCapturing={state.isCapturing}
-      />
+      <View style={styles.controlsOverlay}>
+        <CameraControls
+          flashMode={state.flashMode}
+          onToggleFlash={actions.toggleFlash}
+          onToggleCamera={actions.toggleCameraType}
+          onCapture={actions.takePhoto}
+          isCapturing={state.isCapturing}
+          zoom={state.zoom}
+          onZoomChange={actions.setZoom}
+        />
+      </View>
     </View>
   );
 };
@@ -84,9 +89,16 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000',
   },
   camera: {
     flex: 1,
+  },
+  controlsOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-end',
+    pointerEvents: 'box-none',
+    zIndex: 999,
   },
   centered: {
     flex: 1,

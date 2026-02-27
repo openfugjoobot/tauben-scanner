@@ -28,15 +28,7 @@ export const NewPigeonScreen: React.FC = () => {
         style={styles.keyboardView}
       >
         <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <Text variant="h1">Neue Taube</Text>
-            <TouchableOpacity 
-              onPress={() => navigation.goBack()}
-              style={styles.closeButton}
-            >
-              <Icon name="close" size={24} color={theme.colors.onSurface} />
-            </TouchableOpacity>
-          </View>
+          <Text variant="h1">Neue Taube</Text>
           <Text variant="body" color={theme.colors.onSurfaceVariant}>
             Geben Sie die Details der Taube ein.
           </Text>
@@ -75,15 +67,6 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
     backgroundColor: '#fff',
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  closeButton: {
-    padding: 8,
   },
   buttonContainer: {
     padding: 16,

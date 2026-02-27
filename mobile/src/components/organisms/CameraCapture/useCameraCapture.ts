@@ -34,6 +34,7 @@ export const useCameraCapture = (): [CameraCaptureState, CameraCaptureActions, R
 
   const toggleCameraType = useCallback(() => {
     setCameraType((prev) => (prev === 'back' ? 'front' : 'back'));
+    setZoom(0); // Reset zoom on camera flip
   }, []);
 
   const toggleFlash = useCallback(() => {

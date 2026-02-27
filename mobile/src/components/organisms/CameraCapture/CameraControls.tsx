@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Slider } from '@miblanchard/react-native-slider';
 import { useTheme } from '../../../theme';
 
 interface CameraControlsProps {
@@ -9,6 +10,8 @@ interface CameraControlsProps {
   onToggleCamera: () => void;
   onCapture: () => void;
   isCapturing: boolean;
+  zoom: number;
+  onZoomChange: (zoom: number) => void;
 }
 
 export const CameraControls: React.FC<CameraControlsProps> = ({
@@ -17,6 +20,8 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
   onToggleCamera,
   onCapture,
   isCapturing,
+  zoom,
+  onZoomChange,
 }) => {
   const theme = useTheme();
 
@@ -33,49 +38,83 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={onToggleFlash}
-        disabled={isCapturing}
-      >
-        <MaterialCommunityIcons name={getFlashIcon()} size={28} color="white" />
-      </TouchableOpacity>
+      <View style={styles.zoomContainer}>
+        <MaterialCommunityIcons name="magnify-minus" size={20} color="white" />
+        <View style={styles.sliderWrapper}>
+          <Slider
+            value={zoom}
+            onValueChange={(value) => onZoomChange(Array.isArray(value) ? value[0] : value)}
+            minimumValue={0}
+            maximumValue={0.1} // Expo Zoom scales approx 0 to 1, but 0.1 is already significant on mobile
+            step={0.001}
+            thumbTintColor="white"
+            minimumTrackTintColor="white"
+            maximumTrackTintColor="rgba(255,255,255,0.3)"
+          />
+        </View>
+        <MaterialCommunityIcons name="magnify-plus" size={20} color="white" />
+      </View>
 
-      <TouchableOpacity
-        style={[styles.captureButton, isCapturing && styles.disabledButton]}
-        onPress={onCapture}
-        disabled={isCapturing}
-      >
-        <View style={styles.captureInner} />
-      </TouchableOpacity>
+      <View style={styles.buttonsRow}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={onToggleFlash}
+          disabled={isCapturing}
+        >
+          <MaterialCommunityIcons name={getFlashIcon()} size={28} color="white" />
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={onToggleCamera}
-        disabled={isCapturing}
-      >
-        <MaterialCommunityIcons name="camera-flip" size={28} color="white" />
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.captureButton, isCapturing && styles.disabledButton]}
+          onPress={onCapture}
+          disabled={isCapturing}
+        >
+          <View style={styles.captureInner} />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={onToggleCamera}
+          disabled={isCapturing}
+        >
+          <MaterialCommunityIcons name="camera-flip" size={28} color="white" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: 40,
-    left: 0,
-    right: 0,
+    paddingBottom: 40,
+    paddingHorizontal: 20,
+    backgroundColor: 'transparent',
+    pointerEvents: 'box-none',
+  },
+  zoomContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+  },
+  sliderWrapper: {
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  buttonsRow: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    pointerEvents: 'box-none',
   },
   button: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
   },
