@@ -29,14 +29,10 @@ jobs:
       - name: Accept Android licenses
         run: yes | sdkmanager --licenses || true
 
-      - name: Setup Expo
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-
       - name: Install dependencies
-        run: cd mobile && npm ci --legacy-peer-deps
+        run: |
+          cd mobile
+          npm ci --legacy-peer-deps
 
       - name: Create env file
         run: |
@@ -44,19 +40,22 @@ jobs:
           echo "EXPO_PUBLIC_API_URL=https://api.example.com/api/v1" > .env
           echo "EXPO_PUBLIC_STORAGE_KEY=default-key" >> .env
 
-      - name: EAS Init
+      - name: Prebuild Android
         run: |
           cd mobile
-          eas init --force --non-interactive || true
+          npx expo prebuild --platform android --clean
 
-      - name: Build APK (local)
+      - name: Grant Gradle permissions
+        run: chmod +x mobile/android/gradlew
+
+      - name: Build APK with Gradle
         run: |
-          cd mobile
-          eas build --platform android --profile production --local --non-interactive --output tauben-scanner.apk
+          cd mobile/android
+          ./gradlew assembleRelease --no-daemon 2>&1 || ./gradlew assembleRelease --no-daemon --warning-mode=none
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: tauben-scanner-apk
-          path: mobile/tauben-scanner.apk
+          path: mobile/android/app/build/outputs/apk/release/app-release.apk
           retention-days: 30
