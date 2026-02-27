@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { Text } from '../../../components/atoms/Text';
 import { Icon } from '../../../components/atoms/Icon';
 import { useTheme } from '../../../theme';
@@ -18,7 +19,57 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
   const theme = useTheme();
 
   const handlePress = () => {
-    // In a real app, this would open the image picker
+    Alert.alert(
+      'Foto hinzufügen',
+      'Möchten Sie ein neues Foto aufnehmen oder eines aus der Galerie auswählen?',
+      [
+        {
+          text: 'Kamera',
+          onPress: takePhoto,
+        },
+        {
+          text: 'Galerie',
+          onPress: pickImage,
+        },
+        {
+          text: 'Abbrechen',
+          style: 'cancel',
+        },
+      ]
+    );
+  };
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Berechtigung abgelehnt', 'Wir benötigen Kamerazugriff für diese Funktion.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      onPhotoSelected(result.assets[0].uri);
+    }
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      onPhotoSelected(result.assets[0].uri);
+    }
   };
 
   return (
