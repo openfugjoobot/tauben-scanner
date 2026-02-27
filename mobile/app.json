@@ -16,21 +16,25 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.openfugjoobot.taubenscanner",
       "infoPlist": {
-        "NSCameraUsageDescription": "Tauben Scanner needs access to your camera to scan pigeons.",
-        "NSLocationWhenInUseUsageDescription": "Tauben Scanner needs your location to tag scanned pigeons."
+        "NSCameraUsageDescription": "Tauben Scanner benötigt Zugriff auf die Kamera, um Tauben zu scannen.",
+        "NSLocationWhenInUseUsageDescription": "Tauben Scanner benötigt Ihren Standort, um Sichtungen zu speichern."
+      },
+      "icon": {
+        "dark": "./assets/icon.png",
+        "light": "./assets/icon.png",
+        "tinted": "./assets/icon.png"
       }
     },
     "android": {
       "package": "com.openfugjoobot.taubenscanner",
       "adaptiveIcon": {
-        "backgroundColor": "#4A90D9",
-        "foregroundImage": "./assets/adaptive-icon-foreground.png"
+        "foregroundImage": "./assets/adaptive-icon-foreground.png",
+        "backgroundImage": "./assets/adaptive-icon-background.png"
       },
       "permissions": [
-        "CAMERA",
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
-        "RECORD_AUDIO"
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
@@ -40,13 +44,13 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Tauben Scanner to access your camera"
+          "cameraPermission": "Tauben Scanner benötigt Zugriff auf Ihre Kamera, um Tauben zu scannen."
         }
       ],
       [
         "expo-location",
         {
-          "locationAlwaysPermission": "Allow Tauben Scanner to use your location."
+          "locationAlwaysAndWhenInUsePermission": "Tauben Scanner benötigt Ihren Standort, um Sichtungen zu taggen."
         }
       ]
     ],
