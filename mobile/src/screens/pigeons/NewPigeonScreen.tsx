@@ -1,0 +1,76 @@
+import React from 'react';
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { Text } from '../../components/atoms/Text';
+import { Button } from '../../components/atoms/Button';
+import { OfflineBanner } from '../../components/molecules/OfflineBanner';
+import { PigeonForm } from './components/PigeonForm';
+import { usePigeonForm } from './hooks/usePigeonForm';
+import { useTheme } from '../../theme';
+
+export const NewPigeonScreen: React.FC = () => {
+  const theme = useTheme();
+  const route = useRoute();
+  const { photoUri } = route.params as { photoUri?: string } || {};
+  
+  const { formData, errors, isSubmitting, updateField, submit } = usePigeonForm({
+    photo: photoUri || null,
+  });
+
+  return (
+    <View style={styles.container}>
+      <OfflineBanner />
+      
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <View style={styles.header}>
+          <Text variant="h1">Neue Taube</Text>
+          <Text variant="body" color={theme.colors.onSurfaceVariant}>
+            Geben Sie die Details der Taube ein.
+          </Text>
+        </View>
+        
+        <PigeonForm
+          formData={formData}
+          errors={errors}
+          onFieldChange={updateField}
+        />
+        
+        <View style={styles.buttonContainer}>
+          <Button
+            variant="primary"
+            size="large"
+            loading={isSubmitting}
+            onPress={submit}
+            style={styles.saveButton}
+          >
+            Speichern
+          </Button>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  header: {
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  buttonContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  saveButton: {
+    width: '100%',
+  },
+});

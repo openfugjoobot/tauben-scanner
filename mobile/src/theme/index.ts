@@ -3,7 +3,7 @@ import { useTheme as usePaperTheme } from 'react-native-paper';
 import { lightColors, darkColors, ThemeColors } from './colors';
 import { spacing, borderRadius, shadows } from './spacing';
 import { typography, fontVariants } from './typography';
-import { paperLightTheme, paperDarkTheme } from './paperTheme';
+import { paperLightTheme, paperDarkTheme, AppTheme } from './paperTheme';
 
 export * from './colors';
 export * from './spacing';
@@ -14,7 +14,7 @@ export * from './icons';
 export const useAppTheme = () => {
   const scheme = useColorScheme();
   const colors: ThemeColors = scheme === 'dark' ? darkColors : lightColors;
-  const paperTheme = scheme === 'dark' ? paperDarkTheme : paperLightTheme;
+  const paperTheme: AppTheme = scheme === 'dark' ? paperDarkTheme : paperLightTheme;
 
   return {
     colors,
@@ -33,6 +33,6 @@ export const useAppTheme = () => {
  * Returns the merged theme.
  */
 export const useTheme = () => {
-  const theme = usePaperTheme();
+  const theme = usePaperTheme() as AppTheme;
   return theme;
 };
