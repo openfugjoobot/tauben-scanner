@@ -1,4 +1,4 @@
-name: Build Android APK (Local)
+name: Build Android APK (debug)
 
 on:
   workflow_dispatch:
