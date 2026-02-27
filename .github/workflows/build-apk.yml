@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./mobile
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Create environment file
         working-directory: ./mobile
@@ -47,17 +47,9 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EAS_BUILD_NO_EXPO_GO_WARNING: "true"
 
-      - name: Download APK from EAS
-        if: success()
-        working-directory: ./mobile
-        run: |
-          # Get the latest build URL
-          BUILD_URL=$(eas build:list --platform android --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
-          echo "Build URL: $BUILD_URL"
-          echo "build_url=$BUILD_URL" >> $GITHUB_ENV
-
-      - name: Summary
+      - name: Build Summary
         if: success()
         run: |
           echo "✅ Build completed successfully!"
-          echo "Download APK from: https://expo.dev/accounts/openfugjoobot/projects/tauben-scanner/builds"
+          echo "Your APK is available at:"
+          echo "https://expo.dev/accounts/openfugjoobot/projects/tauben-scanner/builds"
