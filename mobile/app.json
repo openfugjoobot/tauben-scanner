@@ -48,6 +48,11 @@
           "locationAlwaysPermission": "Allow Tauben Scanner to use your location."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "f4933775-ad05-4330-b8ed-f66b262eff7e"
+      }
+    }
   }
 }
