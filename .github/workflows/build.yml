@@ -26,10 +26,19 @@ jobs:
       - name: Install dependencies
         run: cd mobile && npm ci --legacy-peer-deps
 
+      - name: Check EAS configuration
+        run: |
+          cd mobile
+          which eas
+          eas --version
+          cat eas.json
+
       - name: Build with EAS
         run: |
           cd mobile
-          npx eas build --platform android --profile production --non-interactive --json --output tauben-scanner.apk || npx eas build --platform android --profile production --non-interactive
+          eas build --platform android --profile production --non-interactive --json
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Upload APK
         if: always()
