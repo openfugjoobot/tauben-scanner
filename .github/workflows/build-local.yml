@@ -48,26 +48,44 @@ jobs:
       - name: Setup Debug Keystore
         working-directory: ./mobile/android/app
         run: |
-          # Generate debug keystore for testing
-          keytool -genkey -v \
-            -keystore debug.keystore \
-            -alias androiddebugkey \
-            -storepass android \
-            -keypass android \
-            -keyalg RSA \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
+          # Use Android SDK's built-in debug keystore or generate new one
+          if [ -f "$ANDROID_HOME/debug.keystore" ]; then
+            echo "Using Android SDK debug keystore"
+            cp "$ANDROID_HOME/debug.keystore" ./debug.keystore
+          else
+            echo "Generating new debug keystore"
+            keytool -genkey -v \
+              -keystore debug.keystore \
+              -alias debugkey \
+              -storepass android \
+              -keypass android \
+              -keyalg RSA \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
 
       - name: Configure Gradle for Debug Signing
         working-directory: ./mobile/android/app
         run: |
-          # Backup original build.gradle
-          cp build.gradle build.gradle.bak
-          
-          # Add debug signing config to release build type
-          sed -i '/buildTypes {/,/}/{ /release {/,/}/ { /}/a\
-            signingConfig signingConfigs.debug
-          }' build.gradle
+          # Create simple signing config that uses debug.keystore for release
+          cat > build.gradle.signing << 'SIGNING'
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file("debug.keystore")
+                      storePassword "android"
+                      keyAlias "debugkey"
+                      keyPassword "android"
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          SIGNING
+          echo "Signing config created"
 
       - name: Grant Gradle permissions
         run: chmod +x mobile/android/gradlew
@@ -75,13 +93,14 @@ jobs:
       - name: Build Debug APK
         working-directory: ./mobile/android
         run: |
-          ./gradlew assembleRelease --no-daemon || \
+          # Build debug APK (unsigned release build failed, use debug)
           ./gradlew assembleDebug --no-daemon
 
       - name: Find APK
         id: find_apk
+        working-directory: ./mobile/android
         run: |
-          APK_PATH=$(find mobile/android/app/build/outputs/apk -name "*.apk" -type f | head -1)
+          APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" -type f | head -1)
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
           echo "Found APK: $APK_PATH"
 
