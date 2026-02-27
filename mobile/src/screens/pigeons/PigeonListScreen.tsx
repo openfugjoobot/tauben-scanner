@@ -58,7 +58,7 @@ export const PigeonListScreen: React.FC = () => {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text variant="bodyMedium" style={styles.loadingText}>
+        <Text variant="body" style={styles.loadingText}>
           Tauben werden geladen...
         </Text>
       </View>
@@ -74,19 +74,18 @@ export const PigeonListScreen: React.FC = () => {
             placeholder="Suchen..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            leftIcon={<Icon name="search" size={20} color={theme.colors.onSurfaceVariant} />}
           />
         </Card>
 
         <View style={styles.centered}>
-          <Icon name="bird" size={64} color={theme.colors.onSurfaceVariant + '40'} />
+          <Icon name="bird" size={64} color={theme.colors.onSurfaceVariant} />
           <Text variant="h3" style={styles.emptyTitle}>
             Keine Tauben gefunden
           </Text>
-          <Text variant="bodyMedium" style={styles.emptyText}>
+          <Text variant="body" style={styles.emptyText}>
             Füge deine erste Taube hinzu oder starte einen Scan.
           </Text>
-          <Button mode="contained" onPress={handleAddPigeon} style={styles.addButton}>
+          <Button variant="primary" onPress={handleAddPigeon} style={styles.addButton}>
             Taube hinzufügen
           </Button>
         </View>
@@ -101,7 +100,6 @@ export const PigeonListScreen: React.FC = () => {
           placeholder="Suchen..."
           value={searchQuery}
           onChangeText={setSearchQuery}
-          leftIcon={<Icon name="search" size={20} color={theme.colors.onSurfaceVariant} />}
         />
       </Card>
 
@@ -117,9 +115,9 @@ export const PigeonListScreen: React.FC = () => {
       {/* Floating Add Button */}
       <View style={styles.fabContainer}>
         <Button
-          mode="contained"
+          variant="primary"
           onPress={handleAddPigeon}
-          leftIcon={<Icon name="plus" size={20} color="#fff" />}
+          icon="plus"
           style={styles.fab}
         >
           Hinzufügen

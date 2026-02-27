@@ -24,7 +24,7 @@ export const TabNavigator: React.FC = () => {
           } else if (route.name === 'ScanFlow') {
             iconName = focused ? 'camera' : 'camera-outline';
           } else if (route.name === 'PigeonsFlow') {
-            iconName = focused ? 'bird' : 'bird'; // or pigeon icon
+            iconName = focused ? 'bird' : 'bird';
           } else if (route.name === 'Settings') {
             iconName = focused ? 'cog' : 'cog-outline';
           }
@@ -34,6 +34,10 @@ export const TabNavigator: React.FC = () => {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: 'gray',
         headerShown: false,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        },
       })}
     >
       <Tab.Screen 
@@ -44,7 +48,7 @@ export const TabNavigator: React.FC = () => {
       <Tab.Screen 
         name="ScanFlow" 
         component={ScanStackNavigator}
-        options={{ title: 'Scannen' }}
+        options={{ title: 'Scan' }}
       />
       <Tab.Screen 
         name="PigeonsFlow" 

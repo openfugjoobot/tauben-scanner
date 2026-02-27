@@ -10,11 +10,18 @@ const Stack = createNativeStackNavigator<ScanStackParamList>();
 
 export const ScanStackNavigator: React.FC = () => {
   return (
-    <Stack.Navigator>
-      <Stack.Screen name="Scan" component={ScanScreen} />
-      <Stack.Screen name="Preview" component={PreviewScreen} />
-      <Stack.Screen name="Results" component={ResultsScreen} />
-      <Stack.Screen name="NewPigeon" component={NewPigeonScreen} />
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleStyle: {
+          fontSize: 20,
+          fontWeight: '600',
+        },
+      }}
+    >
+      <Stack.Screen name="Scan" component={ScanScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="Preview" component={PreviewScreen} options={{ title: 'Vorschau' }} />
+      <Stack.Screen name="Results" component={ResultsScreen} options={{ title: 'Ergebnis' }} />
+      <Stack.Screen name="NewPigeon" component={NewPigeonScreen} options={{ title: 'Neue Taube' }} />
     </Stack.Navigator>
   );
 };

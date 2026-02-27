@@ -13,6 +13,7 @@ export type PigeonsStackParamList = {
   PigeonList: undefined;
   PigeonDetail: { pigeonId: string };
   PigeonEdit: { pigeonId: string };
+  NewPigeon: { photoUri?: string };
 };
 
 // Main Tabs

@@ -19,7 +19,7 @@ export const ApiSettings: React.FC<ApiSettingsProps> = () => {
     <SettingsSection title="Server-Verbindung">
       <SettingsItem label="Server">
         <View style={styles.urlContainer}>
-          <Text variant="bodyMedium" style={styles.urlText}>
+          <Text variant="body" style={styles.urlText}>
             {FIXED_API_URL}
           </Text>
           <Text variant="caption" style={styles.hint}>

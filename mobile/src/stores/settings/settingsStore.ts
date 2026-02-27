@@ -3,8 +3,11 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { StorageKeys, createMmkvStorage } from '../storage';
 import type { SettingsState, SettingsActions } from './settingsStore.types';
 
+// Production API URL
+const PRODUCTION_API_URL = 'https://tauben-scanner.fugjoo.duckdns.org/api';
+
 const DEFAULTS = {
-  apiUrl: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api',
+  apiUrl: process.env.EXPO_PUBLIC_API_URL || PRODUCTION_API_URL,
   matchThreshold: 75,
   language: 'de' as const,
 };
