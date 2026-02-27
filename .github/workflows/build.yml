@@ -30,7 +30,12 @@ jobs:
         run: yes | sdkmanager --licenses || true
 
       - name: Install dependencies
-        run: cd mobile && npm ci --legacy-peer-deps
+        run: |
+          cd mobile
+          npm ci --legacy-peer-deps
+
+      - name: Setup Expo CLI
+        run: npm install -g @expo/cli
 
       - name: Create env file
         run: |
@@ -39,7 +44,9 @@ jobs:
           echo "EXPO_PUBLIC_STORAGE_KEY=${{ secrets.EXPO_PUBLIC_STORAGE_KEY || 'default-key' }}" >> .env
 
       - name: Prebuild Android
-        run: cd mobile && npx expo prebuild --platform android --clean
+        run: |
+          cd mobile
+          expo prebuild --platform android --clean
 
       - name: Make gradlew executable
         run: chmod +x mobile/android/gradlew
@@ -47,7 +54,7 @@ jobs:
       - name: Build APK with Gradle
         run: |
           cd mobile/android
-          ./gradlew assembleRelease --no-daemon --stacktrace
+          ./gradlew assembleRelease --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
