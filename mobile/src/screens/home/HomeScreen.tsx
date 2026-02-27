@@ -49,9 +49,6 @@ export const HomeScreen: React.FC = () => {
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
       >
         <Text variant="h1" style={styles.title}>
           Start

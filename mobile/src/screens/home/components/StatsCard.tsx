@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Card } from '../../../components/atoms/Card';
 import { Text } from '../../../components/atoms/Text';
-import { Skeleton } from '../../../components/atoms/Skeleton';
 import { Icon, IconName } from '../../../components/atoms/Icon';
 import { useTheme } from '../../../theme';
 import { spacing } from '../../../theme/spacing';
@@ -25,11 +24,12 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   if (isLoading) {
     return (
       <Card padding="large" style={styles.card}>
-        <Skeleton width="60%" height={24} />
-        <View style={styles.statsRow}>
-          <Skeleton width={80} height={60} />
-          <Skeleton width={80} height={60} />
-          <Skeleton width={80} height={60} />
+        <Text variant="h3" style={styles.title}>
+          Übersicht
+        </Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text variant="caption" style={{ marginTop: spacing.sm }}>Lade Daten...</Text>
         </View>
       </Card>
     );
@@ -70,6 +70,11 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: spacing.md,
+  },
+  loadingContainer: {
+    paddingVertical: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statsRow: {
     flexDirection: 'row',
