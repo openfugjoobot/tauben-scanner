@@ -1,0 +1,57 @@
+name: Build Android APK (Production)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        working-directory: ./mobile
+        run: npm ci
+
+      - name: Create environment file
+        working-directory: ./mobile
+        run: |
+          echo "EXPO_PUBLIC_API_URL=https://tauben-scanner.fugjoo.duckdns.org" > .env
+          echo "EXPO_PUBLIC_STORAGE_KEY=tauben-scanner-storage" >> .env
+
+      - name: Prebuild Android project
+        working-directory: ./mobile
+        run: npx expo prebuild --platform android
+
+      - name: Build APK (Release)
+        working-directory: ./mobile/android
+        run: ./gradlew assembleRelease
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Build Summary
+        if: success()
+        run: |
+          echo "✅ Production build (unsigned) completed!"
+          echo "APK available as artifact: app-release-unsigned.apk"
