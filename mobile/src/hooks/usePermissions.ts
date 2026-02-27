@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Platform, Alert, Linking } from 'react-native';
 import * as Camera from 'expo-camera';
 import * as Location from 'expo-location';
+import * as ImagePicker from 'expo-image-picker';
 
 export const usePermissions = () => {
   const [permissionsGranted, setPermissionsGranted] = useState(false);
@@ -18,10 +19,13 @@ export const usePermissions = () => {
       // Location permission
       const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
 
-      if (cameraStatus !== 'granted' || locationStatus !== 'granted') {
+      // Media Library permission (for uploading photos)
+      const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (cameraStatus !== 'granted' || locationStatus !== 'granted' || mediaStatus !== 'granted') {
         Alert.alert(
           'Berechtigungen erforderlich',
-          'Tauben Scanner benötigt Kamera- und Standortberechtigungen, um ordnungsgemäß zu funktionieren.',
+          'Tauben Scanner benötigt Kamera-, Standort- und Fotoberechtigungen, um ordnungsgemäß zu funktionieren.',
           [
             { text: 'Abbrechen', style: 'cancel' },
             { 

@@ -1,11 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 
-export const ProcessingView: React.FC = () => {
+interface ProcessingViewProps {
+  status?: string;
+}
+
+export const ProcessingView: React.FC<ProcessingViewProps> = ({ status }) => {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color="#2196F3" />
-      <Text style={styles.text}>Bild wird analysiert...</Text>
+      <Text style={styles.text}>{status || 'Bild wird analysiert...'}</Text>
     </View>
   );
 };

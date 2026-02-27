@@ -17,6 +17,7 @@ export const ScanScreen: React.FC = () => {
     matchResult,
     error,
     isProcessing,
+    processingStatus,
     capturePhoto,
     retakePhoto,
     processImage,
@@ -66,7 +67,7 @@ export const ScanScreen: React.FC = () => {
   // Processing step
   if (step === 'processing') {
     return (
-      <ProcessingView />
+      <ProcessingView status={processingStatus} />
     );
   }
 

@@ -34,7 +34,9 @@
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_IMAGES"
       ]
     },
     "web": {
@@ -51,6 +53,12 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Tauben Scanner benötigt Ihren Standort, um Sichtungen zu taggen."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Die App benötigt Zugriff auf Ihre Fotos, um Taubenbilder hochzuladen."
         }
       ]
     ],

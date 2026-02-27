@@ -11,6 +11,7 @@ interface ScanFlowState {
   capturedPhoto: { uri: string; base64: string } | null;
   matchResult: any | null;
   error: string | null;
+  processingStatus: string;
 }
 
 export const useScanFlow = () => {
@@ -24,6 +25,7 @@ export const useScanFlow = () => {
     capturedPhoto: null,
     matchResult: null,
     error: null,
+    processingStatus: '',
   });
 
   const capturePhoto = useCallback((photo: { uri: string; base64: string }) => {
@@ -45,19 +47,30 @@ export const useScanFlow = () => {
   const processImage = useCallback(async () => {
     if (!state.capturedPhoto?.base64) return;
 
-    setState((prev) => ({ ...prev, step: 'processing' }));
+    setState((prev) => ({ 
+      ...prev, 
+      step: 'processing',
+      processingStatus: 'Verbindung zum Server wird aufgebaut...' 
+    }));
 
     try {
+      // Small delays to make transitions visible to user
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setState(prev => ({ ...prev, processingStatus: 'Bilddaten werden übertragen...' }));
+      
       const result = await matchMutation.mutateAsync({
         image: state.capturedPhoto.base64,
         threshold: matchThreshold,
       });
 
+      setState(prev => ({ ...prev, processingStatus: 'KI-Abgleich läuft...' }));
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Add to scan history
       saveScan({
         id: Date.now().toString(),
         timestamp: Date.now(),
-        status: (result.success ? 'completed' : 'not_found') as any,
+        status: (result.match ? 'completed' : 'not_found') as any,
         confidence: result.confidence,
         pigeonId: result.pigeon?.id,
         imageUri: state.capturedPhoto.uri,
@@ -90,6 +103,7 @@ export const useScanFlow = () => {
       capturedPhoto: null,
       matchResult: null,
       error: null,
+      processingStatus: '',
     });
   }, []);
 
