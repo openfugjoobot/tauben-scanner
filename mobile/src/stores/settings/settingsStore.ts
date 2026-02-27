@@ -7,7 +7,7 @@ import type { SettingsState, SettingsActions } from './settingsStore.types';
 const PRODUCTION_API_URL = 'https://tauben-scanner.fugjoo.duckdns.org/api';
 
 const DEFAULTS = {
-  apiUrl: process.env.EXPO_PUBLIC_API_URL || PRODUCTION_API_URL,
+  apiUrl: (process.env.EXPO_PUBLIC_API_URL || PRODUCTION_API_URL).replace(/\/$/, ''),
   matchThreshold: 75,
   language: 'de' as const,
 };

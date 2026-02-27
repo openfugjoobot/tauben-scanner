@@ -68,12 +68,6 @@ app.use('/api/pigeons', pigeonRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/sightings', sightingRoutes);
 
-// Shortcuts for mobile app (some requests miss /api prefix)
-app.use('/pigeons', pigeonRoutes);
-app.use('/images', imageRoutes);
-app.use('/sightings', sightingRoutes);
-app.use('/match', imageRoutes); // Map /match to imageRoutes for legacy/mobile support
-
 // Health check endpoint
 app.get('/health', async (req, res) => {
   try {
