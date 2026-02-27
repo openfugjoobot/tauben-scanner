@@ -13,6 +13,7 @@ import { Card } from '../../components/atoms/Card';
 import { Icon } from '../../components/atoms/Icon';
 import { PigeonList } from './components/PigeonList';
 import { usePigeons } from '../../hooks/queries';
+import { useDebounce } from '../../hooks';
 import { useTheme } from '../../theme';
 import { spacing } from '../../theme/spacing';
 
@@ -23,10 +24,16 @@ export const PigeonListScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
+  // Debounce search query to prevent excessive API calls
+  const debouncedSearch = useDebounce(searchQuery, 700);
+
+  // Only use search query if it has at least 2 characters 
+  const effectiveSearch = debouncedSearch.length >= 2 ? debouncedSearch : '';
+
   const { data, isLoading, isFetching, refetch, isError } = usePigeons({
     page,
     limit: 20,
-    search: searchQuery || undefined,
+    search: effectiveSearch || undefined,
   });
 
   const handleRefresh = useCallback(async () => {
