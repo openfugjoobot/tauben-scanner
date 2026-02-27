@@ -9,15 +9,19 @@ import { migrateStorageData } from './src/stores';
 import { RootNavigator } from './src/navigation';
 import { Text } from './src/components/atoms/Text';
 
-const SPLASH_DURATION = 4000; // 4 Sekunden
+const SPLASH_DURATION = 2000; // Zurück auf 2 Sekunden
 
 export default function App() {
   const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
+  const { requestPermissions } = usePermissions();
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? paperDarkTheme : paperLightTheme;
 
   useEffect(() => {
     migrateStorageData();
+    
+    // Berechtigungen sofort beim App-Start anfragen
+    requestPermissions();
     
     const timer = setTimeout(() => {
       setIsSplashScreenVisible(false);
@@ -29,11 +33,13 @@ export default function App() {
   if (isSplashScreenVisible) {
     return (
       <View style={styles.splashContainer}>
-        <Image 
-          source={require('./assets/splash-icon.png')} 
-          style={styles.splashImage}
-          resizeMode="contain"
-        />
+        <View style={styles.imageBackground}>
+          <Image 
+            source={require('./assets/splash-icon.png')} 
+            style={styles.splashImage}
+            resizeMode="contain"
+          />
+        </View>
         <Text variant="h1" style={styles.splashText}>Tauben Scanner</Text>
       </View>
     );
@@ -64,6 +70,11 @@ const styles = StyleSheet.create({
   splashImage: {
     width: Dimensions.get('window').width * 0.7,
     height: Dimensions.get('window').width * 0.7,
+  },
+  imageBackground: {
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
+    padding: 10,
   },
   splashText: {
     marginTop: 24,
