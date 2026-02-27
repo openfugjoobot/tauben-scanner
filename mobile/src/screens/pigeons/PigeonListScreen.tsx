@@ -105,8 +105,7 @@ export const PigeonListScreen: React.FC = () => {
         />
       </Card>
 
-      <View style={styles.listContainer}
-003e
+      <View style={styles.listContainer}>
         <PigeonList
           pigeons={data?.pigeons || []}
           onPigeonPress={handlePigeonPress}
