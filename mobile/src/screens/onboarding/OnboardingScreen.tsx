@@ -25,21 +25,22 @@ interface OnboardingSlide {
 const slides: OnboardingSlide[] = [
   {
     id: '1',
-    icon: 'pigeon',
+    icon: 'bird',
+    customImage: true,
     title: 'Willkommen beim Tauben Scanner',
-    description: 'Erkenne Tauben mit deiner Kamera und hilf bei der Erfassung und Dokumentation von Brieftauben.',
+    description: 'Unterstütze Bestandsaufnahme und Tierschutz. Erfasse Tauben und dokumentiere ihre Sichtungen.',
   },
   {
     id: '2',
     icon: 'camera',
     title: 'Tauben scannen',
-    description: 'Nutze die Kamera, um Ringnummern automatisch zu erkennen und neue Tauben zu erfassen.',
+    description: 'Nutze die Kamera, um schnell Tauben zu scannen, zu erfassen und neue Tiere aufzunehmen.',
   },
   {
     id: '3',
     icon: 'map-marker',
     title: 'Sichtungen tracken',
-    description: 'Speichere Fundorte mit GPS-Koordinaten und hilf Taubenzüchtern, ihre Tiere wiederzufinden.',
+    description: 'Speichere Fundorte mit GPS-Koordinaten und hilf bei der Dokumentation für Bestandsaufnahme und Tierschutz.',
   },
 ];
 

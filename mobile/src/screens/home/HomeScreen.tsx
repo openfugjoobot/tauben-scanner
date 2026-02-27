@@ -10,10 +10,12 @@ import { usePigeons } from '../../hooks/queries';
 import { useScanStore } from '../../stores/scans';
 import { useIsOnline } from '../../stores/app';
 import { useTheme } from '../../theme';
+import { usePermissions } from '../../hooks';
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const theme = useTheme();
+  usePermissions(); // Request permissions on app start
   
   const { data: pigeonsData, isLoading: pigeonsLoading, refetch: refetchPigeons } = usePigeons({ limit: 1 });
   const { scanHistory } = useScanStore();
@@ -52,7 +54,7 @@ export const HomeScreen: React.FC = () => {
         }
       >
         <Text variant="h1" style={styles.title}>
-          Tauben Scanner
+          Start
         </Text>
         
         <StatsCard

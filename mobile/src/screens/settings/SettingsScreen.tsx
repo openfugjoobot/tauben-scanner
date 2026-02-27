@@ -1,38 +1,24 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Text } from '../../components/atoms/Text';
-import { Button } from '../../components/atoms/Button';
 import { Card } from '../../components/atoms/Card';
 import { OfflineBanner } from '../../components/molecules/OfflineBanner';
-import { useSettingsForm } from './hooks/useSettingsForm';
-import { ApiSettings } from './components/ApiSettings';
 import { ScanSettings } from './components/ScanSettings';
 import { AboutSection } from './components/AboutSection';
+import { useSettingsStore } from '../../stores/settings';
 import { useTheme } from '../../theme';
 
 export const SettingsScreen: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation();
-  const { formData, errors, isDirty, updateField, save, reset } = useSettingsForm();
+  const { matchThreshold, setMatchThreshold } = useSettingsStore();
   const [showSaved, setShowSaved] = useState(false);
 
-  const handleSave = () => {
-    if (save()) {
-      setShowSaved(true);
-      setTimeout(() => setShowSaved(false), 2000);
-    }
-  };
-
-  const handleReset = () => {
-    Alert.alert(
-      'Einstellungen zurücksetzen?',
-      'Alle Änderungen werden verworfen.',
-      [
-        { text: 'Abbrechen', style: 'cancel' },
-        { text: 'Zurücksetzen', style: 'destructive', onPress: reset },
-      ]
-    );
+  const handleThresholdChange = (value: number) => {
+    setMatchThreshold(value);
+    setShowSaved(true);
+    setTimeout(() => setShowSaved(false), 2000);
   };
 
   return (
@@ -43,53 +29,36 @@ export const SettingsScreen: React.FC = () => {
         <Text variant="h1" style={styles.title}>
           Einstellungen
         </Text>
-        
-        <ApiSettings
-          apiUrl={formData.apiUrl || ''}
-          apiKey={formData.apiKey || ''}
-          errors={errors}
-          onApiUrlChange={(value) => updateField('apiUrl', value)}
-          onApiKeyChange={(value) => updateField('apiKey', value)}
-        />
-        
+
+        {/* Server Info */}
+        <Card style={styles.card}>
+          <Text variant="h3" style={styles.sectionTitle}>
+            Server
+          </Text>
+          <Text variant="bodyMedium" style={styles.url}>
+            https://tauben-scanner.fugjoo.duckdns.org
+          </Text>
+          <Text variant="caption" style={styles.hint}>
+            Automatisch verbunden
+          </Text>
+        </Card>
+
         <ScanSettings
-          matchThreshold={formData.matchThreshold}
-          onThresholdChange={(value) => updateField('matchThreshold', value)}
+          matchThreshold={matchThreshold}
+          onThresholdChange={handleThresholdChange}
         />
         
         <AboutSection />
         
       </ScrollView>
       
-      <View style={styles.footer}>
-        {isDirty && (
-          <View style={styles.buttonRow}>
-            <Button
-              variant="ghost"
-              onPress={handleReset}
-              style={styles.footerButton}
-            >
-              Nochmals resetten
-            </Button>
-            
-            <Button
-              variant="primary"
-              onPress={handleSave}
-              style={styles.footerButton}
-            >
-              Speichern
-            </Button>
-          </View>
-        )}
-        
-        {showSaved && (
-          <View style={[styles.savedBanner, { backgroundColor: theme.colors.success as string }]}>
-            <Text variant="caption" style={{ color: '#fff', textAlign: 'center' }}>
-              Gespeichert!
-            </Text>
-          </View>
-        )}
-      </View>
+      {showSaved && (
+        <View style={[styles.savedBanner, { backgroundColor: theme.colors.success as string }]}>
+          <Text variant="caption" style={{ color: '#fff', textAlign: 'center' }}>
+            Gespeichert!
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -106,23 +75,27 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 16,
   },
-  footer: {
+  card: {
+    marginBottom: 16,
     padding: 16,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
   },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 12,
+  sectionTitle: {
+    marginBottom: 12,
   },
-  footerButton: {
-    flex: 1,
+  url: {
+    color: '#333',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  hint: {
+    color: '#666',
   },
   savedBanner: {
-    marginTop: 12,
-    padding: 8,
+    position: 'absolute',
+    bottom: 80,
+    left: 16,
+    right: 16,
+    padding: 12,
     borderRadius: 8,
-    justifyContent: 'center',
   },
 });

@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Button } from '../../../components/atoms/Button';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../../../components/atoms/Text';
 import { ScanButton } from '../../../components/molecules/ScanButton';
 import { useTheme } from '../../../theme';
 // @ts-ignore
 import { spacing } from '../../../theme/spacing';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface QuickActionsProps {
   onScanPress: () => void;
@@ -33,15 +33,13 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
         </View>
         
         <View style={styles.actionItem}>
-          <Button
-            variant="secondary"
-            size="large"
-            icon="plus"
+          <TouchableOpacity 
             onPress={onAddPigeonPress}
-            style={styles.addButton}
+            style={[styles.addButton, { backgroundColor: theme.colors.secondary }]}
+            activeOpacity={0.8}
           >
-            +
-          </Button>
+            <MaterialCommunityIcons name="plus" size={36} color={theme.colors.onSecondary} />
+          </TouchableOpacity>
           <Text variant="caption" style={styles.actionLabel}>
             Hinzufügen
           </Text>
@@ -73,5 +71,12 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
 });

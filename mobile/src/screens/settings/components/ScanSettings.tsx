@@ -22,19 +22,24 @@ export const ScanSettings: React.FC<ScanSettingsProps> = ({
       <SettingsItem label="Übereinstimmungsschwellenwert">
         <View style={styles.container}>
           <Text variant="caption" style={styles.valueText}>
-            {(matchThreshold * 100).toFixed(0)}% Vertrauen erforderlich
+            {matchThreshold.toFixed(0)}% Übereinstimmung erforderlich
           </Text>
           <Slider
             style={styles.slider}
             minimumValue={0}
-            maximumValue={1}
-            step={0.05}
+            maximumValue={100}
+            step={1}
             value={matchThreshold}
             onSlidingComplete={onThresholdChange}
             minimumTrackTintColor={theme.colors.primary}
             maximumTrackTintColor="#d3d3d3"
             thumbTintColor={theme.colors.primary}
           />
+          <View style={styles.labels}>
+            <Text variant="caption">0%</Text>
+            <Text variant="caption">50%</Text>
+            <Text variant="caption">100%</Text>
+          </View>
         </View>
       </SettingsItem>
     </SettingsSection>
@@ -52,5 +57,10 @@ const styles = StyleSheet.create({
   slider: {
     width: '100%',
     height: 40,
+  },
+  labels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: -8,
   },
 });
