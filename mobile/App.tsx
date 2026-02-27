@@ -8,8 +8,9 @@ import { paperLightTheme, paperDarkTheme } from './src/theme/paperTheme';
 import { migrateStorageData } from './src/stores';
 import { RootNavigator } from './src/navigation';
 import { Text } from './src/components/atoms/Text';
+import { usePermissions } from './src/hooks/usePermissions';
 
-const SPLASH_DURATION = 2000; // Zurück auf 2 Sekunden
+const SPLASH_DURATION = 2000; // 2 Sekunden
 
 export default function App() {
   const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
@@ -18,9 +19,10 @@ export default function App() {
   const theme = colorScheme === 'dark' ? paperDarkTheme : paperLightTheme;
 
   useEffect(() => {
+    // Daten migrieren
     migrateStorageData();
     
-    // Berechtigungen sofort beim App-Start anfragen
+    // Berechtigungen sofort beim App-Start anfragen (ohne await um Splash nicht zu blockieren)
     requestPermissions();
     
     const timer = setTimeout(() => {
