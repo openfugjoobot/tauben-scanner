@@ -1,5 +1,14 @@
-import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
-import { lightColors, darkColors } from './colors';
+import { MD3LightTheme, MD3DarkTheme, configureFonts, MD3Theme } from 'react-native-paper';
+
+export interface AppTheme extends MD3Theme {
+  colors: MD3Theme['colors'] & {
+    success: string;
+    warning: string;
+    info: string;
+  };
+}
+
+import { lightColors, darkColors, palette, semanticColors } from './colors';
 import { typography } from './typography';
 
 const fontConfig = {
@@ -110,7 +119,15 @@ const fontConfig = {
   },
 };
 
-export const paperLightTheme = {
+declare module 'react-native-paper' {
+  export interface MD3Colors {
+    success: string;
+    warning: string;
+    info: string;
+  }
+}
+
+export const paperLightTheme: AppTheme = {
   ...MD3LightTheme,
   fonts: configureFonts({ config: fontConfig }),
   colors: {
@@ -124,10 +141,13 @@ export const paperLightTheme = {
     error: lightColors.error,
     onError: lightColors.onError,
     outline: lightColors.outline,
+    success: semanticColors.success,
+    warning: semanticColors.warning,
+    info: semanticColors.info,
   },
 };
 
-export const paperDarkTheme = {
+export const paperDarkTheme: AppTheme = {
   ...MD3DarkTheme,
   fonts: configureFonts({ config: fontConfig }),
   colors: {
@@ -138,8 +158,11 @@ export const paperDarkTheme = {
     onSecondary: darkColors.onSecondary,
     background: darkColors.background,
     surface: darkColors.surface,
-    error: darkColors.error,
     onError: darkColors.onError,
     outline: darkColors.outline,
+    error: semanticColors.error,
+    success: semanticColors.success,
+    warning: semanticColors.warning,
+    info: semanticColors.info,
   },
 };

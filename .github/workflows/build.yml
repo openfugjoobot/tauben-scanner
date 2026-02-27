@@ -1,0 +1,50 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: cd mobile && npm ci
+
+      - name: Build Android APK
+        run: cd mobile && eas build --platform android --profile production --non-interactive
+
+      - name: Download APK
+        run: |
+          cd mobile
+          BUILD_ID=$(eas build:list --platform android --json --limit 1 | jq -r '.[0].id')
+          eas build:download --platform android --non-interactive
+          ls -la *.apk || echo "APK not found"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauben-scanner-apk
+          path: mobile/*.apk
+          retention-days: 30
+
+      - name: Post build summary
+        if: success()
+        run: |
+          echo "✅ Build successful!"
+          echo "APK available as artifact: tauben-scanner-apk"

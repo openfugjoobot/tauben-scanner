@@ -56,3 +56,10 @@ export const darkColors = {
 };
 
 export type ThemeColors = typeof lightColors;
+
+export const semanticColors = {
+  success: '#4CAF50',
+  warning: '#FFC107',
+  error: '#F44336',
+  info: '#2196F3',
+};

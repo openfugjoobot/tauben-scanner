@@ -30,7 +30,7 @@ export const getStorageInfo = (): { keys: string[] } => ({
 });
 
 export const initializeStorage = (): void => {
-  console.log('[Storage] Initialized with', mmkvStorage.getAllKeys().length, 'keys');
+  // Storage initialized silently in production
 };
 
 /**
