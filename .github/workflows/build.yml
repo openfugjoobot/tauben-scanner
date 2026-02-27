@@ -34,9 +34,6 @@ jobs:
           cd mobile
           npm ci --legacy-peer-deps
 
-      - name: Setup Expo CLI
-        run: npm install -g @expo/cli
-
       - name: Create env file
         run: |
           cd mobile
@@ -46,7 +43,7 @@ jobs:
       - name: Prebuild Android
         run: |
           cd mobile
-          expo prebuild --platform android --clean
+          npx expo prebuild --platform android --clean
 
       - name: Make gradlew executable
         run: chmod +x mobile/android/gradlew
