@@ -14,7 +14,7 @@ const SPLASH_DURATION = 2000; // 2 Sekunden
 
 export default function App() {
   const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
-  const { requestPermissions } = usePermissions();
+  const permissions = usePermissions();
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? paperDarkTheme : paperLightTheme;
 
@@ -22,8 +22,12 @@ export default function App() {
     // Daten migrieren
     migrateStorageData();
     
-    // Berechtigungen sofort beim App-Start anfragen (ohne await um Splash nicht zu blockieren)
-    requestPermissions();
+    // Berechtigungen sicher anfragen
+    if (permissions && typeof permissions.requestPermissions === 'function') {
+      permissions.requestPermissions().catch(err => {
+        console.warn('Permission request failed early:', err);
+      });
+    }
     
     const timer = setTimeout(() => {
       setIsSplashScreenVisible(false);
@@ -35,14 +39,12 @@ export default function App() {
   if (isSplashScreenVisible) {
     return (
       <View style={styles.splashContainer}>
-        <View style={styles.imageBackground}>
-          <Image 
-            source={require('./assets/splash-icon.png')} 
-            style={styles.splashImage}
-            resizeMode="contain"
-          />
-        </View>
-        <Text variant="h1" style={styles.splashText}>Tauben Scanner</Text>
+        <Image 
+          source={require('./assets/splash-icon.png')} 
+          style={styles.splashImage}
+          resizeMode="contain"
+        />
+        <Text variant="h3" style={styles.splashText}>Tauben Scanner</Text>
       </View>
     );
   }
@@ -65,22 +67,17 @@ export default function App() {
 const styles = StyleSheet.create({
   splashContainer: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   splashImage: {
-    width: Dimensions.get('window').width * 0.7,
-    height: Dimensions.get('window').width * 0.7,
-  },
-  imageBackground: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 10,
+    width: Dimensions.get('window').width * 0.6,
+    height: Dimensions.get('window').width * 0.6,
   },
   splashText: {
-    marginTop: 24,
-    color: '#000000',
-    fontWeight: 'bold',
+    marginTop: 20,
+    color: '#333333',
+    fontWeight: '600',
   },
 });
