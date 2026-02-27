@@ -17,41 +17,36 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
         with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
         run: cd mobile && npm ci --legacy-peer-deps
 
-      - name: Create env file
+      - name: Configure EAS project
+        run: cd mobile && npx eas config --platform android --profile production
+
+      - name: Build with EAS
         run: |
           cd mobile
-          echo "EXPO_PUBLIC_API_URL=https://api.example.com/api/v1" > .env
-          echo "EXPO_PUBLIC_STORAGE_KEY=default-key" >> .env
+          npx eas build --platform android --profile production --non-interactive --local || \
+          npx eas build --platform android --profile production --non-interactive
 
-      - name: Prebuild Android
-        run: cd mobile && npx expo prebuild --platform android --clean
-
-      - name: Build APK
+      - name: Download APK
+        if: success()
         run: |
-          cd mobile/android
-          ./gradlew assembleRelease
+          cd mobile
+          EAS_BUILD_ID=$(npx eas build:list --platform android --json --limit 1 | jq -r '.[0].id')
+          if [ -n "$EAS_BUILD_ID" ]; then
+            npx eas build:download --id "$EAS_BUILD_ID" --platform android --path tauben-scanner.apk
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: tauben-scanner-apk
-          path: mobile/android/app/build/outputs/apk/release/app-release.apk
+          path: mobile/tauben-scanner.apk
           retention-days: 30
-
-      - name: Build Summary
-        if: success()
-        run: |
-          echo "✅ Build successful!"
-          echo "APK: mobile/android/app/build/outputs/apk/release/app-release.apk"
