@@ -4,11 +4,15 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
+import * as SplashScreen from 'expo-splash-screen';
 import { queryClient } from './src/services/queryClient';
 import { paperLightTheme, paperDarkTheme } from './src/theme/paperTheme';
 import { migrateStorageData, useAppStore } from './src/stores';
 import { RootNavigator } from './src/navigation';
 import { usePermissions } from './src/hooks/usePermissions';
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
@@ -45,6 +49,8 @@ export default function App() {
   useEffect(() => {
     initializeApp().then(cleanup => {
       setIsReady(true);
+      // Hide splash screen after app is ready
+      SplashScreen.hideAsync();
       return cleanup;
     });
   }, [initializeApp]);
