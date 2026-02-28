@@ -24,17 +24,17 @@ export const PigeonListScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
-  // Debounce search query to prevent excessive API calls
   const debouncedSearch = useDebounce(searchQuery, 700);
-
-  // Only use search query if it has at least 2 characters 
   const effectiveSearch = debouncedSearch.length >= 2 ? debouncedSearch : '';
 
-  const { data, isLoading, isFetching, refetch, isError } = usePigeons({
+  const { data, isLoading, isFetching, refetch, isError, error } = usePigeons({
     page,
     limit: 20,
     search: effectiveSearch || undefined,
   });
+
+  // DEBUG: Log data state
+  console.log('PigeonList data:', data, 'isLoading:', isLoading, 'isError:', isError, 'error:', error);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -72,8 +72,26 @@ export const PigeonListScreen: React.FC = () => {
     );
   }
 
-  // Empty state
-  if (!data?.pigeons.length && !isLoading) {
+  // ERROR state - NEU!
+  if (isError) {
+    return (
+      <View style={styles.centered}>
+        <Icon name="alert-circle" size={64} color="#F44336" />
+        <Text variant="h3" style={[styles.emptyTitle, { color: '#F44336' }]} >
+          Verbindungsfehler
+        </Text>
+        <Text variant="body" style={styles.emptyText}>
+          {error?.message || 'Server nicht erreichbar. Bitte später erneut versuchen.'}
+        </Text>
+        <Button variant="primary" onPress={() => refetch()} style={styles.addButton}>
+          Erneut laden
+        </Button>
+      </View>
+    );
+  }
+
+  // Empty state (nur wenn wirklich keine Daten)
+  if (!data?.pigeons?.length && !isLoading) {
     return (
       <View style={styles.container}>
         <Card style={styles.searchCard}>
@@ -100,6 +118,7 @@ export const PigeonListScreen: React.FC = () => {
     );
   }
 
+  // DATA vorhanden
   return (
     <View style={styles.container}>
       <Card style={styles.searchCard}>
@@ -115,7 +134,7 @@ export const PigeonListScreen: React.FC = () => {
           pigeons={data?.pigeons || []}
           onPigeonPress={handlePigeonPress}
           onEndReached={handleEndReached}
-          isLoadingMore={isFetching && !!data?.pigeons.length}
+          isLoadingMore={isFetching && !!data?.pigeons?.length}
         />
       </View>
 
