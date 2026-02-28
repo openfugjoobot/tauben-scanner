@@ -46,7 +46,7 @@ export const Badge: React.FC<BadgeProps> = ({
         },
       ]}
     >
-      <Text style={[styles.text, { fontSize: sizeStyles.fontSize }]}>
+      <Text style={[styles.text, { fontSize: sizeStyles.fontSize, color: theme.colors.onPrimary }]}>
         {children}
       </Text>
     </View>
@@ -61,7 +61,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
-    color: '#fff',
     fontWeight: '600',
   },
 });
