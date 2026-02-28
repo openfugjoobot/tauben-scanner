@@ -35,25 +35,25 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
 
       <View style={styles.infoRow}>
         <View style={styles.infoItem}>
-          <Icon name="tag" size={20} color={theme.colors.onSurfaceVariant} />
+          <Icon name="information" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
             <Text variant="caption" style={styles.label}>
-              Ringnummer
+              Beschreibung
             </Text>
-            <Text variant="body">
-              {pigeon.ringNumber || 'Keine'}
+            <Text variant="body" numberOfLines={2}>
+              {pigeon.description || 'Keine'}
             </Text>
           </View>
         </View>
 
         <View style={styles.infoItem}>
-          <Icon name="calendar" size={20} color={theme.colors.onSurfaceVariant} />
+          <Icon name="eye" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
             <Text variant="caption" style={styles.label}>
-              Zuerst gesehen
+              Letzte Sichtung
             </Text>
             <Text variant="body">
-              {formatDate(pigeon.firstSeen)}
+              {pigeon.lastSeen ? formatDate(pigeon.lastSeen) : formatDate(pigeon.firstSeen)}
             </Text>
           </View>
         </View>
@@ -61,7 +61,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
 
       <View style={styles.infoRow}>
         <View style={styles.infoItem}>
-          <Icon name="eye" size={20} color={theme.colors.onSurfaceVariant} />
+          <Icon name="counter" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
             <Text variant="caption" style={styles.label}>
               Sichtungen
@@ -73,13 +73,13 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
         </View>
 
         <View style={styles.infoItem}>
-          <Icon name="clock" size={20} color={theme.colors.onSurfaceVariant} />
+          <Icon name="calendar" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
             <Text variant="caption" style={styles.label}>
-              Zuletzt aktualisiert
+              Erstgesichtung
             </Text>
             <Text variant="body">
-              {formatDate(pigeon.updatedAt)}
+              {formatDate(pigeon.firstSeen)}
             </Text>
           </View>
         </View>

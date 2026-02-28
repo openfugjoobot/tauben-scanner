@@ -4,14 +4,14 @@ import { useCreatePigeon } from '../../../hooks/queries';
 
 export interface PigeonFormData {
   name: string;
-  ringNumber: string;
+  description: string;
   photo: string | null;
   location: { lat: number; lng: number } | null;
 }
 
 const initialFormData: PigeonFormData = {
   name: '',
-  ringNumber: '',
+  description: '',
   photo: null,
   location: null,
 };
@@ -51,7 +51,7 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
     try {
       await createMutation.mutateAsync({
         name: formData.name,
-        ringNumber: formData.ringNumber || undefined,
+        description: formData.description || undefined,
         photo: formData.photo || undefined,
         location: formData.location || undefined,
       });

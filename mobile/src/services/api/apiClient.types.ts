@@ -16,7 +16,7 @@ export interface ApiError {
 export interface Pigeon {
   id: string;
   name: string;
-  ringNumber?: string;
+  description?: string;
   photoUrl?: string;
   ownerId: string;
   sightingsCount: number;
@@ -36,7 +36,7 @@ export interface MatchResponse {
 
 export interface CreatePigeonRequest {
   name: string;
-  ringNumber?: string;
+  description?: string;
   location?: {
     lat: number;
     lng: number;

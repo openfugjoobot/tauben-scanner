@@ -37,12 +37,12 @@ export const PigeonForm: React.FC<PigeonFormProps> = ({
       />
       
       <Input
-        label="Ringnummer"
-        placeholder="z.B. DV 01234-23-456"
-        value={formData.ringNumber}
-        onChangeText={(text) => onFieldChange('ringNumber', text)}
-        error={errors.ringNumber}
-        autoCapitalize="characters"
+        label="Beschreibung"
+        placeholder="Kurze Beschreibung der Taube (Farbe, Merkmale)"
+        value={formData.description}
+        onChangeText={(text) => onFieldChange('description', text)}
+        error={errors.description}
+        autoCapitalize="sentences"
       />
       
       

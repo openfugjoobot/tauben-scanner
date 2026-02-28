@@ -44,9 +44,9 @@ export const PigeonCard: React.FC<PigeonCardProps> = ({
             )}
           </View>
           
-          {pigeon.ringNumber && (
-            <Text variant="caption" color={theme.colors.onSurfaceVariant}>
-              R: {pigeon.ringNumber}
+          {pigeon.description && (
+            <Text variant="caption" color={theme.colors.onSurfaceVariant} numberOfLines={1}>
+              {pigeon.description}
             </Text>
           )}
           
