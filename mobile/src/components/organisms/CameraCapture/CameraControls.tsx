@@ -45,8 +45,8 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
             value={zoom}
             onValueChange={(value) => onZoomChange(Array.isArray(value) ? value[0] : value)}
             minimumValue={0}
-            maximumValue={0.1} // Expo Zoom scales approx 0 to 1, but 0.1 is already significant on mobile
-            step={0.001}
+            maximumValue={1} // Expo Zoom scales 0 to 1 (0 = wide, 1 = max zoom)
+            step={0.01}
             thumbTintColor="white"
             minimumTrackTintColor="white"
             maximumTrackTintColor="rgba(255,255,255,0.3)"
@@ -89,7 +89,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     paddingHorizontal: 20,
     backgroundColor: 'transparent',
-    pointerEvents: 'box-none',
   },
   zoomContainer: {
     flexDirection: 'row',
@@ -108,7 +107,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    pointerEvents: 'box-none',
   },
   button: {
     width: 50,

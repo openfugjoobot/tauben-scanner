@@ -83,7 +83,7 @@ export const useCameraCapture = (): [CameraCaptureState, CameraCaptureActions, R
     } finally {
       setIsCapturing(false);
     }
-  }, [permission]);
+  }, [permission, cameraType]);
 
   const retakePhoto = useCallback(() => {
     setCapturedPhoto(null);
