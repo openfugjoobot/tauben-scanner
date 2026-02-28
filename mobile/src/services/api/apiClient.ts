@@ -1,30 +1,34 @@
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
-import { useSettingsStore } from '../../stores/settings';
 import type { ApiError, ApiErrorCode } from './apiClient.types';
 
 const DEFAULT_TIMEOUT = 30000;
 const UPLOAD_TIMEOUT = 120000;
+
+// API URL direkt setzen - zuverlässiger als Interceptor
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://tauben-scanner.fugjoo.duckdns.org/api';
+
+console.log('[API] Using API URL:', API_URL);
 
 class ApiClient {
   private instance: AxiosInstance;
 
   constructor() {
     this.instance = axios.create({
+      baseURL: API_URL,
       timeout: DEFAULT_TIMEOUT,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+      },
     });
     this.setupInterceptors();
   }
 
   private setupInterceptors() {
-    // Request interceptor
+    // Request interceptor - nur für Auth Header
     this.instance.interceptors.request.use(
       (config) => {
-        const { apiUrl, apiKey } = useSettingsStore.getState();
-        config.baseURL = apiUrl;
-        if (apiKey) {
-          config.headers.Authorization = `Bearer ${apiKey}`;
-        }
+        // Debug logging
+        console.log('[API Request]', config.method?.toUpperCase(), config.url);
         return config;
       },
       (error) => Promise.reject(error)
@@ -32,8 +36,12 @@ class ApiClient {
 
     // Response interceptor
     this.instance.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        console.log('[API Response]', response.status, response.config.url);
+        return response;
+      },
       (error: AxiosError) => {
+        console.error('[API Error]', error.message, error.code);
         const apiError = this.normalizeError(error);
         return Promise.reject(apiError);
       }
@@ -56,7 +64,10 @@ class ApiClient {
       };
     }
     if (error.request) {
-      return { code: 'NETWORK_ERROR', message: 'Netzwerkfehler. Bitte prüfen Sie Ihre Verbindung.' };
+      return { 
+        code: 'NETWORK_ERROR', 
+        message: `Netzwerkfehler: ${error.message}. Prüfe Internet-Verbindung.` 
+      };
     }
     return { code: 'UNKNOWN_ERROR', message: error.message };
   }
@@ -84,21 +95,8 @@ class ApiClient {
     return response.data;
   }
 
-  async upload<T>(
-    endpoint: string,
-    file: FormData,
-    onProgress?: (progress: number) => void
-  ): Promise<T> {
-    const response = await this.instance.post<T>(endpoint, file, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      timeout: UPLOAD_TIMEOUT,
-      onUploadProgress: (e) => {
-        if (onProgress && e.total) {
-          onProgress(Math.round((e.loaded / e.total) * 100));
-        }
-      },
-    });
-    return response.data;
+  getBaseUrl(): string {
+    return API_URL;
   }
 }
 
