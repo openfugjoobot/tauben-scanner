@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { CameraView } from 'expo-camera';
 import { Text } from '../../atoms/Text';
@@ -11,17 +11,27 @@ import { useTheme } from '../../../theme';
 interface CameraCaptureProps {
   onPhotoCaptured: (photo: { uri: string; base64: string }) => void;
   onCancel?: () => void;
+  skipPreview?: boolean;
 }
 
 export const CameraCapture: React.FC<CameraCaptureProps> = ({
   onPhotoCaptured,
   onCancel,
+  skipPreview = false,
 }) => {
   const theme = useTheme();
   const [state, actions, cameraRef] = useCameraCapture();
 
-  // Show preview if photo captured
-  if (state.capturedPhoto) {
+  // Auto-confirm if skipPreview is true
+  React.useEffect(() => {
+    if (skipPreview && state.capturedPhoto) {
+      onPhotoCaptured(state.capturedPhoto);
+      actions.retakePhoto();
+    }
+  }, [skipPreview, state.capturedPhoto, onPhotoCaptured, actions]);
+
+  // Show preview if photo captured (and not skipping)
+  if (!skipPreview && state.capturedPhoto) {
     return (
       <PhotoPreview
         photo={state.capturedPhoto}

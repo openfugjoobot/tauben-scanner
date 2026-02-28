@@ -44,6 +44,7 @@ export const ScanScreen: React.FC = () => {
         <CameraCapture
           onPhotoCaptured={capturePhoto}
           onCancel={() => navigation.goBack()}
+          skipPreview={true}
         />
         <ScanOverlay />
       </View>
