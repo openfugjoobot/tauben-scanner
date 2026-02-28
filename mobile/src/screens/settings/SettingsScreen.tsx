@@ -14,6 +14,11 @@ interface ServerStatus {
   latency?: number;
   status?: string;
   timestamp?: string;
+  services?: {
+    database?: string;
+    storage?: string;
+    embedding_model?: string;
+  };
   error?: string;
 }
 
@@ -51,6 +56,7 @@ export const SettingsScreen: React.FC = () => {
             latency: Date.now() - startTime,
             status: data.status,
             timestamp: data.timestamp,
+            services: data.services,
           });
         } else {
           setServerStatus({
@@ -73,6 +79,18 @@ export const SettingsScreen: React.FC = () => {
     const interval = setInterval(checkServerStatus, 30000);
     return () => clearInterval(interval);
   }, [apiUrl]);
+
+  const getServiceIcon = (status?: string) => {
+    if (status === 'connected' || status === 'loaded') return 'check-circle';
+    if (status === 'error') return 'close-circle';
+    return 'help-circle';
+  };
+
+  const getServiceColor = (status?: string) => {
+    if (status === 'connected' || status === 'loaded') return '#4CAF50';
+    if (status === 'error') return '#F44336';
+    return '#9E9E9E';
+  };
 
   return (
     <View style={styles.container}>
@@ -106,15 +124,65 @@ export const SettingsScreen: React.FC = () => {
                 <Text style={{ fontWeight: '600' }}>URL: </Text>
                 {apiUrl}
               </Text>
+              
               {serverStatus.latency && (
                 <Text variant="caption" style={styles.statusDetail}>
-                  Latenz: {serverStatus.latency}ms
+                  ⏱️ Latenz: {serverStatus.latency}ms
                 </Text>
               )}
+              
               {serverStatus.status && (
                 <Text variant="caption" style={styles.statusDetail}>
-                  Status: {serverStatus.status}
+                  📊 Status: {serverStatus.status}
                 </Text>
+              )}
+
+              {/* Services Status */}
+              {serverStatus.services && (
+                <View style={styles.servicesContainer}>
+                  <Text variant="bodySmall" style={styles.servicesTitle}>
+                    Services:
+                  </Text>
+                  
+                  {serverStatus.services.database && (
+                    <View style={styles.serviceRow}>
+                      <MaterialCommunityIcons
+                        name={getServiceIcon(serverStatus.services.database)}
+                        size={16}
+                        color={getServiceColor(serverStatus.services.database)}
+                      />
+                      <Text variant="caption" style={styles.serviceText}>
+                        🗄️ Datenbank: {serverStatus.services.database}
+                      </Text>
+                    </View>
+                  )}
+                  
+                  {serverStatus.services.storage && (
+                    <View style={styles.serviceRow}>
+                      <MaterialCommunityIcons
+                        name={getServiceIcon(serverStatus.services.storage)}
+                        size={16}
+                        color={getServiceColor(serverStatus.services.storage)}
+                      />
+                      <Text variant="caption" style={styles.serviceText}>
+                        💾 Storage: {serverStatus.services.storage}
+                      </Text>
+                    </View>
+                  )}
+                  
+                  {serverStatus.services.embedding_model && (
+                    <View style={styles.serviceRow}>
+                      <MaterialCommunityIcons
+                        name={getServiceIcon(serverStatus.services.embedding_model)}
+                        size={16}
+                        color={getServiceColor(serverStatus.services.embedding_model)}
+                      />
+                      <Text variant="caption" style={styles.serviceText}>
+                        🧠 KI-Modell: {serverStatus.services.embedding_model}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               )}
             </>
           ) : (
@@ -163,25 +231,49 @@ const styles = StyleSheet.create({
   serverHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    gap: 8,
+    marginBottom: 8,
   },
   serverTitle: {
-    flex: 1,
+    marginLeft: 8,
+    fontWeight: '600',
   },
   statusText: {
+    marginTop: 8,
     marginBottom: 4,
   },
   statusDetail: {
-    color: '#666',
     marginTop: 2,
+    color: '#666',
+  },
+  servicesContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  servicesTitle: {
+    fontWeight: '600',
+    marginBottom: 8,
+    color: '#333',
+  },
+  serviceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4,
+  },
+  serviceText: {
+    marginLeft: 6,
+    color: '#666',
   },
   savedBanner: {
     position: 'absolute',
-    bottom: 80,
-    left: 16,
-    right: 16,
+    bottom: 20,
+    left: 20,
+    right: 20,
     padding: 12,
     borderRadius: 8,
+    elevation: 4,
   },
 });
+
+export default SettingsScreen;
