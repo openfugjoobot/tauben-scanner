@@ -5,7 +5,8 @@ const DEFAULT_TIMEOUT = 30000;
 const UPLOAD_TIMEOUT = 120000;
 
 // API URL direkt setzen - zuverlässiger als Interceptor
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://tauben-scanner.fugjoo.duckdns.org/api';
+// Wichtig: Muss mit /api enden!
+const API_URL = 'https://tauben-scanner.fugjoo.duckdns.org/api';
 
 console.log('[API] Using API URL:', API_URL);
 
