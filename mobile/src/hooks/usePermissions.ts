@@ -6,60 +6,86 @@ import * as ImagePicker from 'expo-image-picker';
 
 export const usePermissions = () => {
   const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
-  useEffect(() => {
-    checkPermissions();
-  }, [cameraPermission]);
-
+  // Nur Berechtigungs-STATUS prüfen (ohne Anfrage!)
   const checkPermissions = useCallback(async () => {
     try {
-      // Camera permission - check if already granted
+      setIsChecking(true);
+      
+      // Camera: Status prüfen (nicht anfragen!)
       const cameraGranted = cameraPermission?.granted ?? false;
       
-      // Location permission
-      const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
+      // Location: GET (nicht request!)
+      const { status: locationStatus } = await Location.getForegroundPermissionsAsync();
+      const locationGranted = locationStatus === 'granted';
 
-      // Media Library permission (for uploading photos)
-      const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      // Media Library: GET (nicht request!)
+      const { status: mediaStatus } = await ImagePicker.getMediaLibraryPermissionsAsync();
+      const mediaGranted = mediaStatus === 'granted';
 
-      if (!cameraGranted || locationStatus !== 'granted' || mediaStatus !== 'granted') {
-        Alert.alert(
-          'Berechtigungen erforderlich',
-          'Tauben Scanner benötigt Kamera-, Standort- und Fotoberechtigungen, um ordnungsgemäß zu funktionieren.',
-          [
-            { text: 'Abbrechen', style: 'cancel' },
-            { 
-              text: 'Einstellungen öffnen', 
-              onPress: () => Linking.openSettings() 
-            },
-          ]
-        );
-      } else {
-        setPermissionsGranted(true);
-      }
+      const allGranted = cameraGranted && locationGranted && mediaGranted;
+      setPermissionsGranted(allGranted);
+      setIsChecking(false);
+      
+      return allGranted;
     } catch (error) {
-      console.error('Permission error:', error);
+      console.error('Permission check error:', error);
+      setIsChecking(false);
+      return false;
     }
-  }, [cameraPermission]);
+  }, [cameraPermission?.granted]);
 
+  // Initial check
+  useEffect(() => {
+    checkPermissions();
+  }, [checkPermissions]);
+
+  // Berechtigungen ANFRAGEN (nur wenn User explizit zustimmt)
   const requestPermissions = useCallback(async () => {
     try {
-      // Request camera permission explicitly
+      setIsChecking(true);
+      
+      // Request camera via expo-camera hook
       await requestCameraPermission();
       
-      // Location permission
+      // Request location
       await Location.requestForegroundPermissionsAsync();
 
-      // Media Library permission
+      // Request media library
       await ImagePicker.requestMediaLibraryPermissionsAsync();
       
-      // Re-check permissions
-      checkPermissions();
+      // Re-check status
+      const allGranted = await checkPermissions();
+      return allGranted;
     } catch (error) {
-      console.error('Permission error:', error);
+      console.error('Permission request error:', error);
+      setIsChecking(false);
+      return false;
     }
   }, [requestCameraPermission, checkPermissions]);
 
-  return { permissionsGranted, requestPermissions };
+  // Zeigt Einstellungen-Alert nur wenn Berechtigungen fehlen UND User will scan
+  const showSettingsAlert = useCallback(() => {
+    Alert.alert(
+      'Berechtigungen erforderlich',
+      'Tauben Scanner benötigt Kamera-, Standort- und Fotoberechtigungen.\n\nBitte aktiviere diese in den Einstellungen.',
+      [
+        { text: 'Abbrechen', style: 'cancel' },
+        { 
+          text: 'Einstellungen öffnen', 
+          onPress: () => Linking.openSettings() 
+        },
+      ]
+    );
+  }, []);
+
+  return { 
+    permissionsGranted, 
+    isChecking,
+    requestPermissions,
+    showSettingsAlert,
+    checkPermissions
+  };
 };

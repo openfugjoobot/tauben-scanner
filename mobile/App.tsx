@@ -22,12 +22,8 @@ export default function App() {
       // Daten migrieren
       await migrateStorageData();
       
-      // Berechtigungen sicher anfragen
-      if (permissions && typeof permissions.requestPermissions === 'function') {
-        await permissions.requestPermissions().catch(err => {
-          console.warn('Permission request failed early:', err);
-        });
-      }
+      // Berechtigungen NICHT automatisch anfragen - nur prüfen
+      // User fragt selbst über UI an
       
       // Netzwerk-Status überwachen
       const unsubscribeNetInfo = NetInfo.addEventListener((state: { isConnected: boolean | null }) => {
