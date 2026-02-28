@@ -65,7 +65,7 @@ export const PigeonListScreen: React.FC = () => {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text variant="body" style={styles.loadingText}>
+        <Text variant="body" color={theme.colors.onSurfaceVariant} style={styles.loadingText}>
           Tauben werden geladen...
         </Text>
       </View>
@@ -80,7 +80,7 @@ export const PigeonListScreen: React.FC = () => {
         <Text variant="h3" style={[styles.emptyTitle, { color: '#F44336' }]} >
           Verbindungsfehler
         </Text>
-        <Text variant="body" style={styles.emptyText}>
+        <Text variant="body" color={theme.colors.onSurfaceVariant} style={styles.emptyText}>
           {error?.message || 'Server nicht erreichbar. Bitte später erneut versuchen.'}
         </Text>
         <Button variant="primary" onPress={() => refetch()} style={styles.addButton}>
@@ -107,7 +107,7 @@ export const PigeonListScreen: React.FC = () => {
           <Text variant="h3" style={styles.emptyTitle}>
             Keine Tauben gefunden
           </Text>
-          <Text variant="body" style={styles.emptyText}>
+          <Text variant="body" color={theme.colors.onSurfaceVariant} style={styles.emptyText}>
             Füge deine erste Taube hinzu oder starte einen Scan.
           </Text>
           <Button variant="primary" onPress={handleAddPigeon} style={styles.addButton}>
@@ -156,7 +156,6 @@ export const PigeonListScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   searchCard: {
     margin: spacing.md,
@@ -174,7 +173,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: spacing.md,
-    color: '#666',
+    
   },
   emptyTitle: {
     marginTop: spacing.lg,
@@ -183,7 +182,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    color: '#666',
+    
     marginBottom: spacing.lg,
   },
   addButton: {

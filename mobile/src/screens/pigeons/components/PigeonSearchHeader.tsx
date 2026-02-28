@@ -56,7 +56,6 @@ export const PigeonSearchHeader: React.FC<PigeonSearchHeaderProps> = ({
 const styles = StyleSheet.create({
   container: {
     padding: spacing.md,
-    backgroundColor: '#fff',
   },
   searchRow: {
     flexDirection: 'row',

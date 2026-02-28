@@ -25,11 +25,9 @@ export const PigeonListLoading: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   headerSkeleton: {
     padding: spacing.md,
-    backgroundColor: '#fff',
   },
   searchBar: {
     borderRadius: 8,

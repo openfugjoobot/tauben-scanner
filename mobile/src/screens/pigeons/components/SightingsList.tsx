@@ -45,7 +45,7 @@ export const SightingsList: React.FC<SightingsListProps> = ({ sightings }) => {
         <View style={styles.line} />
       </View>
       
-      <Card style={[styles.content, { backgroundColor: "white" }]}>
+      <Card style={[styles.content, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.header}>
           <Text variant="caption" style={styles.date}>
             {formatDate(item.date)}
@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     marginBottom: 20,
     padding: 12,
-    backgroundColor: 'white',
     borderRadius: 12,
   },
   header: {

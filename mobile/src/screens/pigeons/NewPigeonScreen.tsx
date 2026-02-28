@@ -59,18 +59,15 @@ export const NewPigeonScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   keyboardView: {
     flex: 1,
   },
   header: {
     padding: 16,
-    backgroundColor: '#fff',
   },
   buttonContainer: {
     padding: 16,
-    backgroundColor: '#fff',
   },
   saveButton: {
     width: '100%',

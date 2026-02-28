@@ -92,7 +92,6 @@ const styles = StyleSheet.create({
   card: {
     margin: 16,
     padding: 16,
-    backgroundColor: 'white',
     borderRadius: 12,
   },
   title: {

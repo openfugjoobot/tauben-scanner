@@ -65,7 +65,6 @@ export const PigeonForm: React.FC<PigeonFormProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   content: {
     padding: 16,
