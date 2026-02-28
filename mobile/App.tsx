@@ -3,9 +3,10 @@ import { useColorScheme, StatusBar, View, StyleSheet, Image, Dimensions } from '
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
+import NetInfo from '@react-native-community/netinfo';
 import { queryClient } from './src/services/queryClient';
 import { paperLightTheme, paperDarkTheme } from './src/theme/paperTheme';
-import { migrateStorageData } from './src/stores';
+import { migrateStorageData, useAppStore } from './src/stores';
 import { RootNavigator } from './src/navigation';
 import { Text } from './src/components/atoms/Text';
 import { usePermissions } from './src/hooks/usePermissions';
@@ -15,6 +16,7 @@ const SPLASH_DURATION = 2000; // 2 Sekunden
 export default function App() {
   const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
   const permissions = usePermissions();
+  const { setOnlineStatus } = useAppStore();
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? paperDarkTheme : paperLightTheme;
 
@@ -29,11 +31,19 @@ export default function App() {
       });
     }
     
+    // Netzwerk-Status überwachen
+    const unsubscribeNetInfo = NetInfo.addEventListener(state => {
+      setOnlineStatus(state.isConnected ?? false);
+    });
+    
     const timer = setTimeout(() => {
       setIsSplashScreenVisible(false);
     }, SPLASH_DURATION);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      unsubscribeNetInfo();
+    };
   }, []);
 
   if (isSplashScreenVisible) {

@@ -3,7 +3,6 @@ import type { NavigatorScreenParams } from '@react-navigation/native';
 // Scan Flow
 export type ScanStackParamList = {
   Scan: undefined;
-  Preview: { photoUri: string; photoBase64: string };
   Results: { matchResult: any };
   NewPigeon: { photoUri: string; location?: any };
 };

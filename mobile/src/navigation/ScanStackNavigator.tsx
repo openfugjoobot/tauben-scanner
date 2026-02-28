@@ -1,7 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ScanScreen } from '../screens/scan/ScanScreen';
-import { PreviewScreen } from '../screens/scan/PreviewScreen';
 import { ResultsScreen } from '../screens/scan/ResultsScreen';
 import { NewPigeonScreen } from '../screens/scan/NewPigeonScreen';
 import type { ScanStackParamList } from './types';
@@ -19,7 +18,6 @@ export const ScanStackNavigator: React.FC = () => {
       }}
     >
       <Stack.Screen name="Scan" component={ScanScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Preview" component={PreviewScreen} options={{ title: 'Vorschau' }} />
       <Stack.Screen name="Results" component={ResultsScreen} options={{ title: 'Ergebnis' }} />
       <Stack.Screen name="NewPigeon" component={NewPigeonScreen} options={{ title: 'Neue Taube' }} />
     </Stack.Navigator>
