@@ -67,7 +67,7 @@ export const SettingsScreen: React.FC = () => {
       } catch (error) {
         setServerStatus({
           connected: false,
-          error: 'Keine Verbindung zum Server',
+          error: 'Keine Verbindung',
         });
       } finally {
         setIsCheckingStatus(false);
@@ -101,93 +101,59 @@ export const SettingsScreen: React.FC = () => {
           Einstellungen
         </Text>
 
-        {/* Server Status Card */}
+        {/* Server Status Card - Kompakt */}
         <Card style={styles.card}>
-          <View style={styles.serverHeader}>
+          <View style={styles.statusRow}>
             <MaterialCommunityIcons
               name={serverStatus.connected ? 'check-circle' : 'alert-circle'}
-              size={24}
+              size={20}
               color={serverStatus.connected ? theme.colors.success : theme.colors.error}
             />
-            <Text variant="h3" style={styles.serverTitle}>
+            <Text variant="body" style={styles.statusTitle}>
               {serverStatus.connected ? 'Server verbunden' : 'Server nicht erreichbar'}
             </Text>
+            
+            {serverStatus.latency && (
+              <Text variant="caption" style={styles.latency}>
+                {serverStatus.latency}ms
+              </Text>
+            )}
           </View>
           
-          {isCheckingStatus ? (
-            <Text variant="caption" color={theme.colors.onSurfaceVariant}>
-              Verbindung wird geprüft...
-            </Text>
-          ) : serverStatus.connected ? (
-            <>
-              <Text variant="body" style={styles.statusText}>
-                <Text style={{ fontWeight: '600' }}>URL: </Text>
-                {apiUrl}
-              </Text>
+          {serverStatus.connected && serverStatus.services && (
+            <View style={styles.servicesRow}>
+              <View style={styles.serviceItem}>
+                <MaterialCommunityIcons
+                  name={getServiceIcon(serverStatus.services.database)}
+                  size={14}
+                  color={getServiceColor(serverStatus.services.database)}
+                />
+                <Text variant="caption" style={styles.serviceText}>DB</Text>
+              </View>
               
-              {serverStatus.latency && (
-                <Text variant="caption" style={styles.statusDetail}>
-                  ⏱️ Latenz: {serverStatus.latency}ms
-                </Text>
-              )}
+              <View style={styles.serviceItem}>
+                <MaterialCommunityIcons
+                  name={getServiceIcon(serverStatus.services.storage)}
+                  size={14}
+                  color={getServiceColor(serverStatus.services.storage)}
+                />
+                <Text variant="caption" style={styles.serviceText}>Storage</Text>
+              </View>
               
-              {serverStatus.status && (
-                <Text variant="caption" style={styles.statusDetail}>
-                  📊 Status: {serverStatus.status}
-                </Text>
-              )}
-
-              {/* Services Status */}
-              {serverStatus.services && (
-                <View style={styles.servicesContainer}>
-                  <Text variant="bodySmall" style={styles.servicesTitle}>
-                    Services:
-                  </Text>
-                  
-                  {serverStatus.services.database && (
-                    <View style={styles.serviceRow}>
-                      <MaterialCommunityIcons
-                        name={getServiceIcon(serverStatus.services.database)}
-                        size={16}
-                        color={getServiceColor(serverStatus.services.database)}
-                      />
-                      <Text variant="caption" style={styles.serviceText}>
-                        🗄️ Datenbank: {serverStatus.services.database}
-                      </Text>
-                    </View>
-                  )}
-                  
-                  {serverStatus.services.storage && (
-                    <View style={styles.serviceRow}>
-                      <MaterialCommunityIcons
-                        name={getServiceIcon(serverStatus.services.storage)}
-                        size={16}
-                        color={getServiceColor(serverStatus.services.storage)}
-                      />
-                      <Text variant="caption" style={styles.serviceText}>
-                        💾 Storage: {serverStatus.services.storage}
-                      </Text>
-                    </View>
-                  )}
-                  
-                  {serverStatus.services.embedding_model && (
-                    <View style={styles.serviceRow}>
-                      <MaterialCommunityIcons
-                        name={getServiceIcon(serverStatus.services.embedding_model)}
-                        size={16}
-                        color={getServiceColor(serverStatus.services.embedding_model)}
-                      />
-                      <Text variant="caption" style={styles.serviceText}>
-                        🧠 KI-Modell: {serverStatus.services.embedding_model}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              )}
-            </>
-          ) : (
-            <Text variant="caption" style={{ color: theme.colors.error }}>
-              {serverStatus.error || 'Verbindungsfehler'}
+              <View style={styles.serviceItem}>
+                <MaterialCommunityIcons
+                  name={getServiceIcon(serverStatus.services.embedding_model)}
+                  size={14}
+                  color={getServiceColor(serverStatus.services.embedding_model)}
+                />
+                <Text variant="caption" style={styles.serviceText}>KI</Text>
+              </View>
+            </View>
+          )}
+          
+          {!serverStatus.connected && serverStatus.error && (
+            <Text variant="caption" style={styles.errorText}>
+              {serverStatus.error}
             </Text>
           )}
         </Card>
@@ -226,44 +192,42 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 16,
-    padding: 16,
+    padding: 12,
   },
-  serverHeader: {
+  // Kompakter Status-Block
+  statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
   },
-  serverTitle: {
+  statusTitle: {
     marginLeft: 8,
     fontWeight: '600',
+    flex: 1,
   },
-  statusText: {
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  statusDetail: {
-    marginTop: 2,
+  latency: {
     color: '#666',
+    marginLeft: 8,
   },
-  servicesContainer: {
-    marginTop: 12,
-    paddingTop: 12,
+  servicesRow: {
+    flexDirection: 'row',
+    marginTop: 8,
+    paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: '#eee',
+    gap: 16,
   },
-  servicesTitle: {
-    fontWeight: '600',
-    marginBottom: 8,
-    color: '#333',
-  },
-  serviceRow: {
+  serviceItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 4,
+    gap: 4,
   },
   serviceText: {
-    marginLeft: 6,
     color: '#666',
+    fontSize: 12,
+  },
+  errorText: {
+    color: '#F44336',
+    marginTop: 4,
   },
   savedBanner: {
     position: 'absolute',
