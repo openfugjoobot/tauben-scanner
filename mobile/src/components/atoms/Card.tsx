@@ -45,7 +45,7 @@ export const Card: React.FC<CardProps> = ({
           backgroundColor: theme.colors.surface,
           padding: getPadding(),
           borderRadius: 12,
-          shadowColor: theme.colors.text,
+          shadowColor: theme.colors.onSurface,
           shadowOffset: { width: 0, height: (getElevation() as number) > 0 ? 2 : 0 },
           shadowOpacity: (getElevation() as number) > 0 ? 0.1 : 0,
           shadowRadius: getElevation() as number,
