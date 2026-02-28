@@ -77,7 +77,7 @@ export const ResultsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -133,7 +133,7 @@ export const ResultsScreen: React.FC = () => {
               )}
 
               <View style={styles.detailRow}>
-                <Text variant="bodyMedium" style={styles.detailLabel}>
+                <Text variant="bodyMedium" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>
                   Name:
                 </Text>
                 <Text variant="bodyLarge" style={styles.detailValue}>
@@ -142,7 +142,7 @@ export const ResultsScreen: React.FC = () => {
               </View>
 
               <View style={styles.detailRow}>
-                <Text variant="bodyMedium" style={styles.detailLabel}>
+                <Text variant="bodyMedium" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>
                   Ring-Nr:
                 </Text>
                 <Text variant="bodyLarge" style={styles.detailValue}>
@@ -151,7 +151,7 @@ export const ResultsScreen: React.FC = () => {
               </View>
 
               <View style={styles.detailRow}>
-                <Text variant="bodyMedium" style={styles.detailLabel}>
+                <Text variant="bodyMedium" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>
                   ID:
                 </Text>
                 <Text variant="bodyMedium" style={[styles.detailValue, styles.idText]}>
@@ -161,7 +161,7 @@ export const ResultsScreen: React.FC = () => {
 
               {result.pigeon.description && (
                 <View style={styles.descriptionContainer}>
-                  <Text variant="bodyMedium" style={styles.detailLabel}>
+                  <Text variant="bodyMedium" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>
                     Beschreibung:
                   </Text>
                   <Text variant="bodySmall" style={styles.description}>
@@ -180,7 +180,7 @@ export const ResultsScreen: React.FC = () => {
               <Text variant="titleMedium" style={{ textAlign: 'center', marginBottom: 8 }}>
                 🤔 Keine passende Taube
               </Text>
-              <Text variant="bodyMedium" style={{ textAlign: 'center', color: '#666' }}>
+              <Text variant="bodyMedium" style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant }}>
                 Diese Taube wurde noch nicht in der Datenbank gefunden.
               </Text>
             </Card.Content>
@@ -189,7 +189,7 @@ export const ResultsScreen: React.FC = () => {
       </ScrollView>
 
       {/* Action Buttons */}
-      <View style={styles.buttonContainer}>
+      <View style={[styles.buttonContainer, { backgroundColor: theme.colors.surface }]}>
         {result.pigeon && (
           <Button
             mode="contained"
@@ -227,7 +227,6 @@ export const ResultsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   scrollView: {
     flex: 1,
@@ -295,7 +294,6 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     width: 90,
-    color: '#666',
     fontWeight: '500',
   },
   detailValue: {
@@ -329,7 +327,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     padding: 16,
     paddingTop: 8,
-    backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
   },

@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
+import { useTheme } from '../../../theme';
 
 interface CaptureButtonProps {
   onPress: () => void;
@@ -7,6 +8,7 @@ interface CaptureButtonProps {
 }
 
 export const CaptureButton: React.FC<CaptureButtonProps> = ({ onPress, disabled }) => {
+  const theme = useTheme();
   return (
     <TouchableOpacity 
       onPress={onPress} 
@@ -14,8 +16,8 @@ export const CaptureButton: React.FC<CaptureButtonProps> = ({ onPress, disabled 
       style={styles.container}
       activeOpacity={0.7}
     >
-      <View style={styles.outerCircle}>
-        <View style={styles.innerCircle} />
+      <View style={[styles.outerCircle, { borderColor: theme.colors.surface }]}>
+        <View style={[styles.innerCircle, { backgroundColor: theme.colors.surface }]} />
       </View>
     </TouchableOpacity>
   );
@@ -31,7 +33,6 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 4,
-    borderColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
@@ -40,6 +41,5 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'white',
   },
 });

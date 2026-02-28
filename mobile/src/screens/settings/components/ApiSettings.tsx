@@ -21,10 +21,10 @@ export const ApiSettings: React.FC<ApiSettingsProps> = () => {
     <SettingsSection title="Server-Verbindung">
       <SettingsItem label="Server">
         <View style={styles.urlContainer}>
-          <Text variant="body" style={styles.urlText}>
+          <Text variant="body" style={[styles.urlText, { color: theme.colors.onSurface }]}>
             {FIXED_API_URL}
           </Text>
-          <Text variant="caption" style={styles.hint}>
+          <Text variant="caption" style={[styles.hint, { color: theme.colors.onSurfaceVariant }]}>
             Standardmäßig mit dem zentralen Server verbunden
           </Text>
         </View>
@@ -38,11 +38,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   urlText: {
-    color: '#333',
     fontWeight: '500',
   },
   hint: {
     marginTop: 4,
-    color: '#666',
   },
 });

@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 16,
-    backgroundColor: '#fff',
   },
   row: {
     flexDirection: 'row',
@@ -54,11 +53,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    color: '#333',
     fontWeight: '500',
   },
   value: {
-    color: '#666',
   },
   children: {
     marginTop: 8,

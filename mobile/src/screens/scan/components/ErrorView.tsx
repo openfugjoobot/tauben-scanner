@@ -13,7 +13,7 @@ export const ErrorView: React.FC<ErrorViewProps> = ({ error, onRetry, onCancel }
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <Text style={styles.title}>Fehler aufgetreten</Text>
-      <Text style={styles.text}>{error}</Text>
+      <Text style={[styles.text, { color: theme.colors.onSurfaceVariant }]}>{error}</Text>
       
       <TouchableOpacity style={styles.primaryButton} onPress={onRetry}>
         <Text style={styles.buttonText}>Erneut versuchen</Text>
@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
   title: {
     fontSize: 22,

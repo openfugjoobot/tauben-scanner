@@ -21,7 +21,7 @@ export const ScanSettings: React.FC<ScanSettingsProps> = ({
     <SettingsSection title="Scan-Einstellungen">
       <SettingsItem label="Übereinstimmungsschwellenwert">
         <View style={styles.container}>
-          <Text variant="caption" style={styles.valueText}>
+          <Text variant="caption" style={[styles.valueText, { color: theme.colors.onSurfaceVariant }]}>
             {matchThreshold.toFixed(0)}% Übereinstimmung erforderlich
           </Text>
           <Slider
@@ -52,7 +52,6 @@ const styles = StyleSheet.create({
   },
   valueText: {
     marginBottom: 12,
-    color: '#666',
   },
   slider: {
     width: '100%',

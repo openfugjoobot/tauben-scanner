@@ -32,7 +32,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   content: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,

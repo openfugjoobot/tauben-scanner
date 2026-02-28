@@ -114,7 +114,7 @@ export const SettingsScreen: React.FC = () => {
             </Text>
             
             {serverStatus.latency && (
-              <Text variant="caption" style={styles.latency}>
+              <Text variant="caption" style={[styles.latency, { color: theme.colors.onSurfaceVariant }]}>
                 {serverStatus.latency}ms
               </Text>
             )}
@@ -128,7 +128,7 @@ export const SettingsScreen: React.FC = () => {
                   size={14}
                   color={getServiceColor(serverStatus.services.database)}
                 />
-                <Text variant="caption" style={styles.serviceText}>DB</Text>
+                <Text variant="caption" style={[styles.serviceText, { color: theme.colors.onSurfaceVariant }]}>DB</Text>
               </View>
               
               <View style={styles.serviceItem}>
@@ -137,7 +137,7 @@ export const SettingsScreen: React.FC = () => {
                   size={14}
                   color={getServiceColor(serverStatus.services.storage)}
                 />
-                <Text variant="caption" style={styles.serviceText}>Storage</Text>
+                <Text variant="caption" style={[styles.serviceText, { color: theme.colors.onSurfaceVariant }]}>Storage</Text>
               </View>
               
               <View style={styles.serviceItem}>
@@ -146,7 +146,7 @@ export const SettingsScreen: React.FC = () => {
                   size={14}
                   color={getServiceColor(serverStatus.services.embedding_model)}
                 />
-                <Text variant="caption" style={styles.serviceText}>KI</Text>
+                <Text variant="caption" style={[styles.serviceText, { color: theme.colors.onSurfaceVariant }]}>KI</Text>
               </View>
             </View>
           )}
@@ -181,7 +181,6 @@ export const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   content: {
     padding: 16,

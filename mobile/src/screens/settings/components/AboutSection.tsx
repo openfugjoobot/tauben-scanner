@@ -22,7 +22,7 @@ export const AboutSection: React.FC = () => {
         value="GitHub"
       />
       <View style={[styles.footerInfo, { backgroundColor: theme.colors.surface }]}>
-        <Text style={styles.creditsText}>
+        <Text style={[styles.creditsText, { color: theme.colors.onSurfaceVariant }]}>
           Entwickelt für den Taubenschutz durch offene Technologie.
         </Text>
       </View>
@@ -33,11 +33,9 @@ export const AboutSection: React.FC = () => {
 const styles = StyleSheet.create({
   footerInfo: {
     padding: 16,
-    backgroundColor: '#fff',
   },
   creditsText: {
     fontSize: 12,
-    color: '#999',
     textAlign: 'center',
     lineHeight: 18,
   },
