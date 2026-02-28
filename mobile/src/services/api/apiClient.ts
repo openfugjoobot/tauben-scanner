@@ -39,6 +39,8 @@ class ApiClient {
     this.instance.interceptors.response.use(
       (response) => {
         console.log('[API Response]', response.status, response.config.url);
+        // Transformiere Daten: snake_case -> camelCase + absolute URLs
+        response.data = this.transformResponse(response.data);
         return response;
       },
       (error: AxiosError) => {
@@ -47,6 +49,56 @@ class ApiClient {
         return Promise.reject(apiError);
       }
     );
+  }
+
+  private transformResponse(data: any): any {
+    if (!data) return data;
+
+    // Array von Tauben
+    if (Array.isArray(data.pigeons)) {
+      data.pigeons = data.pigeons.map((pigeon: any) => this.transformPigeon(pigeon));
+      return data;
+    }
+
+    // Einzelne Taube
+    if (data.id && (data.photo_url !== undefined || data.photoUrl !== undefined)) {
+      return this.transformPigeon(data);
+    }
+
+    // Match-Response
+    if (data.pigeon && typeof data.pigeon === 'object') {
+      data.pigeon = this.transformPigeon(data.pigeon);
+      return data;
+    }
+
+    return data;
+  }
+
+  private transformPigeon(pigeon: any): any {
+    if (!pigeon) return pigeon;
+
+    const transformed = { ...pigeon };
+
+    // photo_url -> photoUrl
+    if (pigeon.photo_url !== undefined) {
+      transformed.photoUrl = this.makeAbsoluteUrl(pigeon.photo_url);
+      delete transformed.photo_url;
+    } else if (pigeon.photoUrl && pigeon.photoUrl.startsWith('/')) {
+      // Relative URL zu absolut machen
+      transformed.photoUrl = this.makeAbsoluteUrl(pigeon.photoUrl);
+    }
+
+    return transformed;
+  }
+
+  private makeAbsoluteUrl(url: string): string {
+    if (!url) return url;
+    if (url.startsWith('http')) return url; // Bereits absolut
+
+    // Basis-URL ohne /api
+    const baseUrl = API_URL.replace(/\/api$/, '');
+    const cleanPath = url.startsWith('/') ? url : `/${url}`;
+    return `${baseUrl}${cleanPath}`;
   }
 
   private normalizeError(error: AxiosError): ApiError {
