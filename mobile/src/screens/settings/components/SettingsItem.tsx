@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../../../components/atoms/Text';
+import { useTheme } from "../../../theme";
 
 interface SettingsItemProps {
   label: string;
@@ -17,18 +18,19 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
   children,
   error 
 }) => {
+  const theme = useTheme();
   const Container = onPress ? TouchableOpacity : View;
 
   return (
     <View style={styles.outerContainer}>
       <Container 
-        style={styles.container} 
+        style={[styles.container, { backgroundColor: theme.colors.surface }]} 
         onPress={onPress} 
         disabled={!onPress}
       >
         <View style={styles.row}>
-          <Text variant="body" style={styles.label}>{label}</Text>
-          {value && <Text variant="caption" style={styles.value}>{value}</Text>}
+          <Text variant="body" style={[styles.label, { color: theme.colors.onSurface }]}>{label}</Text>
+          {value && <Text variant="caption" style={[styles.value, { color: theme.colors.onSurfaceVariant }]}>{value}</Text>}
         </View>
         {children && <View style={styles.children}>{children}</View>}
       </Container>

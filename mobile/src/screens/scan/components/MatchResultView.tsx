@@ -1,4 +1,5 @@
 import React from "react";
+import { useTheme } from "../../../theme";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import type { Pigeon } from "../../../services/api/apiClient.types";
 
@@ -23,8 +24,9 @@ export const MatchResultView: React.FC<MatchResultViewProps> = ({
   onScanAgain,
   onGoHome,
 }) => {
+  const theme = useTheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: "#fff" }]}>
       {result.match ? (
         <>
           <Text style={styles.title}>Taube erkannt!</Text>
@@ -68,8 +70,7 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
-  },
+      },
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -98,8 +99,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#2196F3",
   },
   secondaryButton: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
+        borderWidth: 1,
     borderColor: "#2196F3",
   },
   buttonText: {

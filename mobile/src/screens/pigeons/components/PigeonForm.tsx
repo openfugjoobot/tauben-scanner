@@ -20,7 +20,7 @@ export const PigeonForm: React.FC<PigeonFormProps> = ({
   const theme = useTheme();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.surface }]} contentContainerStyle={styles.content}>
       <PhotoUploader
         photo={formData.photo}
         onPhotoSelected={(uri) => onFieldChange('photo', uri)}

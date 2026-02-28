@@ -2,11 +2,13 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Skeleton } from '../../../components/atoms/Skeleton';
 import { spacing } from '../../../theme/spacing';
+import { useTheme } from "../../../theme";
 
 export const PigeonListLoading: React.FC = () => {
+  const theme = useTheme();
   return (
-    <View style={styles.container}>
-      <View style={styles.headerSkeleton}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={[styles.headerSkeleton, { backgroundColor: theme.colors.surface }]}>
         <Skeleton height={50} style={styles.searchBar} />
       </View>
       <ScrollView contentContainerStyle={styles.listContent}>

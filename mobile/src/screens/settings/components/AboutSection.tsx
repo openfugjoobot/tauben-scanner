@@ -3,8 +3,10 @@ import { View, StyleSheet, Linking } from 'react-native';
 import { SettingsSection } from './SettingsSection';
 import { SettingsItem } from './SettingsItem';
 import { Text } from '../../../components/atoms/Text';
+import { useTheme } from "../../../theme";
 
 export const AboutSection: React.FC = () => {
+  const theme = useTheme();
   const version = '1.0.0'; // Hardcoded for now
   
   const handleWebsitePress = () => {
@@ -19,7 +21,7 @@ export const AboutSection: React.FC = () => {
         onPress={handleWebsitePress} 
         value="GitHub"
       />
-      <View style={styles.footerInfo}>
+      <View style={[styles.footerInfo, { backgroundColor: theme.colors.surface }]}>
         <Text style={styles.creditsText}>
           Entwickelt für den Taubenschutz durch offene Technologie.
         </Text>

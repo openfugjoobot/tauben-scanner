@@ -13,7 +13,7 @@ export const EmptyPigeonList: React.FC<EmptyPigeonListProps> = ({ onAddPigeon })
   const theme = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Text variant="h2" style={styles.title}>
         Keine Tauben gefunden
       </Text>

@@ -22,7 +22,7 @@ export const PigeonSearchHeader: React.FC<PigeonSearchHeaderProps> = ({
   const theme = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <View style={styles.searchRow}>
         <View style={styles.searchContainer}>
           <SearchBar

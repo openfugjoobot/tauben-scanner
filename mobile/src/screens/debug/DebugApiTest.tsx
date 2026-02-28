@@ -5,8 +5,10 @@ import { apiClient } from '../../services/api';
 import { usePigeons } from '../../hooks/queries';
 import { useSettingsStore } from '../../stores/settings';
 import { clearStorage, createMmkvStorage, StorageKeys } from '../../stores/storage';
+import { useTheme } from "../../theme";
 
 export const DebugApiTest = () => {
+  const theme = useTheme();
   const [manualTest, setManualTest] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +46,7 @@ export const DebugApiTest = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Text variant="headlineMedium" style={styles.title}>🔧 Debug API Test</Text>
       
       <Text style={styles.section}>API URL:</Text>

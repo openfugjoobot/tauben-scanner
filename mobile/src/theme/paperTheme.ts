@@ -138,6 +138,8 @@ export const paperLightTheme: AppTheme = {
     onSecondary: lightColors.onSecondary,
     background: lightColors.background,
     surface: lightColors.surface,
+    onSurface: lightColors.text,
+    onSurfaceVariant: lightColors.textSecondary,
     error: lightColors.error,
     onError: lightColors.onError,
     outline: lightColors.outline,

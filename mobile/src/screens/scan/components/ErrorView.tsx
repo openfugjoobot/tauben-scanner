@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme } from "../../../theme";
 
 interface ErrorViewProps {
   error: string;
@@ -8,8 +9,9 @@ interface ErrorViewProps {
 }
 
 export const ErrorView: React.FC<ErrorViewProps> = ({ error, onRetry, onCancel }) => {
+  const theme = useTheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <Text style={styles.title}>Fehler aufgetreten</Text>
       <Text style={styles.text}>{error}</Text>
       

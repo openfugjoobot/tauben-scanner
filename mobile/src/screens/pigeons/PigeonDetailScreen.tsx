@@ -9,8 +9,10 @@ import { PigeonInfoCard } from './components/PigeonInfoCard';
 import { SightingsList } from './components/SightingsList';
 import { PigeonMap } from './components/PigeonMap';
 import { OfflineBanner } from '../../components/molecules/OfflineBanner';
+import { useTheme } from "../../theme";
 
 export const PigeonDetailScreen: React.FC = () => {
+  const theme = useTheme();
   const route = useRoute();
   const navigation = useNavigation<any>();
   const { pigeonId } = route.params as { pigeonId: string };
@@ -54,7 +56,7 @@ export const PigeonDetailScreen: React.FC = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <OfflineBanner />
       
       <ScrollView contentContainerStyle={styles.content}>

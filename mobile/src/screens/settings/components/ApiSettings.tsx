@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { SettingsSection } from './SettingsSection';
 import { SettingsItem } from './SettingsItem';
 import { Text } from '../../../components/atoms/Text';
+import { useTheme } from "../../../theme";
 
 interface ApiSettingsProps {
   apiUrl: string;
@@ -15,6 +16,7 @@ interface ApiSettingsProps {
 const FIXED_API_URL = 'https://tauben-scanner.fugjoo.duckdns.org/api';
 
 export const ApiSettings: React.FC<ApiSettingsProps> = () => {
+  const theme = useTheme();
   return (
     <SettingsSection title="Server-Verbindung">
       <SettingsItem label="Server">

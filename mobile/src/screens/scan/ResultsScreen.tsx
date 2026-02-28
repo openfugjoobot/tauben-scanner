@@ -4,6 +4,7 @@ import { Text, Button, Card, Chip, ProgressBar } from 'react-native-paper';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScanStackParamList } from '../../navigation/types';
+import { useTheme } from "../../theme";
 
 type ResultsScreenRouteProp = RouteProp<ScanStackParamList, 'Results'>;
 
@@ -40,6 +41,7 @@ const getConfidenceLabel = (confidence: number): string => {
 };
 
 export const ResultsScreen: React.FC = () => {
+  const theme = useTheme();
   const navigation = useNavigation();
   const route = useRoute<ResultsScreenRouteProp>();
   const { matchResult } = route.params;

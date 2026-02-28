@@ -93,7 +93,7 @@ export const SettingsScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <OfflineBanner />
       
       <ScrollView contentContainerStyle={styles.content}>

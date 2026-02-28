@@ -5,12 +5,14 @@ import { Text } from '../../../components/atoms/Text';
 import { Icon } from '../../../components/atoms/Icon';
 import { palette } from '../../../theme/colors';
 import { Pigeon } from '../../../services/api/apiClient.types';
+import { useTheme } from "../../../theme";
 
 interface PigeonInfoCardProps {
   pigeon: Pigeon;
 }
 
 export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
+  const theme = useTheme();
   const formatDate = (dateString: string) => {
     try {
       if (!dateString) return 'Unbekannt';
@@ -26,14 +28,14 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
   };
 
   return (
-    <Card style={styles.card}>
+    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
       <Text variant="h3" style={styles.title}>
         Details
       </Text>
 
       <View style={styles.infoRow}>
         <View style={styles.infoItem}>
-          <Icon name="tag" size={20} color={palette.gray[500]} />
+          <Icon name="tag" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
             <Text variant="caption" style={styles.label}>
               Ringnummer
@@ -45,7 +47,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
         </View>
 
         <View style={styles.infoItem}>
-          <Icon name="calendar" size={20} color={palette.gray[500]} />
+          <Icon name="calendar" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
             <Text variant="caption" style={styles.label}>
               Zuerst gesehen
@@ -59,7 +61,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
 
       <View style={styles.infoRow}>
         <View style={styles.infoItem}>
-          <Icon name="eye" size={20} color={palette.gray[500]} />
+          <Icon name="eye" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
             <Text variant="caption" style={styles.label}>
               Sichtungen
@@ -71,7 +73,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
         </View>
 
         <View style={styles.infoItem}>
-          <Icon name="clock" size={20} color={palette.gray[500]} />
+          <Icon name="clock" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
             <Text variant="caption" style={styles.label}>
               Zuletzt aktualisiert
@@ -95,7 +97,7 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 16,
-    color: palette.gray[900],
+    /* color handled inline */
   },
   infoRow: {
     flexDirection: 'row',
@@ -110,7 +112,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   label: {
-    color: palette.gray[500],
+    /* color handled inline */
     textTransform: 'uppercase',
   },
 });

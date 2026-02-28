@@ -20,14 +20,14 @@ export const NewPigeonScreen: React.FC = () => {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <OfflineBanner />
       
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: theme.colors.surface }]}>
           <Text variant="h1">Neue Taube</Text>
           <Text variant="body" color={theme.colors.onSurfaceVariant}>
             Geben Sie die Details der Taube ein.
@@ -40,7 +40,7 @@ export const NewPigeonScreen: React.FC = () => {
           onFieldChange={updateField}
         />
         
-        <View style={styles.buttonContainer}>
+        <View style={[styles.buttonContainer, { backgroundColor: theme.colors.surface }]}>
           <Button
             variant="primary"
             size="large"

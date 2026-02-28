@@ -4,6 +4,7 @@ import { Text } from '../../../components/atoms/Text';
 import { Card } from '../../../components/atoms/Card';
 import { Icon } from '../../../components/atoms/Icon';
 import { palette } from '../../../theme/colors';
+import { useTheme } from "../../../theme";
 
 interface Sighting {
   id: string;
@@ -20,6 +21,7 @@ interface SightingsListProps {
 }
 
 export const SightingsList: React.FC<SightingsListProps> = ({ sightings }) => {
+  const theme = useTheme();
   const formatDate = (dateString: string) => {
     try {
       if (!dateString) return 'Unbekannt';
@@ -43,7 +45,7 @@ export const SightingsList: React.FC<SightingsListProps> = ({ sightings }) => {
         <View style={styles.line} />
       </View>
       
-      <Card style={styles.content}>
+      <Card style={[styles.content, { backgroundColor: "white" }]}>
         <View style={styles.header}>
           <Text variant="caption" style={styles.date}>
             {formatDate(item.date)}
@@ -51,7 +53,7 @@ export const SightingsList: React.FC<SightingsListProps> = ({ sightings }) => {
         </View>
         
         <View style={styles.locationContainer}>
-          <Icon name="map-marker" size={16} color={palette.gray[400]} />
+          <Icon name="map-marker" size={16} color={theme.colors.onSurfaceVariant} />
           <Text variant="caption" style={styles.location} numberOfLines={1}>
             {item.location.address || `${item.location.lat.toFixed(4)}, ${item.location.lng.toFixed(4)}`}
           </Text>
@@ -84,7 +86,7 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 20,
-    color: palette.gray[900],
+    /* color handled inline */
   },
   list: {
     paddingLeft: 4,
@@ -100,13 +102,13 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: palette.primary,
+    backgroundColor: "blue",
     zIndex: 1,
   },
   line: {
     flex: 1,
     width: 2,
-    backgroundColor: palette.gray[200],
+    backgroundColor: "#E0E0E0",
     marginVertical: -2,
   },
   content: {
@@ -123,7 +125,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   date: {
-    color: palette.gray[600],
+    /* color handled inline */
     fontWeight: '600',
   },
   locationContainer: {
@@ -131,7 +133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   location: {
-    color: palette.gray[500],
+    /* color handled inline */
     marginLeft: 4,
   },
 });

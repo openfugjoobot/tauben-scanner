@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '../../../components/atoms/Text';
+import { useTheme } from "../../../theme";
 
 interface SettingsSectionProps {
   title: string;
@@ -8,10 +9,11 @@ interface SettingsSectionProps {
 }
 
 export const SettingsSection: React.FC<SettingsSectionProps> = ({ title, children }) => {
+  const theme = useTheme();
   return (
     <View style={styles.container}>
       <Text variant="h3" style={styles.title}>{title}</Text>
-      <View style={styles.content}>
+      <View style={[styles.content, { backgroundColor: theme.colors.surface }]}>
         {children}
       </View>
     </View>
