@@ -46,14 +46,14 @@ export const PigeonCard: React.FC<PigeonCardProps> = ({
           
           {pigeon.ringNumber && (
             <Text variant="caption" color={theme.colors.onSurfaceVariant}>
-              Ring: {pigeon.ringNumber}
+              R: {pigeon.ringNumber}
             </Text>
           )}
           
           <View style={styles.footer}>
             <Icon name="calendar" size={14} color={theme.colors.onSurfaceVariant} />
             <Text variant="caption" color={theme.colors.onSurfaceVariant}>
-              {new Date(pigeon.firstSeen).toLocaleDateString('de-DE')}
+              {pigeon.lastSeen ? new Date(pigeon.lastSeen).toLocaleDateString('de-DE') : new Date(pigeon.firstSeen).toLocaleDateString('de-DE')}
             </Text>
           </View>
         </View>

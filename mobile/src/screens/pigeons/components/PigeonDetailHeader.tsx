@@ -23,7 +23,7 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Schau dir diese Taube an: ${pigeon.name} (${pigeon.color})`,
+        message: `Schau dir diese Taube an: ${pigeon.name}`,
         url: pigeon.photoUrl,
       });
     } catch (error) {
@@ -75,9 +75,6 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
       <View style={[styles.infoContainer, { backgroundColor: theme.colors.background + '66' }]}>
         <Text variant="h1" style={[styles.name, { color: theme.colors.onSurface }]}>
           {pigeon.name}
-        </Text>
-        <Text variant="body" style={[styles.color, { color: theme.colors.onSurfaceVariant }]}>
-          {pigeon.color}
         </Text>
       </View>
     </View>

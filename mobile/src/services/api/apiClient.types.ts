@@ -17,11 +17,11 @@ export interface Pigeon {
   id: string;
   name: string;
   ringNumber?: string;
-  color: string;
   photoUrl?: string;
   ownerId: string;
   sightingsCount: number;
   firstSeen: string;
+  lastSeen?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,7 +37,6 @@ export interface MatchResponse {
 export interface CreatePigeonRequest {
   name: string;
   ringNumber?: string;
-  color: string;
   location?: {
     lat: number;
     lng: number;

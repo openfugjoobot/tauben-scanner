@@ -45,13 +45,6 @@ export const PigeonForm: React.FC<PigeonFormProps> = ({
         autoCapitalize="characters"
       />
       
-      <Input
-        label="Farbe"
-        placeholder="z.B. Blau-gehämmert"
-        value={formData.color}
-        onChangeText={(text) => onFieldChange('color', text)}
-        error={errors.color}
-      />
       
       <LocationPicker
         location={formData.location}

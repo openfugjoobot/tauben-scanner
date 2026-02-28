@@ -5,7 +5,6 @@ import { useCreatePigeon } from '../../../hooks/queries';
 export interface PigeonFormData {
   name: string;
   ringNumber: string;
-  color: string;
   photo: string | null;
   location: { lat: number; lng: number } | null;
 }
@@ -13,7 +12,6 @@ export interface PigeonFormData {
 const initialFormData: PigeonFormData = {
   name: '',
   ringNumber: '',
-  color: '',
   photo: null,
   location: null,
 };
@@ -43,10 +41,6 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
       newErrors.name = 'Name ist erforderlich';
     }
     
-    if (!formData.color.trim()) {
-      newErrors.color = 'Farbe ist erforderlich';
-    }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
@@ -58,7 +52,6 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
       await createMutation.mutateAsync({
         name: formData.name,
         ringNumber: formData.ringNumber || undefined,
-        color: formData.color,
         photo: formData.photo || undefined,
         location: formData.location || undefined,
       });
