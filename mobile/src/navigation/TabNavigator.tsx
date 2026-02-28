@@ -32,11 +32,16 @@ export const TabNavigator: React.FC = () => {
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: 'gray',
+        tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: theme.colors.surface,
+          borderTopColor: theme.colors.outline,
+        },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '500',
+          color: theme.colors.onSurfaceVariant,
         },
       })}
     >
