@@ -88,6 +88,32 @@ class ApiClient {
       transformed.photoUrl = this.makeAbsoluteUrl(pigeon.photoUrl);
     }
 
+    // snake_case -> camelCase
+    if (pigeon.first_seen !== undefined) {
+      transformed.firstSeen = pigeon.first_seen;
+      delete transformed.first_seen;
+    }
+    if (pigeon.last_seen !== undefined) {
+      transformed.lastSeen = pigeon.last_seen;
+      delete transformed.last_seen;
+    }
+    if (pigeon.created_at !== undefined) {
+      transformed.createdAt = pigeon.created_at;
+      delete transformed.created_at;
+    }
+    if (pigeon.updated_at !== undefined) {
+      transformed.updatedAt = pigeon.updated_at;
+      delete transformed.updated_at;
+    }
+    if (pigeon.sightings_count !== undefined) {
+      transformed.sightingsCount = pigeon.sightings_count;
+      delete transformed.sightings_count;
+    }
+    if (pigeon.owner_id !== undefined) {
+      transformed.ownerId = pigeon.owner_id;
+      delete transformed.owner_id;
+    }
+
     return transformed;
   }
 
