@@ -1,62 +1,65 @@
-import React, { useEffect, useState } from 'react';
-import { useColorScheme, StatusBar, View, StyleSheet, Image, Dimensions } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useColorScheme, StatusBar, View, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
+import * as SplashScreen from 'expo-splash-screen';
 import { queryClient } from './src/services/queryClient';
 import { paperLightTheme, paperDarkTheme } from './src/theme/paperTheme';
 import { migrateStorageData, useAppStore } from './src/stores';
 import { RootNavigator } from './src/navigation';
-import { Text } from './src/components/atoms/Text';
 import { usePermissions } from './src/hooks/usePermissions';
 
-const SPLASH_DURATION = 2000; // 2 Sekunden
+// Prevent native splash screen from hiding automatically
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const [isSplashScreenVisible, setIsSplashScreenVisible] = useState(true);
+  const [isReady, setIsReady] = useState(false);
   const permissions = usePermissions();
   const { setOnlineStatus } = useAppStore();
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? paperDarkTheme : paperLightTheme;
 
-  useEffect(() => {
-    // Daten migrieren
-    migrateStorageData();
-    
-    // Berechtigungen sicher anfragen
-    if (permissions && typeof permissions.requestPermissions === 'function') {
-      permissions.requestPermissions().catch(err => {
-        console.warn('Permission request failed early:', err);
+  const initializeApp = useCallback(async () => {
+    try {
+      // Daten migrieren
+      await migrateStorageData();
+      
+      // Berechtigungen sicher anfragen
+      if (permissions && typeof permissions.requestPermissions === 'function') {
+        await permissions.requestPermissions().catch(err => {
+          console.warn('Permission request failed early:', err);
+        });
+      }
+      
+      // Netzwerk-Status überwachen
+      const unsubscribeNetInfo = NetInfo.addEventListener((state: { isConnected: boolean | null }) => {
+        setOnlineStatus(state.isConnected ?? false);
       });
+      
+      // Kurze Verzögerung für bessere UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      return () => {
+        unsubscribeNetInfo();
+      };
+    } catch (error) {
+      console.error('App initialization error:', error);
     }
-    
-    // Netzwerk-Status überwachen
-    const unsubscribeNetInfo = NetInfo.addEventListener((state: { isConnected: boolean | null }) => {
-      setOnlineStatus(state.isConnected ?? false);
+  }, [permissions, setOnlineStatus]);
+
+  useEffect(() => {
+    initializeApp().then(cleanup => {
+      setIsReady(true);
+      // Hide splash screen after app is ready
+      SplashScreen.hideAsync();
+      return cleanup;
     });
-    
-    const timer = setTimeout(() => {
-      setIsSplashScreenVisible(false);
-    }, SPLASH_DURATION);
+  }, [initializeApp]);
 
-    return () => {
-      clearTimeout(timer);
-      unsubscribeNetInfo();
-    };
-  }, []);
-
-  if (isSplashScreenVisible) {
-    return (
-      <View style={styles.splashContainer}>
-        <Image 
-          source={require('./assets/splash-icon.png')} 
-          style={styles.splashImage}
-          resizeMode="contain"
-        />
-        <Text variant="h3" style={styles.splashText}>Tauben Scanner</Text>
-      </View>
-    );
+  if (!isReady) {
+    return null;
   }
 
   return (
@@ -73,21 +76,3 @@ export default function App() {
     </QueryClientProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  splashContainer: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  splashImage: {
-    width: Dimensions.get('window').width * 0.6,
-    height: Dimensions.get('window').width * 0.6,
-  },
-  splashText: {
-    marginTop: 20,
-    color: '#333333',
-    fontWeight: '600',
-  },
-});
