@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, useColorScheme, StatusBar } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, ActivityIndicator, useColorScheme, StatusBar, Alert, Linking } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider, Text } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
+import { useCameraPermissions } from 'expo-camera';
+import * as Location from 'expo-location';
+import * as ImagePicker from 'expo-image-picker';
 import { queryClient } from './src/services/queryClient';
 import { paperLightTheme, paperDarkTheme } from './src/theme/paperTheme';
 import { migrateStorageData, useAppStore } from './src/stores';
@@ -22,6 +25,40 @@ export default function App() {
   const { setOnlineStatus } = useAppStore();
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? paperDarkTheme : paperLightTheme;
+  
+  // Camera permission hook
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+
+  // Berechtigungen anfragen (einmalig beim Start)
+  const requestAllPermissions = useCallback(async () => {
+    try {
+      console.log('Requesting permissions...');
+      
+      // Camera
+      if (!cameraPermission?.granted) {
+        await requestCameraPermission();
+      }
+      
+      // Location
+      const { status: locStatus } = await Location.requestForegroundPermissionsAsync();
+      console.log('Location permission:', locStatus);
+      
+      // Media Library
+      const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      console.log('Media permission:', mediaStatus);
+      
+    } catch (error) {
+      console.error('Permission error:', error);
+      Alert.alert(
+        'Berechtigungen',
+        'Einige Berechtigungen wurden nicht erteilt. Du kannst diese später in den Einstellungen aktivieren.',
+        [
+          { text: 'OK' },
+          { text: 'Einstellungen', onPress: () => Linking.openSettings() }
+        ]
+      );
+    }
+  }, [cameraPermission, requestCameraPermission]);
 
   useEffect(() => {
     let isMounted = true;
@@ -29,6 +66,9 @@ export default function App() {
     const init = async () => {
       try {
         console.log('App init start...');
+        
+        // Berechtigungen anfragen (nicht blockierend)
+        requestAllPermissions();
         
         // Daten migrieren
         await migrateStorageData();
@@ -41,7 +81,7 @@ export default function App() {
         console.log('NetInfo listener added');
         
         // Kurze Verzögerung für bessere UX
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         if (isMounted) {
           setIsReady(true);
@@ -51,7 +91,6 @@ export default function App() {
         return unsubscribeNetInfo;
       } catch (error) {
         console.error('App init error:', error);
-        // Trotzdem ready setzen - App sollte funktionieren
         if (isMounted) {
           setIsReady(true);
         }
@@ -63,9 +102,8 @@ export default function App() {
     return () => {
       isMounted = false;
     };
-  }, [setOnlineStatus]);
+  }, [requestAllPermissions, setOnlineStatus]);
 
-  // Zeige Loading Screen während Initialisierung
   if (!isReady) {
     return <LoadingScreen />;
   }
