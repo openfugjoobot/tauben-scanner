@@ -12,18 +12,18 @@ export const ErrorView: React.FC<ErrorViewProps> = ({ error, onRetry, onCancel }
   const theme = useTheme();
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-      <Text style={[styles.title, { color: theme.colors.error }]}＞Fehler aufgetreten</Text>
-      <Text style={[styles.text, { color: theme.colors.onSurfaceVariant }]}＞{error}</Text>
+      <Text style={[styles.title, { color: theme.colors.error }]}>Fehler aufgetreten</Text>
+      <Text style={[styles.text, { color: theme.colors.onSurfaceVariant }]}>{error}</Text>
       
       <TouchableOpacity 
         style={[styles.primaryButton, { backgroundColor: theme.colors.primary }]} 
         onPress={onRetry}
       >
-        <Text style={[styles.buttonText, { color: theme.colors.onPrimary }]}＞Erneut versuchen</Text>
+        <Text style={[styles.buttonText, { color: theme.colors.onPrimary }]}>Erneut versuchen</Text>
       </TouchableOpacity>
       
       <TouchableOpacity style={styles.secondaryButton} onPress={onCancel}>
-        <Text style={[styles.secondaryButtonText, { color: theme.colors.primary }]}＞Abbrechen</Text>
+        <Text style={[styles.secondaryButtonText, { color: theme.colors.primary }]}>Abbrechen</Text>
       </TouchableOpacity>
     </View>
   );

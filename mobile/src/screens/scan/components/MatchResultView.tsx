@@ -29,21 +29,21 @@ export const MatchResultView: React.FC<MatchResultViewProps> = ({
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {result.match ? (
         <>
-          <Text style={[styles.title, { color: theme.colors.onSurface }]}＞Taube erkannt!</Text>
-          <Text style={[styles.confidence, { color: theme.colors.primary }]}＞Genauigkeit: {(result.confidence * 100).toFixed(1)}%</Text>
+          <Text style={[styles.title, { color: theme.colors.onSurface }]}>Taube erkannt!</Text>
+          <Text style={[styles.confidence, { color: theme.colors.primary }]}>Genauigkeit: {(result.confidence * 100).toFixed(1)}%</Text>
           {result.pigeon && (
             <TouchableOpacity
               style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }]}
               onPress={() => result.pigeon?.id && onViewPigeon(result.pigeon.id)}
             >
-              <Text style={[styles.buttonText, { color: theme.colors.onPrimary }]}＞Details ansehen</Text>
+              <Text style={[styles.buttonText, { color: theme.colors.onPrimary }]}>Details ansehen</Text>
             </TouchableOpacity>
           )}
         </>
       ) : (
         <>
-          <Text style={[styles.title, { color: theme.colors.onSurface }]}＞Kein Treffer</Text>
-          <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}＞Diese Taube konnte nicht in der Datenbank gefunden werden.</Text>
+          <Text style={[styles.title, { color: theme.colors.onSurface }]}>Kein Treffer</Text>
+          <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>Diese Taube konnte nicht in der Datenbank gefunden werden.</Text>
         </>
       )}
 
@@ -51,14 +51,14 @@ export const MatchResultView: React.FC<MatchResultViewProps> = ({
         style={[styles.button, styles.secondaryButton, { borderColor: theme.colors.primary }]}
         onPress={onScanAgain}
       >
-        <Text style={[styles.secondaryButtonText, { color: theme.colors.primary }]}＞Erneut scannen</Text>
+        <Text style={[styles.secondaryButtonText, { color: theme.colors.primary }]}>Erneut scannen</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.linkButton}
         onPress={onGoHome}
       >
-        <Text style={[styles.linkText, { color: theme.colors.onSurfaceVariant }]}＞Zurück zum Dashboard</Text>
+        <Text style={[styles.linkText, { color: theme.colors.onSurfaceVariant }]}>Zurück zum Dashboard</Text>
       </TouchableOpacity>
     </View>
   );

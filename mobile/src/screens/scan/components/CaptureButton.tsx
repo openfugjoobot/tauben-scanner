@@ -16,7 +16,7 @@ export const CaptureButton: React.FC<CaptureButtonProps> = ({ onPress, disabled 
       style={styles.container}
       activeOpacity={0.7}
     >
-      <View style={[styles.outerCircle, { borderColor: theme.colors.onSurface }]}＞
+      <View style={[styles.outerCircle, { borderColor: theme.colors.onSurface }]}>
         <View style={[styles.innerCircle, { backgroundColor: theme.colors.onSurface }]} />
       </View>
     </TouchableOpacity>
