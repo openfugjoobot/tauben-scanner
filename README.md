@@ -7,7 +7,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791.svg)](https://www.postgresql.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6.svg)](https://www.typescriptlang.org/)
 [![Expo](https://img.shields.io/badge/Expo-SDK%2052-000020.svg)](https://expo.dev/)
-[![React Native](https://img.shields.io/badge/React%20Native-0.72+-61dafb.svg)](https://reactnative.dev/)
+[![React Native](https://img.shields.io/badge/React%20Native-0.76-61dafb.svg)](https://reactnative.dev/)
 
 ---
 
@@ -120,7 +120,8 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 | **PostgreSQL 15+** | Primäre Datenbank |
 | **pgvector** | Vektor-Erweiterung |
 | **HNSW** | Approximate Nearest Neighbor Search |
-| **MinIO** | S3-kompatibler Object Storage |
+| **Local Filesystem** | Bild-Speicher in `/uploads` |
+| **MinIO** | S3-kompatibel (optional, nicht aktiv) |
 
 ### DevOps & Deployment
 | Technologie | Zweck |
@@ -160,7 +161,7 @@ graph TB
     end
     
     subgraph "Storage"
-        P[📦 MinIO S3]
+        P[📁 /uploads Volume]
         Q[Image Files]
     end
     
@@ -239,8 +240,8 @@ curl http://localhost:3000/health
 ### Mobile App starten
 
 ```bash
-# 1. Frontend dependencies installieren
-cd frontend
+# 1. Mobile dependencies installieren
+cd mobile
 npm install
 
 # 2. Expo Development Server starten
@@ -297,9 +298,9 @@ npx expo start
 |---------|------|--------------|
 | API | 3000 | REST API Backend |
 | PostgreSQL | 5432 | Datenbank |
-| MinIO API | 9000 | Object Storage |
-| MinIO Console | 9001 | Storage Web UI |
 | Metro Bundler | 8081 | React Native Dev Server |
+
+*Hinweis: MinIO Ports (9000/9001) sind konfiguriert aber nicht aktiv – Bilder werden in `/uploads` gespeichert.*
 
 ---
 
@@ -368,11 +369,7 @@ DATABASE_URL=postgresql://tauben:password@postgres:5432/tauben_scanner
 DB_PASSWORD=secure_test_password_123
 
 # CORS
-CORS_ORIGINS=https://tauben-scanner.fugjoo.duckdns.org,capacitor://localhost
-
-# MinIO Storage
-MINIO_USER=minioadmin
-MINIO_PASSWORD=minioadmin123
+CORS_ORIGINS=https://tauben-scanner.fugjoo.duckdns.org
 ```
 
 ### EAS Build Konfiguration
@@ -415,9 +412,9 @@ MINIO_PASSWORD=minioadmin123
 ## 📱 Mobile App
 
 Die Mobile App ist eine **React Native + Expo** Anwendung. Detaillierte Anleitungen findest du unter:
-- [`frontend/README.md`](frontend/README.md) - Frontend Setup
-- [`docs/SETUP.md`](docs/SETUP.md) - Entwicklungs-Setup
-- [`frontend/STATE_MANAGEMENT.md`](frontend/STATE_MANAGEMENT.md) - State Management Docs
+- [`mobile/README.md`](mobile/README.md) - Mobile App Setup
+- [`docs/MOBILE.md`](docs/MOBILE.md) - Mobile Development
+- [`mobile/STATE_MANAGEMENT.md`](mobile/STATE_MANAGEMENT.md) - State Management Docs
 
 ### Navigation
 
