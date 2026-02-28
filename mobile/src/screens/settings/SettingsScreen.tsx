@@ -37,8 +37,9 @@ export const SettingsScreen: React.FC = () => {
       setIsCheckingStatus(true);
       const startTime = Date.now();
       try {
-        // Use health endpoint for status check
-        const response = await fetch(`${apiUrl.replace(/\/$/, '')}/health`, {
+        // Use health endpoint for status check (remove /api from URL)
+        const baseUrl = apiUrl.replace(/\/$/, '').replace(/\/api$/, '');
+        const response = await fetch(`${baseUrl}/health`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         });
