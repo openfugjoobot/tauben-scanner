@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   controlsOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
-    pointerEvents: 'box-none',
+    pointerEvents: 'auto',
     zIndex: 999,
   },
   centered: {
