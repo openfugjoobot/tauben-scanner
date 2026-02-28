@@ -13,8 +13,8 @@ export const OfflineBanner: React.FC = () => {
 
   return (
     <View style={[styles.banner, { backgroundColor: theme.colors.error }]}>
-      <Icon name="wifi-off" size={16} color="#fff" />
-      <Text variant="caption" style={styles.text}>
+      <Icon name="wifi-off" size={16} color={theme.colors.onError} />
+      <Text variant="caption" style={[styles.text, { color: theme.colors.onError }]}>
         Keine Internetverbindung
       </Text>
     </View>
@@ -30,7 +30,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   text: {
-    color: '#fff',
     fontWeight: '600',
   },
 });
