@@ -11,7 +11,7 @@ export const ProcessingView: React.FC<ProcessingViewProps> = ({ status }) => {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <ActivityIndicator size="large" color={theme.colors.primary} />
-      <Text style={[styles.text, { color: theme.colors.onSurface }]}＞{status || 'Bild wird analysiert...'}</Text>
+      <Text style={[styles.text, { color: theme.colors.onSurface }]}>{status || 'Bild wird analysiert...'}</Text>
     </View>
   );
 };
