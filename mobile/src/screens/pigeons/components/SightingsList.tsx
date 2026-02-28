@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text } from '../../../components/atoms/Text';
 import { Card } from '../../../components/atoms/Card';
 import { Icon } from '../../../components/atoms/Icon';
-import { palette } from '../../../theme/colors';
 import { useTheme } from "../../../theme";
 
 interface Sighting {
@@ -41,8 +40,8 @@ export const SightingsList: React.FC<SightingsListProps> = ({ sightings }) => {
   const renderSighting = ({ item }: { item: Sighting }) => (
     <View style={styles.sightingItem}>
       <View style={styles.timeline}>
-        <View style={styles.dot} />
-        <View style={styles.line} />
+        <View style={[styles.dot, { backgroundColor: theme.colors.primary }]} />
+        <View style={[styles.line, { backgroundColor: theme.colors.outline }]} />
       </View>
       
       <Card style={[styles.content, { backgroundColor: theme.colors.surface }]}>
@@ -102,13 +101,11 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "blue",
     zIndex: 1,
   },
   line: {
     flex: 1,
     width: 2,
-    backgroundColor: "#E0E0E0",
     marginVertical: -2,
   },
   content: {
