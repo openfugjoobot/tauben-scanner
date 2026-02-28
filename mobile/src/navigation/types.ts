@@ -1,10 +1,27 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
 
+interface PigeonData {
+  id: string;
+  name?: string;
+  bandNumber?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}
+
+interface MatchResultData {
+  match: boolean;
+  pigeon: PigeonData | null;
+  confidence: number;
+  message: string;
+  isNewPigeon: boolean;
+}
+
 // Scan Flow
 export type ScanStackParamList = {
   Scan: undefined;
-  Results: { matchResult: any };
-  NewPigeon: { photoUri: string; location?: any };
+  Results: { matchResult: MatchResultData | null };
+  NewPigeon: { photoUri: string; location?: { lat: number; lng: number } };
 };
 
 // Pigeons Flow

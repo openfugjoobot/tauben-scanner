@@ -3,13 +3,23 @@ import { useNavigation } from '@react-navigation/native';
 import { useMatchImage } from '../../../hooks/queries';
 import { useScanStore } from '../../../stores/scans';
 import { useSettingsStore } from '../../../stores/settings';
+import type { MatchResponse, Pigeon } from '../../../services/api/apiClient.types';
+import type { ScanResult as StoreScanResult } from '../../../stores/scans/scanStore.types';
 
 export type ScanStep = 'camera' | 'preview' | 'processing' | 'results' | 'error';
+
+interface MatchResult {
+  match: boolean;
+  pigeon: Pigeon | null;
+  confidence: number;
+  message: string;
+  isNewPigeon: boolean;
+}
 
 interface ScanFlowState {
   step: ScanStep;
   capturedPhoto: { uri: string; base64: string } | null;
-  matchResult: any | null;
+  matchResult: MatchResult | null;
   error: string | null;
   processingStatus: string;
 }
@@ -47,34 +57,40 @@ export const useScanFlow = () => {
   const processImage = useCallback(async () => {
     if (!state.capturedPhoto?.base64) return;
 
-    setState((prev) => ({ 
-      ...prev, 
+    setState((prev) => ({
+      ...prev,
       step: 'processing',
-      processingStatus: 'Verbindung zum Server wird aufgebaut...' 
+      processingStatus: 'Verbindung zum Server wird aufgebaut...',
     }));
 
     try {
-      // Small delays to make transitions visible to user
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setState(prev => ({ ...prev, processingStatus: 'Bilddaten werden übertragen...' }));
-      
-      const result = await matchMutation.mutateAsync({
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      setState((prev) => ({ ...prev, processingStatus: 'Bilddaten werden uebertragen...' }));
+
+      const response = await matchMutation.mutateAsync({
         image: state.capturedPhoto.base64,
         threshold: matchThreshold,
       });
 
-      setState(prev => ({ ...prev, processingStatus: 'KI-Abgleich läuft...' }));
-      await new Promise(resolve => setTimeout(resolve, 500));
+      setState((prev) => ({ ...prev, processingStatus: 'KI-Abgleich laeuft...' }));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Add to scan history
-      saveScan({
+      const result: MatchResult = {
+        match: response.success,
+        pigeon: response.pigeon,
+        confidence: response.confidence,
+        message: response.message,
+        isNewPigeon: response.isNewPigeon,
+      };
+
+      const storeResult: StoreScanResult = {
         id: Date.now().toString(),
-        timestamp: Date.now(),
-        status: (result.match ? 'completed' : 'not_found') as any,
+        pigeonId: result.pigeon?.id || null,
         confidence: result.confidence,
-        pigeonId: result.pigeon?.id,
-        imageUri: state.capturedPhoto.uri,
-      } as any);
+        timestamp: Date.now(),
+        isNewPigeon: result.isNewPigeon,
+      };
+      saveScan(storeResult);
 
       setState((prev) => ({
         ...prev,
@@ -82,12 +98,14 @@ export const useScanFlow = () => {
         matchResult: result,
       }));
     } catch (error) {
-      saveScan({
+      const errorResult: StoreScanResult = {
         id: Date.now().toString(),
+        pigeonId: null,
+        confidence: 0,
         timestamp: Date.now(),
-        status: 'error' as any,
-        imageUri: state.capturedPhoto.uri,
-      } as any);
+        isNewPigeon: false,
+      };
+      saveScan(errorResult);
 
       setState((prev) => ({
         ...prev,
@@ -108,7 +126,7 @@ export const useScanFlow = () => {
   }, []);
 
   const navigateToPigeon = useCallback((pigeonId: string) => {
-    // @ts-ignore
+    // @ts-ignore - navigation type complexity
     navigation.navigate('PigeonsFlow', {
       screen: 'PigeonDetail',
       params: { pigeonId },

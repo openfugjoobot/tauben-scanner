@@ -26,7 +26,6 @@ const slides: OnboardingSlide[] = [
   {
     id: '1',
     icon: 'bird',
-    customImage: true,
     title: 'Willkommen beim Tauben Scanner',
     description: 'Unterstütze Bestandsaufnahme und Tierschutz. Erfasse Tauben und dokumentiere ihre Sichtungen.',
   },
@@ -48,7 +47,7 @@ export const OnboardingScreen: React.FC = () => {
   const theme = useTheme();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlatList<OnboardingSlide>>(null);
   const { completeOnboarding } = useAppStore();
 
   const handleNext = () => {
@@ -79,7 +78,7 @@ export const OnboardingScreen: React.FC = () => {
         {item.title}
       </Text>
       <Text
-        variant="bodyLarge"
+        variant="body"
         style={[styles.description, { color: theme.colors.onBackground + 'CC' }]}
       >
         {item.description}
@@ -131,13 +130,13 @@ export const OnboardingScreen: React.FC = () => {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Skip Button */}
       <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-        <Text variant="labelLarge" style={{ color: theme.colors.primary }}>
+        <Text variant="caption" style={{ color: theme.colors.primary }}>
           Überspringen
         </Text>
       </TouchableOpacity>
 
       {/* Slides */}
-      <FlatList
+      <FlatList<OnboardingSlide>
         ref={flatListRef}
         data={slides}
         renderItem={renderSlide}
@@ -161,11 +160,11 @@ export const OnboardingScreen: React.FC = () => {
         {renderDots()}
 
         <Button
-          mode="contained"
+          variant="primary"
           onPress={handleNext}
           style={styles.button}
         >
-          {currentIndex === slides.length - 1 ? 'Los geht\'s!' : 'Weiter'}
+          {currentIndex === slides.length - 1 ? "Los geht's!" : 'Weiter'}
         </Button>
       </View>
     </View>

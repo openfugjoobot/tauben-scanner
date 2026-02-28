@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import type { MatchResult } from '../../../types/match';
 
 interface MatchResultViewProps {
-  result: any;
+  result: MatchResult;
   onViewPigeon: (id: string) => void;
   onScanAgain: () => void;
   onGoHome: () => void;
@@ -19,10 +20,10 @@ export const MatchResultView: React.FC<MatchResultViewProps> = ({
       {result.success ? (
         <>
           <Text style={styles.title}>Taube erkannt!</Text>
-          <Text style={styles.confidence}>Genauigkeit: {(result.confidence * 100).toFixed(1)}%</Text>
+          <Text style={styles.confidence}>Genauigkeit: {((result.confidence || 0) * 100).toFixed(1)}%</Text>
           <TouchableOpacity 
             style={[styles.button, styles.primaryButton]} 
-            onPress={() => onViewPigeon(result.pigeon.id)}
+            onPress={() => onViewPigeon(result.pigeon?.id || "")}
           >
             <Text style={styles.buttonText}>Details ansehen</Text>
           </TouchableOpacity>

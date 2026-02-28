@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, TextStyle, StyleProp } from 'react-native';
 import { Text } from './Text';
-import { Icon } from './Icon';
+import { Icon, IconName } from './Icon';
 import { useTheme } from '../../theme';
 
 interface InputProps {
@@ -13,12 +13,13 @@ interface InputProps {
   secureTextEntry?: boolean;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  leftIcon?: string;
-  rightIcon?: string;
+  leftIcon?: IconName;
+  rightIcon?: IconName;
   onRightIconPress?: () => void;
   disabled?: boolean;
   multiline?: boolean;
   numberOfLines?: number;
+  style?: StyleProp<TextStyle>;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -36,6 +37,7 @@ export const Input: React.FC<InputProps> = ({
   disabled,
   multiline,
   numberOfLines,
+  style,
 }) => {
   const theme = useTheme();
 
@@ -56,7 +58,7 @@ export const Input: React.FC<InputProps> = ({
         ]}
       >
         {leftIcon && (
-          <Icon name={leftIcon as any} size={20} color={theme.colors.onSurfaceVariant} style={styles.leftIcon} />
+          <Icon name={leftIcon} size={20} color={theme.colors.onSurfaceVariant} style={styles.leftIcon} />
         )}
         <TextInput
           value={value}
@@ -73,12 +75,13 @@ export const Input: React.FC<InputProps> = ({
             styles.input,
             { color: theme.colors.onSurface },
             multiline && { minHeight: 80, textAlignVertical: 'top' },
+            style,
           ]}
         />
         
         {rightIcon && (
           <Icon
-            name={rightIcon as any}
+            name={rightIcon}
             size={20}
             color={theme.colors.onSurfaceVariant}
             onPress={onRightIconPress}

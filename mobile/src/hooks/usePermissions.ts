@@ -1,20 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Platform, Alert, Linking } from 'react-native';
-import * as Camera from 'expo-camera';
+import { useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 
 export const usePermissions = () => {
   const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
 
   useEffect(() => {
-    requestPermissions();
-  }, []);
+    checkPermissions();
+  }, [cameraPermission]);
 
-  const requestPermissions = async () => {
+  const checkPermissions = useCallback(async () => {
     try {
-      // Camera permission
-      const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
+      // Camera permission - check if already granted
+      const cameraGranted = cameraPermission?.granted ?? false;
       
       // Location permission
       const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
@@ -22,7 +23,7 @@ export const usePermissions = () => {
       // Media Library permission (for uploading photos)
       const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-      if (cameraStatus !== 'granted' || locationStatus !== 'granted' || mediaStatus !== 'granted') {
+      if (!cameraGranted || locationStatus !== 'granted' || mediaStatus !== 'granted') {
         Alert.alert(
           'Berechtigungen erforderlich',
           'Tauben Scanner benötigt Kamera-, Standort- und Fotoberechtigungen, um ordnungsgemäß zu funktionieren.',
@@ -38,17 +39,27 @@ export const usePermissions = () => {
         setPermissionsGranted(true);
       }
     } catch (error) {
-      console.error('Fehler beim Anfordern der Berechtigungen:', error);
-      Alert.alert(
-        'Fehler',
-        'Die Berechtigungen konnten nicht angefordert werden. Bitte öffnen Sie die Einstellungen und aktivieren Sie die erforderlichen Berechtigungen manuell.',
-        [
-          { text: 'Abbrechen', style: 'cancel' },
-          { text: 'Einstellungen', onPress: () => Linking.openSettings() }
-        ]
-      );
+      console.error('Permission error:', error);
     }
-  };
+  }, [cameraPermission]);
+
+  const requestPermissions = useCallback(async () => {
+    try {
+      // Request camera permission explicitly
+      await requestCameraPermission();
+      
+      // Location permission
+      await Location.requestForegroundPermissionsAsync();
+
+      // Media Library permission
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      // Re-check permissions
+      checkPermissions();
+    } catch (error) {
+      console.error('Permission error:', error);
+    }
+  }, [requestCameraPermission, checkPermissions]);
 
   return { permissionsGranted, requestPermissions };
 };

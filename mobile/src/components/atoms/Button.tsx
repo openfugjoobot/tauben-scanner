@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Text } from './Text';
 import { Icon, IconName } from './Icon';
 import { useTheme } from '../../theme';
@@ -16,7 +16,7 @@ export interface ButtonProps {
   loading?: boolean;
   icon?: IconName;
   iconPosition?: 'left' | 'right';
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -81,13 +81,13 @@ export const Button: React.FC<ButtonProps> = ({
       ) : (
         <>
           {icon && iconPosition === 'left' && (
-            <Icon name={icon as any} size={20} color={getTextColor()} style={styles.iconLeft} />
+            <Icon name={icon} size={20} color={getTextColor()} style={styles.iconLeft} />
           )}
           <Text variant="button" style={{ color: getTextColor() }}>
             {children}
           </Text>
           {icon && iconPosition === 'right' && (
-            <Icon name={icon as any} size={20} color={getTextColor()} style={styles.iconRight} />
+            <Icon name={icon} size={20} color={getTextColor()} style={styles.iconRight} />
           )}
         </>
       )}
