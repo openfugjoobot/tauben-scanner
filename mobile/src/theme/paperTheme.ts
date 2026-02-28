@@ -160,6 +160,8 @@ export const paperDarkTheme: AppTheme = {
     onSecondary: darkColors.onSecondary,
     background: darkColors.background,
     surface: darkColors.surface,
+    onSurface: darkColors.text,
+    onSurfaceVariant: darkColors.textSecondary,
     onError: darkColors.onError,
     outline: darkColors.outline,
     error: semanticColors.error,
