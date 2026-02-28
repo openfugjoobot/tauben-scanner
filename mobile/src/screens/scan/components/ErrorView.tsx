@@ -12,15 +12,18 @@ export const ErrorView: React.FC<ErrorViewProps> = ({ error, onRetry, onCancel }
   const theme = useTheme();
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-      <Text style={styles.title}>Fehler aufgetreten</Text>
-      <Text style={[styles.text, { color: theme.colors.onSurfaceVariant }]}>{error}</Text>
+      <Text style={[styles.title, { color: theme.colors.error }]}＞Fehler aufgetreten</Text>
+      <Text style={[styles.text, { color: theme.colors.onSurfaceVariant }]}＞{error}</Text>
       
-      <TouchableOpacity style={styles.primaryButton} onPress={onRetry}>
-        <Text style={styles.buttonText}>Erneut versuchen</Text>
+      <TouchableOpacity 
+        style={[styles.primaryButton, { backgroundColor: theme.colors.primary }]} 
+        onPress={onRetry}
+      >
+        <Text style={[styles.buttonText, { color: theme.colors.onPrimary }]}＞Erneut versuchen</Text>
       </TouchableOpacity>
       
       <TouchableOpacity style={styles.secondaryButton} onPress={onCancel}>
-        <Text style={styles.secondaryButtonText}>Abbrechen</Text>
+        <Text style={[styles.secondaryButtonText, { color: theme.colors.primary }]}＞Abbrechen</Text>
       </TouchableOpacity>
     </View>
   );
@@ -36,18 +39,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#D32F2F',
     marginBottom: 12,
   },
   text: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#666',
     marginBottom: 32,
   },
   primaryButton: {
     width: '100%',
-    backgroundColor: '#2196F3',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -60,12 +60,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
   secondaryButtonText: {
-    color: '#2196F3',
     fontSize: 16,
     fontWeight: '600',
   },

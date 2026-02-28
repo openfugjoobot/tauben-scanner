@@ -76,8 +76,8 @@ export const PigeonListScreen: React.FC = () => {
   if (isError) {
     return (
       <View style={styles.centered}>
-        <Icon name="alert-circle" size={64} color="#F44336" />
-        <Text variant="h3" style={[styles.emptyTitle, { color: '#F44336' }]} >
+        <Icon name="alert-circle" size={64} color={theme.colors.error} />
+        <Text variant="h3" style={[styles.emptyTitle, { color: theme.colors.error }]} >
           Verbindungsfehler
         </Text>
         <Text variant="body" color={theme.colors.onSurfaceVariant} style={styles.emptyText}>

@@ -32,13 +32,13 @@ export const ScanSettings: React.FC<ScanSettingsProps> = ({
             value={matchThreshold}
             onSlidingComplete={onThresholdChange}
             minimumTrackTintColor={theme.colors.primary}
-            maximumTrackTintColor="#d3d3d3"
+            maximumTrackTintColor={theme.colors.outline}
             thumbTintColor={theme.colors.primary}
           />
           <View style={styles.labels}>
-            <Text variant="caption">0%</Text>
-            <Text variant="caption">50%</Text>
-            <Text variant="caption">100%</Text>
+            <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant }}>0%</Text>
+            <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant }}>50%</Text>
+            <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant }}>100%</Text>
           </View>
         </View>
       </SettingsItem>

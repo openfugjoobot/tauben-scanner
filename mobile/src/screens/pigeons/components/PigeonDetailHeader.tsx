@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Share, Image, Alert } from 'react-n
 import { useNavigation } from '@react-navigation/native';
 import { Text } from '../../../components/atoms/Text';
 import { Icon } from '../../../components/atoms/Icon';
-import { palette } from '../../../theme/colors';
+import { useTheme } from '../../../theme';
 import { Pigeon } from '../../../services/api/apiClient.types';
 
 interface PigeonDetailHeaderProps {
@@ -17,6 +17,7 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const theme = useTheme();
   const navigation = useNavigation<any>();
 
   const handleShare = async () => {
@@ -41,41 +42,41 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {pigeon.photoUrl ? (
         <Image source={{ uri: pigeon.photoUrl }} style={styles.image} />
       ) : (
-        <View style={[styles.image, styles.placeholder]}>
-          <Icon name="bird" size={80} color={palette.gray[400]} />
+        <View style={[styles.image, styles.placeholder, { backgroundColor: theme.colors.surface }]}>
+          <Icon name="bird" size={80} color={theme.colors.onSurfaceVariant} />
         </View>
       )}
 
-      <View style={styles.overlay}>
+      <View style={[styles.overlay, { backgroundColor: 'transparent' }]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: theme.colors.surface + '4D' }]}
           onPress={() => navigation.goBack()}
         >
-          <Icon name="arrow-left" size={24} color="white" />
+          <Icon name="arrow-left" size={24} color={theme.colors.onSurface} />
         </TouchableOpacity>
 
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
-            <Icon name="share-variant" size={20} color="white" />
+          <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.surface + '4D' }]} onPress={handleShare}>
+            <Icon name="share-variant" size={20} color={theme.colors.onSurface} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={onEdit}>
-            <Icon name="pencil" size={20} color="white" />
+          <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.surface + '4D' }]} onPress={onEdit}>
+            <Icon name="pencil" size={20} color={theme.colors.onSurface} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={confirmDelete}>
-            <Icon name="trash-can" size={20} color="white" />
+          <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.surface + '4D' }]} onPress={confirmDelete}>
+            <Icon name="trash-can" size={20} color={theme.colors.onSurface} />
           </TouchableOpacity>
         </View>
       </View>
 
-      <View style={styles.infoContainer}>
-        <Text variant="h1" style={styles.name}>
+      <View style={[styles.infoContainer, { backgroundColor: theme.colors.background + '66' }]}>
+        <Text variant="h1" style={[styles.name, { color: theme.colors.onSurface }]}>
           {pigeon.name}
         </Text>
-        <Text variant="body" style={styles.color}>
+        <Text variant="body" style={[styles.color, { color: theme.colors.onSurfaceVariant }]}>
           {pigeon.color}
         </Text>
       </View>
@@ -86,14 +87,12 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
 const styles = StyleSheet.create({
   container: {
     height: 300,
-    backgroundColor: '#000',
   },
   image: {
     width: '100%',
     height: '100%',
   },
   placeholder: {
-    backgroundColor: palette.gray[200],
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -109,7 +108,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -120,7 +118,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
@@ -131,13 +128,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   name: {
-    color: 'white',
     marginBottom: 4,
   },
   color: {
-    color: 'rgba(255,255,255,0.8)',
+    // color handled inline
   },
 });

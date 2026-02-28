@@ -12,8 +12,8 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ title, childre
   const theme = useTheme();
   return (
     <View style={styles.container}>
-      <Text variant="h3" style={styles.title}>{title}</Text>
-      <View style={[styles.content, { backgroundColor: theme.colors.surface }]}>
+      <Text variant="h3" style={[styles.title, { color: theme.colors.onSurfaceVariant }]}>{title}</Text>
+      <View style={[styles.content, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}>
         {children}
       </View>
     </View>
@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 8,
     paddingHorizontal: 4,
-    opacity: 0.6,
     textTransform: 'uppercase',
     fontSize: 12,
   },
@@ -36,6 +35,5 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderBottomWidth: 0,
-    borderColor: '#e0e0e0',
   },
 });

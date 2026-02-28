@@ -87,9 +87,9 @@ export const SettingsScreen: React.FC = () => {
   };
 
   const getServiceColor = (status?: string) => {
-    if (status === 'connected' || status === 'loaded') return '#4CAF50';
-    if (status === 'error') return '#F44336';
-    return '#9E9E9E';
+    if (status === 'connected' || status === 'loaded') return theme.colors.success;
+    if (status === 'error') return theme.colors.error;
+    return theme.colors.onSurfaceVariant;
   };
 
   return (
@@ -121,7 +121,7 @@ export const SettingsScreen: React.FC = () => {
           </View>
           
           {serverStatus.connected && serverStatus.services && (
-            <View style={styles.servicesRow}>
+            <View style={[styles.servicesRow, { borderTopColor: theme.colors.outline }]}>
               <View style={styles.serviceItem}>
                 <MaterialCommunityIcons
                   name={getServiceIcon(serverStatus.services.database)}
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   latency: {
-    color: '#666',
+    
     marginLeft: 8,
   },
   servicesRow: {
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    
     gap: 16,
   },
   serviceItem: {
@@ -221,11 +221,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   serviceText: {
-    color: '#666',
+    
     fontSize: 12,
   },
   errorText: {
-    color: '#F44336',
+    color: theme.colors.error,
     marginTop: 4,
   },
   savedBanner: {
