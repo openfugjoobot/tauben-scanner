@@ -1,8 +1,25 @@
 import { Router, Request, Response } from 'express';
 import { pool } from '../config/database';
 import { extractEmbeddingFromBase64 } from '../services/embedding';
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
+import { join } from 'path';
 
 const router = Router();
+
+// Ensure uploads directory exists
+const UPLOADS_DIR = process.env.UPLOADS_DIR || join(process.cwd(), 'uploads');
+if (!existsSync(UPLOADS_DIR)) {
+  mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+// Helper: Save base64 image to file
+function saveBase64Image(base64Data: string, filename: string): { path: string; size: number } {
+  const base64WithoutPrefix = base64Data.replace(/^data:image\/\w+;base64,/, '');
+  const buffer = Buffer.from(base64WithoutPrefix, 'base64');
+  const filePath = join(UPLOADS_DIR, filename);
+  writeFileSync(filePath, buffer);
+  return { path: filename, size: buffer.length };
+}
 
 // Validate pigeon data
 const validatePigeonData = (data: any) => {
@@ -59,27 +76,33 @@ router.post('/', async (req: Request, res: Response) => {
     const { name, description, location, is_public = true, photo } = req.body;
     
     let embedding = null;
+    let imageData: { path: string; size: number } | null = null;
     
-    // Extract embedding if photo is provided
+    // Extract embedding AND save image if photo is provided
     if (photo && typeof photo === 'string' && photo.startsWith('data:image')) {
       try {
-        console.log('[Pigeons] Extracting embedding from photo...');
+        console.log('[Pigeons] Processing photo...');
         embedding = await extractEmbeddingFromBase64(photo);
         console.log(`[Pigeons] Extracted ${embedding.length} dimensions`);
+        
+        // Save image to file
+        const filename = `${Date.now()}_${name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
+        imageData = saveBase64Image(photo, filename);
+        console.log(`[Pigeons] Saved image: ${filename} (${imageData.size} bytes)`);
       } catch (err) {
-        console.error('[Pigeons] Failed to extract embedding:', err);
-        // Continue without embedding - we'll save the pigeon anyway
+        console.error('[Pigeons] Failed to process photo:', err);
+        // Continue without photo
       }
     }
     
-    // Insert pigeon into database (with embedding if available)
-    const query = `
+    // Insert pigeon into database
+    const pigeonQuery = `
       INSERT INTO pigeons (name, description, location_lat, location_lng, location_name, is_public, embedding, created_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7::vector, NOW())
       RETURNING id, name, description, location_lat, location_lng, location_name, is_public, first_seen, created_at
     `;
     
-    const values = [
+    const pigeonValues = [
       name,
       description || null,
       location?.lat || null,
@@ -89,8 +112,24 @@ router.post('/', async (req: Request, res: Response) => {
       embedding ? `[${embedding.join(',')}]` : null
     ];
     
-    const result = await pool.query(query, values);
-    const pigeon = result.rows[0];
+    const pigeonResult = await pool.query(pigeonQuery, pigeonValues);
+    const pigeon = pigeonResult.rows[0];
+    
+    // Save image to images table if photo was saved
+    if (imageData && embedding) {
+      const imageQuery = `
+        INSERT INTO images (pigeon_id, file_path, file_size, mime_type, embedding, is_primary, created_at)
+        VALUES ($1, $2, $3, $4, $5::vector, true, NOW())
+        RETURNING id, file_path
+      `;
+      await pool.query(imageQuery, [
+        pigeon.id,
+        imageData.path,
+        imageData.size,
+        'image/jpeg',
+        `[${embedding.join(',')}]`
+      ]);
+    }
     
     // Format response
     const response = {
@@ -103,7 +142,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: pigeon.location_name
       },
       first_seen: pigeon.first_seen,
-      photo_url: null,
+      photo_url: imageData ? `/uploads/${imageData.path}` : null,
       embedding_generated: !!embedding,
       created_at: pigeon.created_at
     };
@@ -145,6 +184,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     
     const pigeon = result.rows[0];
     
+    // Get primary photo for this pigeon
+    const photoQuery = `
+      SELECT file_path 
+      FROM images 
+      WHERE pigeon_id = $1 AND is_primary = true 
+      ORDER BY created_at DESC 
+      LIMIT 1
+    `;
+    const photoResult = await pool.query(photoQuery, [id]);
+    const photoUrl = photoResult.rows.length > 0 
+      ? `/uploads/${photoResult.rows[0].file_path}` 
+      : null;
+    
     // Get sightings for this pigeon
     const sightingsQuery = `
       SELECT id, location_lat, location_lng, location_name, notes, timestamp
@@ -166,7 +218,7 @@ router.get('/:id', async (req: Request, res: Response) => {
         name: pigeon.location_name
       },
       first_seen: pigeon.first_seen,
-      photo_url: null, // Would need to query images table for this
+      photo_url: photoUrl,
       sightings: sightingsResult.rows.map(sighting => ({
         id: sighting.id,
         location: {
@@ -211,14 +263,20 @@ router.get('/', async (req: Request, res: Response) => {
       whereClause = `WHERE p.name ILIKE $${paramCount}`;
     }
     
-    // Query database for pigeons
+    // Query database for pigeons with primary photo
     const query = `
-      SELECT p.id, p.name, p.first_seen, p.created_at,
-             COUNT(s.id) as sightings_count
+      SELECT 
+        p.id, 
+        p.name, 
+        p.first_seen, 
+        p.created_at,
+        COUNT(s.id) as sightings_count,
+        i.file_path as photo_path
       FROM pigeons p
       LEFT JOIN sightings s ON p.id = s.pigeon_id
+      LEFT JOIN images i ON p.id = i.pigeon_id AND i.is_primary = true
       ${whereClause}
-      GROUP BY p.id
+      GROUP BY p.id, i.file_path
       ORDER BY p.created_at DESC
       LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
     `;
@@ -241,7 +299,7 @@ router.get('/', async (req: Request, res: Response) => {
       pigeons: result.rows.map(pigeon => ({
         id: pigeon.id,
         name: pigeon.name,
-        photo_url: null, // Would need to query images table for this
+        photo_url: pigeon.photo_path ? `/uploads/${pigeon.photo_path}` : null,
         first_seen: pigeon.first_seen,
         sightings_count: parseInt(pigeon.sightings_count)
       })),
