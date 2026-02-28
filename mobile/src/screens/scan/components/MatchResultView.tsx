@@ -1,6 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import type { MatchResult } from '../../../types/match';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import type { Pigeon } from "../../../services/api/apiClient.types";
+
+interface MatchResult {
+  match: boolean;
+  pigeon: Pigeon | null;
+  confidence: number;
+  message: string;
+  isNewPigeon: boolean;
+}
 
 interface MatchResultViewProps {
   result: MatchResult;
@@ -17,16 +25,18 @@ export const MatchResultView: React.FC<MatchResultViewProps> = ({
 }) => {
   return (
     <View style={styles.container}>
-      {result.success ? (
+      {result.match ? (
         <>
           <Text style={styles.title}>Taube erkannt!</Text>
-          <Text style={styles.confidence}>Genauigkeit: {((result.confidence || 0) * 100).toFixed(1)}%</Text>
-          <TouchableOpacity 
-            style={[styles.button, styles.primaryButton]} 
-            onPress={() => onViewPigeon(result.pigeon?.id || "")}
-          >
-            <Text style={styles.buttonText}>Details ansehen</Text>
-          </TouchableOpacity>
+          <Text style={styles.confidence}>Genauigkeit: {(result.confidence * 100).toFixed(1)}%</Text>
+          {result.pigeon && (
+            <TouchableOpacity
+              style={[styles.button, styles.primaryButton]}
+              onPress={() => result.pigeon?.id && onViewPigeon(result.pigeon.id)}
+            >
+              <Text style={styles.buttonText}>Details ansehen</Text>
+            </TouchableOpacity>
+          )}
         </>
       ) : (
         <>
@@ -34,16 +44,16 @@ export const MatchResultView: React.FC<MatchResultViewProps> = ({
           <Text style={styles.subtitle}>Diese Taube konnte nicht in der Datenbank gefunden werden.</Text>
         </>
       )}
-      
-      <TouchableOpacity 
-        style={[styles.button, styles.secondaryButton]} 
+
+      <TouchableOpacity
+        style={[styles.button, styles.secondaryButton]}
         onPress={onScanAgain}
       >
         <Text style={styles.secondaryButtonText}>Erneut scannen</Text>
       </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={styles.linkButton} 
+
+      <TouchableOpacity
+        style={styles.linkButton}
         onPress={onGoHome}
       >
         <Text style={styles.linkText}>Zurück zum Dashboard</Text>
@@ -56,57 +66,57 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 8,
-    color: '#333',
+    color: "#333",
   },
   subtitle: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 24,
-    color: '#666',
+    color: "#666",
   },
   confidence: {
     fontSize: 16,
     marginBottom: 32,
-    color: '#2196F3',
+    color: "#2196F3",
   },
   button: {
-    width: '100%',
+    width: "100%",
     padding: 16,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 12,
   },
   primaryButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: "#2196F3",
   },
   secondaryButton: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: '#2196F3',
+    borderColor: "#2196F3",
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   secondaryButtonText: {
-    color: '#2196F3',
+    color: "#2196F3",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   linkButton: {
     marginTop: 12,
   },
   linkText: {
-    color: '#666',
+    color: "#666",
     fontSize: 14,
   },
 });
