@@ -71,7 +71,7 @@ export const useCameraCapture = (): [CameraCaptureState, CameraCaptureActions, R
         });
       }
     } catch (error) {
-    console.error('Fehler beim Aufnehmen des Fotos:', error);
+      console.error('Fehler beim Aufnehmen des Fotos:', error);
       Alert.alert(
         'Fehler',
         'Das Foto konnte nicht aufgenommen werden. Bitte überprüfen Sie die Berechtigungen und versuchen Sie es erneut.',
