@@ -8,7 +8,7 @@ Komplette Einrichtung der Entwicklungsumgebung für den KI Tauben Scanner.
 
 | Komponente | Tool | Zweck |
 |------------|------|-------|
-| **Backend** | Docker Compose | PostgreSQL + API + MinIO |
+| **Backend** | Docker Compose | PostgreSQL + API |
 | **Frontend** | Expo / React Native | Mobile App Entwicklung |
 | **Testing** | Expo Go / Simulator | Live Testing auf Gerät |
 
@@ -24,8 +24,8 @@ cd tauben-scanner
 # 2. Backend starten (Docker)
 docker-compose up -d
 
-# 3. Frontend installieren
-cd frontend
+# 3. Mobile App installieren
+cd mobile
 npm install
 
 # 4. Dev Server starten
@@ -50,7 +50,7 @@ npx expo start
 
 | Tool | Version | Link |
 |------|---------|------|
-| Node.js | 18+ LTS | https://nodejs.org |
+| Node.js | 20+ LTS | https://nodejs.org |
 | Docker | Latest | https://docker.com |
 | Docker Compose | v2.x | Inkludiert |
 | Git | 2.x | https://git-scm.com |
@@ -82,10 +82,6 @@ newgrp docker
 brew install docker docker-compose
 ```
 
-**Windows:**
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) installieren
-- WSL2 aktivieren
-
 ### 2. Umgebungsvariablen
 
 ```bash
@@ -101,7 +97,6 @@ nano .env
 DATABASE_URL=postgresql://tauben:password@postgres:5432/tauben_scanner
 DB_PASSWORD=dein_sicheres_password
 CORS_ORIGINS=http://localhost:8081,http://localhost:3000
-MINIO_PASSWORD=minio_password
 ```
 
 ### 3. Services starten
@@ -126,14 +121,15 @@ curl http://localhost:3000/health
   "status": "healthy",
   "services": {
     "database": "connected",
-    "storage": "connected"
+    "storage": "connected",
+    "embedding_model": "loaded"
   }
 }
 ```
 
 ---
 
-## Frontend Setup (React Native)
+## Mobile App Setup (React Native + Expo SDK 52)
 
 ### 1. Node.js Installation
 
@@ -162,14 +158,14 @@ npm --version
 npm install -g @expo/cli
 
 # Oder im Projekt:
-cd frontend
+cd mobile
 npm install --save-dev @expo/cli
 ```
 
 ### 3. Dependencies installieren
 
 ```bash
-cd frontend
+cd mobile
 
 # Alle Pakete installieren
 npm install
@@ -190,7 +186,7 @@ npx expo install --fix
 ### 2. Dev Server starten
 
 ```bash
-cd frontend
+cd mobile
 
 # Metro Bundler
 npx expo start
@@ -223,10 +219,10 @@ npx expo start
 
 ```
 SDK Manager → SDK Platforms:
-  ✅ Android API 34
+  ✅ Android API 35 (oder höher)
   
 SDK Manager → SDK Tools:
-  ✅ Android SDK Build-Tools 34
+  ✅ Android SDK Build-Tools
   ✅ Android Emulator
   ✅ Android SDK Platform-Tools
 ```
@@ -236,7 +232,7 @@ SDK Manager → SDK Tools:
 ```
 AVD Manager → Create Device
   → Pixel 7 (empfohlen)
-  → System Image: Android API 34
+  → System Image: Android API 35
   → Finish
 ```
 
@@ -252,7 +248,7 @@ emulator -avd Pixel_7
 ### 5. App starten
 
 ```bash
-cd frontend
+cd mobile
 
 # Android Emulator
 npx expo run:android
@@ -289,46 +285,6 @@ npx expo run:ios
 
 ---
 
-## Native Debugging
-
-### Development Build
-
-Für native Debugging-Features (z.B. Flipper):
-
-```bash
-# Development Build erstellen
-eas build --profile development --platform android
-
-# Installieren
-# Dev Client starten
-expo start --dev-client
-```
-
-### React Native Debugger
-
-```bash
-# Flipper installieren
-# https://fbflipper.com/
-
-# React DevTools
-npx react-devtools
-```
-
-### Logging
-
-```bash
-# Metro logs
-npx expo start
-
-# Android Logcat
-adb logcat | grep ReactNativeJS
-
-# iOS Logs
-npx react-native log-ios
-```
-
----
-
 ## Entwicklungs-Workflow
 
 ### Täglicher Ablauf
@@ -339,7 +295,7 @@ docker-compose ps
 docker-compose logs -f api
 
 # 2. Frontend starten
-cd frontend
+cd mobile
 npx expo start
 
 # 3. Expo Go öffnen → QR Scan
@@ -354,16 +310,16 @@ npx expo start
 **Für lokale Tests:**
 ```bash
 # Im Frontend-Verzeichnis
-echo "EXPO_PUBLIC_API_URL=http://$(hostname -I | awk '{print $1}'):3000" > .env
+echo "EXPO_PUBLIC_API_URL=http://$(hostname -I | awk '{print $1}'):3000/api" > .env
 ```
 
 **Für Emulator:**
 ```bash
 # Android Emulator
-EXPO_PUBLIC_API_URL=http://10.0.2.2:3000
+EXPO_PUBLIC_API_URL=http://10.0.2.2:3000/api
 
 # iOS Simulator
-EXPO_PUBLIC_API_URL=http://localhost:3000
+EXPO_PUBLIC_API_URL=http://localhost:3000/api
 ```
 
 ---
@@ -380,7 +336,8 @@ sudo usermod -aG docker $USER
 
 **"Port 3000 already in use"**
 ```bash
-# Port belegen?sudo ss -tlnp | grep 3000
+# Port belegen?
+sudo ss -tlnp | grep 3000
 sudo kill -9 PID
 
 # Oder Port ändern in .env
@@ -460,7 +417,6 @@ xcrun simctl list devices
 | `eas update --channel preview` | OTA Update |
 | `adb devices` | Android Geräte listen |
 | `adb logcat` | Android Logs |
-| `npx react-devtools` | React DevTools |
 
 ---
 
@@ -471,8 +427,8 @@ xcrun simctl list devices
 | Metro Bundler | 8081 | React Native Dev Server |
 | API | 3000 | Backend API |
 | Postgres | 5432 | Datenbank |
-| MinIO API | 9000 | Object Storage |
-| MinIO Console | 9001 | Storage UI |
+| MinIO API | 9000 | Object Storage (nicht aktiv) |
+| MinIO Console | 9001 | Storage UI (nicht aktiv) |
 
 ---
 
@@ -485,13 +441,8 @@ xcrun simctl list devices
 - [React Navigation](https://reactnavigation.org)
 - [React Native Paper](https://reactnativepaper.com)
 
-### Tools
-
-- [React DevTools](https://github.com/facebook/react-devtools)
-- [Flipper](https://fbflipper.com/)
-- [Expo Dashboard](https://expo.dev)
-
 ---
 
-**Setup Status**: ✅ Backend (Docker) + Frontend (Expo) ready  
-**Empfohlene Methode**: Expo Go App für schnelle Iteration
+**Setup Status**: ✅ Backend (Docker) + Frontend (Expo SDK 52) ready
+
+*Aktualisiert: Expo SDK 52, React Native 0.76*
