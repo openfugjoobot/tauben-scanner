@@ -29,7 +29,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://tauben:${DB_PASSWORD}@postgres:5432/tauben_scanner
-      CORS_ORIGINS: "https://tauben-scanner.fugjoo.duckdns.org,http://localhost:5173,capacitor://localhost,http://localhost"
+      CORS_ORIGINS: "https://tauben-scanner.fugjoo.duckdns.org,http://localhost:5173,http://localhost"
     ports:
       - "3000:3000"
     depends_on:

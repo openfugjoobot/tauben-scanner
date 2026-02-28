@@ -23,22 +23,17 @@ const corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
   : [
     'https://tauben-scanner.fugjoo.duckdns.org',
-    'capacitor://localhost',
-    'http://localhost:8100',
     'http://localhost:5173',
     'http://localhost:3000',
     'http://localhost',
-    'ionic://localhost',
     'http://localhost:8080',
     'http://localhost:4200'
   ];
 
-// CORS - Allow all origins for mobile apps (Android sends null origin)
-// Nginx-Proxy-Manager should NOT add CORS headers - only backend does
+// CORS - Allow mobile apps and configured origins
+// Allow null origin (some mobile WebViews) and all configured origins
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow null origin (Android Capacitor WebView) and all configured origins
-    // Also allow https://localhost from Chrome DevTools
     const allowedOrigins = [
       ...corsOrigins,
       'https://localhost',
