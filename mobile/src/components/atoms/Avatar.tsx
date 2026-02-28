@@ -35,7 +35,7 @@ export const Avatar: React.FC<AvatarProps> = ({
         source={{ uri: source }}
         style={[
           styles.avatar,
-          { width: sizeValue, height: sizeValue, borderRadius: sizeValue / 2 },
+          { width: sizeValue, height: sizeValue, borderRadius: sizeValue / 2, backgroundColor: theme.colors.surface },
           style,
         ]}
       />
@@ -55,7 +55,7 @@ export const Avatar: React.FC<AvatarProps> = ({
         style,
       ]}
     >
-      <Text style={[styles.initials, { fontSize: sizeValue * 0.4 }]}>
+      <Text style={[styles.initials, { fontSize: sizeValue * 0.4, color: theme.colors.onPrimary }]}>
         {initials}
       </Text>
     </View>
@@ -64,14 +64,13 @@ export const Avatar: React.FC<AvatarProps> = ({
 
 const styles = StyleSheet.create({
   avatar: {
-    backgroundColor: '#e0e0e0',
+    // backgroundColor now comes from theme
   },
   fallback: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   initials: {
-    color: '#fff',
     fontWeight: '700',
   },
 });
