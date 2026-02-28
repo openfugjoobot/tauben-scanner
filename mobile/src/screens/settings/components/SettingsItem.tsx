@@ -22,7 +22,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
   const Container = onPress ? TouchableOpacity : View;
 
   return (
-    <View style={styles.outerContainer}>
+    <View style={[styles.outerContainer, { borderBottomColor: theme.colors.outline }]}>
       <Container 
         style={[styles.container, { backgroundColor: theme.colors.surface }]} 
         onPress={onPress} 
@@ -34,7 +34,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
         </View>
         {children && <View style={styles.children}>{children}</View>}
       </Container>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={[styles.errorText, { color: theme.colors.error }]}>{error}</Text>}
     </View>
   );
 };
@@ -42,7 +42,6 @@ export const SettingsItem: React.FC<SettingsItemProps> = ({
 const styles = StyleSheet.create({
   outerContainer: {
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   container: {
     padding: 16,
@@ -61,7 +60,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   errorText: {
-    color: '#ff4444',
     fontSize: 12,
     paddingHorizontal: 16,
     paddingBottom: 8,
