@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import { Alert } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
 import type { CameraType } from 'expo-camera';
@@ -70,6 +71,15 @@ export const useCameraCapture = (): [CameraCaptureState, CameraCaptureActions, R
         });
       }
     } catch (error) {
+    console.error('Fehler beim Aufnehmen des Fotos:', error);
+      Alert.alert(
+        'Fehler',
+        'Das Foto konnte nicht aufgenommen werden. Bitte überprüfen Sie die Berechtigungen und versuchen Sie es erneut.',
+        [
+          { text: 'Abbrechen', style: 'cancel' },
+          { text: 'Erneut versuchen', onPress: () => takePhoto() }
+        ]
+      );
     } finally {
       setIsCapturing(false);
     }

@@ -38,7 +38,15 @@ export const usePermissions = () => {
         setPermissionsGranted(true);
       }
     } catch (error) {
-      console.error('Permission error:', error);
+      console.error('Fehler beim Anfordern der Berechtigungen:', error);
+      Alert.alert(
+        'Fehler',
+        'Die Berechtigungen konnten nicht angefordert werden. Bitte öffnen Sie die Einstellungen und aktivieren Sie die erforderlichen Berechtigungen manuell.',
+        [
+          { text: 'Abbrechen', style: 'cancel' },
+          { text: 'Einstellungen', onPress: () => Linking.openSettings() }
+        ]
+      );
     }
   };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { usePigeon, useDeletePigeon } from '../../hooks/queries';
 import { LoadingState } from '../../components/molecules/LoadingState';
@@ -27,6 +27,15 @@ export const PigeonDetailScreen: React.FC = () => {
       await deleteMutation.mutateAsync(pigeonId);
       navigation.goBack();
     } catch (err) {
+    console.error('Fehler beim Löschen der Taube:', err);
+      Alert.alert(
+        'Fehler',
+        'Die Taube konnte nicht gelöscht werden. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+        [
+          { text: 'Abbrechen', style: 'cancel' },
+          { text: 'Erneut versuchen', onPress: () => handleDelete() }
+        ]
+      );
     }
   };
 
