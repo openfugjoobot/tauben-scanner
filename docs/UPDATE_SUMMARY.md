@@ -5,7 +5,7 @@
 ### 1. README.md (Haupt-Doku)
 **Änderungen:**
 - Architektur-Wechsel dokumentiert (Server-side statt client-side ML)
-- Tech Stack aktualisiert (MobileNet-V3 + TensorFlow.js im Backend)
+- Tech Stack aktualisiert (MobileNet-V2 + TensorFlow.js im Backend)
 - API-Beispiele aktualisiert: `photo` statt `embedding` bei POST /api/pigeons und POST /api/images/match
 - CORS-Hinweis hinzugefügt: Backend regelt CORS allein
 - Android Features: Neue Berechtigungen (INTERNET, NETWORK_STATE, WIFI_STATE)

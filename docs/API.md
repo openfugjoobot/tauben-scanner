@@ -4,7 +4,9 @@ Vollständige REST API Referenz für den KI Tauben Scanner.
 
 **Basis-URL:** `http://localhost:3000` (lokal) oder deine Produktions-URL
 
-**Content-Type:** `application/json` (oder `multipart/form-data` für Uploads)
+**Content-Type:** `application/json`
+
+**Wichtig:** Die API verwendet **Base64-kodierte Bilder** (nicht multipart/form-data).
 
 ---
 
@@ -12,12 +14,11 @@ Vollständige REST API Referenz für den KI Tauben Scanner.
 
 - [Allgemein](#allgemein)
 - [CORS](#cors)
-- [Frontend API Client](#frontend-api-client)
+- [Bild-Upload Format](#bild-upload-format)
 - [Health Check](#health-check)
 - [Tauben (Pigeons)](#tauben-pigeons)
 - [Bilder (Images)](#bilder-images)
 - [Sichtungen (Sightings)](#sichtungen-sightings)
-- [React Query Hooks](#react-query-hooks)
 - [Fehlerbehandlung](#fehlerbehandlung)
 
 ---
@@ -26,11 +27,13 @@ Vollständige REST API Referenz für den KI Tauben Scanner.
 
 ### Authentifizierung
 
-⚠️ **Wichtig:** Die aktuelle Version hat keine Authentifizierung. Für Produktionsumgebungen sollte ein Auth-Layer hinzugefügt werden.
+⚠️ **Wichtig:** Die aktuelle Version hat **keine Authentifizierung**. Die API ist offen zugänglich.
+
+Für Produktionsumgebungen sollte ein Auth-Layer (z.B. JWT oder API-Keys) hinzugefügt werden.
 
 ### Request Format
 
-Alle Endpoints akzeptieren `application/json`. Bild-Uploads verwenden `multipart/form-data`.
+Alle Endpoints akzeptieren `application/json`. Bilder werden als Base64-Strings übertragen.
 
 ---
 
@@ -43,7 +46,7 @@ Alle Endpoints akzeptieren `application/json`. Bild-Uploads verwenden `multipart
 Erlaubte Origins werden über `CORS_ORIGINS` konfiguriert:
 
 ```bash
-CORS_ORIGINS=https://tauben-scanner.fugjoo.duckdns.org,
+CORS_ORIGINS=https://tauben-scanner.fugjoo.duckdns.org,http://localhost:8081
 ```
 
 ### Verhalten
@@ -53,117 +56,29 @@ CORS_ORIGINS=https://tauben-scanner.fugjoo.duckdns.org,
 - Credentials werden unterstützt
 - Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH
 
-### Default Origins
-
-- `https://tauben-scanner.fugjoo.duckdns.org`
-- `http://localhost:8081` (Metro Bundler)
-- `http://localhost:3000` (Dev Server)
-
 ---
 
-## Frontend API Client
+## Bild-Upload Format
 
-### Axios Setup
-
-```typescript
-// src/services/api.ts
-import axios from 'axios';
-
-const apiClient = axios.create({
-  baseURL: 'https://api.tauben-scanner.de',
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Request Interceptor
-apiClient.interceptors.request.use(
-  (config) => {
-    const apiKey = useSettingsStore.getState().apiKey;
-    if (apiKey) {
-      config.headers.Authorization = `Bearer ${apiKey}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
-
-// Response Interceptor für Error Handling
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error('Request timeout - please check your connection');
-    }
-    throw error;
-  },
-);
-
-export default apiClient;
-```
-
-### Timeout-Konfiguration
-
-| Operation | Timeout | Beschreibung |
-|-----------|---------|-------------|
-| Health Check | 10s | Server Status |
-| Pigeon List | 15s | Liste abrufen |
-| Pigeon Registration | 30s | Mit Bild-Upload |
-| Image Match | 30s | KI-Matching |
-| Sighting | 30s | Sichtung erstellen |
-
----
-
-## Bild-Upload Flow
-
-### Mit FormData (React Native)
+### Base64 JSON (Aktuelle Implementierung)
 
 ```typescript
-import apiClient from './api';
-
-// Bild von Camera/Roll
-const uploadImage = async (imageUri: string) => {
-  const formData = new FormData();
-  
-  // FormData mit richtigem Format
-  formData.append('photo', {
-    uri: imageUri,
-    type: 'image/jpeg',
-    name: 'scan.jpg',
-  } as any);
-  
-  // Optional: Threshold & Location als String
-  formData.append('threshold', '0.80');
-  formData.append('location', JSON.stringify({
-    lat: 52.52,
-    lng: 13.405,
-    name: 'Berlin'
-  }));
-  
-  const response = await apiClient.post('/api/images/match', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-    timeout: 30000,
-  });
-  
-  return response.data;
-};
-```
-
-### Base64 Alternative (legacy)
-
-```typescript
-// Für Endpoints die noch Base64 erwarten
-const uploadBase64 = async (base64Image: string) => {
-  const response = await apiClient.post('/api/images/match', {
-    photo: base64Image,
+// POST /api/images/match
+const matchImage = async (base64Image: string) => {
+  const response = await api.post('/images/match', {
+    photo: base64Image,  // data:image/jpeg;base64,...
     threshold: 0.80,
+    location: {
+      lat: 52.52,
+      lng: 13.405,
+      name: 'Berlin'
+    }
   });
   return response.data;
 };
 ```
+
+Das Bild muss ein Base64-kodierter String sein, optional mit Data-URL-Präfix (`data:image/jpeg;base64,...`).
 
 ---
 
@@ -207,31 +122,29 @@ Prüft den Status aller Services.
 
 Erstellt eine neue Taube in der Datenbank.
 
-#### Request Body (multipart/form-data)
+#### Request Body (JSON)
 
 | Feld | Typ | Erforderlich | Beschreibung |
 |------|-----|--------------|--------------|
 | `name` | string | ✅ | Name der Taube |
-| `photo` | file | ✅ | Bild als Datei |
+| `photo` | string (Base64) | ❌ | Bild als Base64-String |
 | `description` | string | ❌ | Beschreibung |
-| `location` | string (JSON) | ❌ | Standort als JSON |
-| `is_public` | string | ❌ | Öffentlich sichtbar (default: true) |
+| `location` | object | ❌ | Standort `{lat, lng, name}` |
+| `is_public` | boolean | ❌ | Öffentlich sichtbar (default: true) |
 
 **React Native Example:**
 
 ```typescript
-const createPigeon = async (photoUri: string, name: string) => {
-  const formData = new FormData();
-  formData.append('name', name);
-  formData.append('photo', {
-    uri: photoUri,
-    type: 'image/jpeg',
-    name: 'pigeon.jpg',
-  } as any);
-  formData.append('description', 'Roter Ring am linken Fuß');
-  
-  const { data } = await apiClient.post('/api/pigeons', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+const createPigeon = async (base64Photo: string, name: string) => {
+  const { data } = await api.post('/pigeons', {
+    name: name,
+    photo: base64Photo,  // data:image/jpeg;base64,...
+    description: 'Roter Ring am linken Fuß',
+    location: {
+      lat: 52.52,
+      lng: 13.405,
+      name: 'Alexanderplatz, Berlin'
+    }
   });
   
   return data;
@@ -279,7 +192,7 @@ export const usePigeon = (id: string) => {
   return useQuery({
     queryKey: ['pigeons', id],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/api/pigeons/${id}`);
+      const { data } = await api.get(`/pigeons/${id}`);
       return data;
     },
     enabled: !!id,
@@ -319,7 +232,7 @@ export const usePigeons = (page = 1, limit = 20, search = '') => {
         limit: String(limit),
         ...(search && { search }),
       });
-      const { data } = await apiClient.get(`/api/pigeons?${params}`);
+      const { data } = await api.get(`/pigeons?${params}`);
       return data;
     },
     staleTime: 5 * 60 * 1000, // 5 Minuten
@@ -335,13 +248,13 @@ export const usePigeons = (page = 1, limit = 20, search = '') => {
 
 Sucht nach ähnlichen Tauben anhand eines Fotos.
 
-#### Request Body (multipart/form-data)
+#### Request Body (JSON)
 
 | Feld | Typ | Erforderlich | Beschreibung |
 |------|-----|--------------|--------------|
-| `photo` | file | ✅ | Bild als Datei |
-| `threshold` | string | ❌ | Matching-Schwelle (0.50-0.99, default: 0.80) |
-| `location` | string (JSON) | ❌ | Standort der Sichtung |
+| `photo` | string (Base64) | ✅ | Bild als Base64-String |
+| `threshold` | number | ❌ | Matching-Schwelle (0.50-0.99, default: 0.80) |
+| `location` | object | ❌ | Standort der Sichtung `{lat, lng, name}` |
 
 **React Query Mutation:**
 
@@ -350,7 +263,7 @@ Sucht nach ähnlichen Tauben anhand eines Fotos.
 import { useMutation } from '@tanstack/react-query';
 
 interface MatchImageParams {
-  imageUri: string;
+  base64Image: string;
   threshold?: number;
   location?: {
     lat: number;
@@ -361,23 +274,11 @@ interface MatchImageParams {
 
 export const useMatchImage = () => {
   return useMutation({
-    mutationFn: async ({ imageUri, threshold = 0.8, location }: MatchImageParams) => {
-      const formData = new FormData();
-      formData.append('photo', {
-        uri: imageUri,
-        type: 'image/jpeg',
-        name: 'scan.jpg',
-      } as any);
-      
-      if (threshold) {
-        formData.append('threshold', String(threshold));
-      }
-      if (location) {
-        formData.append('location', JSON.stringify(location));
-      }
-      
-      const { data } = await apiClient.post('/api/images/match', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+    mutationFn: async ({ base64Image, threshold = 0.8, location }: MatchImageParams) => {
+      const { data } = await api.post('/images/match', {
+        photo: base64Image,
+        threshold,
+        ...(location && { location }),
       });
       
       return data;
@@ -388,9 +289,9 @@ export const useMatchImage = () => {
 // Verwendung
 const { mutate: matchImage, isPending } = useMatchImage();
 
-const handleScan = async (photoUri: string) => {
+const handleScan = async (base64Photo: string) => {
   matchImage(
-    { imageUri: photoUri, threshold: 0.85 },
+    { base64Image: base64Photo, threshold: 0.85 },
     {
       onSuccess: (result) => {
         if (result.match) {
@@ -431,6 +332,23 @@ const handleScan = async (photoUri: string) => {
 }
 ```
 
+#### Response 200 (No Match)
+
+```json
+{
+  "match": false,
+  "confidence": 0,
+  "similar_pigeons": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Helga Hell",
+      "similarity": 0.6543
+    }
+  ],
+  "suggestion": "Register as new pigeon?"
+}
+```
+
 ---
 
 ## Sichtungen (Sightings)
@@ -444,7 +362,7 @@ Erstellt eine neue Sichtung einer Taube.
 | Feld | Typ | Erforderlich | Beschreibung |
 |------|-----|--------------|--------------|
 | `pigeon_id` | UUID | ✅ | ID der Taube |
-| `location` | object | ❌ | Standort |
+| `location` | object | ❌ | Standort `{lat, lng, name}` |
 | `notes` | string | ❌ | Notizen zur Sichtung |
 | `condition` | string | ❌ | Zustand (healthy, injured, unknown) |
 
@@ -464,7 +382,12 @@ export const useCreateSighting = () => {
       notes?: string;
       condition?: 'healthy' | 'injured' | 'unknown';
     }) => {
-      const { data } = await apiClient.post('/api/sightings', sighting);
+      const { data } = await api.post('/sightings', {
+        pigeon_id: sighting.pigeonId,
+        location: sighting.location,
+        notes: sighting.notes,
+        condition: sighting.condition,
+      });
       return data;
     },
     onSuccess: (_, variables) => {
@@ -482,68 +405,15 @@ export const useCreateSighting = () => {
 
 ---
 
-## React Query Hooks
-
-### Überblick
-
-```typescript
-// Pigeon Hooks
-usePigeons(page, limit, search)       // Liste aller Tauben
-usePigeon(id)                          // Einzelne Taube
-useCreatePigeon()                      // Taube erstellen (Mutation)
-useUpdatePigeon()                      // Taube aktualisieren (Mutation)
-useDeletePigeon()                      // Taube löschen (Mutation)
-
-// Scan Hooks
-useMatchImage()                        // Bild Matching (Mutation)
-
-// Sighting Hooks
-useSightings()                         // Alle Sichtungen
-useSightingsByPigeon(pigeonId)         // Sichtungen einer Taube
-useCreateSighting()                    // Sichtung erstellen (Mutation)
-```
-
-### Query Provider Setup
-
-```typescript
-// src/components/providers/QueryProvider.tsx
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,      // 5 Minuten
-      gcTime: 10 * 60 * 1000,        // 10 Minuten
-      retry: 3,
-      refetchOnWindowFocus: true,
-      refetchOnReconnect: true,
-    },
-  },
-});
-
-export const QueryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      {__DEV__ && <ReactQueryDevtools />}
-    </QueryClientProvider>
-  );
-};
-```
-
----
-
 ## Fehlerbehandlung
 
 ### Axios Error Interceptor
 
 ```typescript
 // services/api.ts - Error Handling
-apiClient.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  (error: AxiosError) => {
     let errorMessage = 'Ein Fehler ist aufgetreten';
     
     if (error.code === 'ECONNABORTED') {
@@ -577,8 +447,9 @@ apiClient.interceptors.response.use(
 | Code | HTTP Status | Beschreibung |
 |------|-------------|--------------|
 | `VALIDATION_ERROR` | 400 | Ungültige Eingabedaten |
-| `MISSING_PHOTO` | 400 | Photo fehlt |
-| `INVALID_THRESHOLD` | 400 | Threshold außerhalb Bereich |
+| `MISSING_INPUT` | 400 | Photo fehlt |
+| `INVALID_THRESHOLD` | 400 | Threshold außerhalb Bereich (0.5-0.99) |
+| `EMBEDDING_EXTRACTION_FAILED` | 400 | Bild konnte nicht verarbeitet werden |
 | `NOT_FOUND` | 404 | Resource nicht gefunden |
 | `INTERNAL_SERVER_ERROR` | 500 | Serverseitiger Fehler |
 | `DATABASE_CONNECTION_FAILED` | 503 | Datenbank nicht erreichbar |
@@ -602,7 +473,7 @@ export interface Pigeon {
   description?: string;
   location?: Location;
   first_seen?: string;
-  photo_url?: string;
+  photoUrl?: string;  // Absolute URL
   embedding_generated: boolean;
   created_at: string;
   updated_at?: string;
@@ -611,7 +482,7 @@ export interface Pigeon {
 }
 
 export interface MatchRequest {
-  photo: string;  // Base64 oder Datei
+  photo: string;  // Base64 image
   threshold?: number;
   location?: Location;
 }
@@ -639,12 +510,12 @@ export interface Sighting {
 
 // Query Result Types
 export interface PaginatedResponse<T> {
-  data: T[];
+  pigeons: T[];
   pagination: {
     page: number;
     limit: number;
     total: number;
-    totalPages: number;
+    pages: number;
   };
 }
 ```
@@ -653,4 +524,4 @@ export interface PaginatedResponse<T> {
 
 **Zurück zur [Hauptdokumentation](../README.md)**
 
-*Aktualisiert für React Native + React Query*
+*Aktualisiert: Base64 Uploads, Expo SDK 52, React Native 0.76*

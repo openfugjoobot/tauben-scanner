@@ -2,7 +2,7 @@
 
 Willkommen in der offiziellen Dokumentation des KI Tauben Scanners!
 
-**Tech Stack**: React Native + Expo SDK 51 + Express.js + PostgreSQL + pgvector
+**Tech Stack**: React Native + Expo SDK 52 + Express.js + PostgreSQL + pgvector
 
 ---
 
@@ -73,7 +73,7 @@ Willkommen in der offiziellen Dokumentation des KI Tauben Scanners!
 │  │ GET      │ /api/pigeons/:id            │          │    │
 │  └──────────┴─────────────────────────────┴──────────┘    │
 │                                                             │
-│  MobileNet-V3 (TensorFlow.js) - Server-side ML              │
+│  MobileNet-V2 (TensorFlow.js) - Server-side ML              │
 └─────────────────────────────┬───────────────────────────────┘
                               │
 ┌─────────────────────────────┼───────────────────────────────┐
@@ -87,7 +87,7 @@ Willkommen in der offiziellen Dokumentation des KI Tauben Scanners!
 
 **Architektur-Migration:**
 - Früher: Capacitor (WebView Hybrid)
-- Jetzt: React Native (Native UI) + Expo SDK 51
+- Jetzt: React Native (Native UI) + Expo SDK 52
 
 ---
 
@@ -97,7 +97,7 @@ Willkommen in der offiziellen Dokumentation des KI Tauben Scanners!
 | Technologie | Zweck |
 |-------------|-------|
 | **React Native** | Native Mobile UI |
-| **Expo SDK 51** | Development & Build Platform |
+| **Expo SDK 52** | Development & Build Platform |
 | **React Navigation v7** | Screen Navigation |
 | **React Native Paper** | Material Design 3 UI |
 | **Zustand** | Global State Management |
@@ -110,7 +110,7 @@ Willkommen in der offiziellen Dokumentation des KI Tauben Scanners!
 |-------------|-------|
 | **Express.js 5** | API Server |
 | **TypeScript** | Typisierung |
-| **MobileNet-V3** | Server-side ML |
+| **MobileNet-V2** | Server-side ML |
 | **pg 8** | PostgreSQL Client |
 
 ### Datenbank
@@ -152,5 +152,5 @@ Wir freuen uns über Verbesserungen an der Dokumentation!
 
 **Made with ❤️ by OpenFugjooBot**
 
-*Migration complete: Capacitor → React Native + Expo SDK 51*  
+*Migration complete: Capacitor → React Native + Expo SDK 52*  
 *Letzte Aktualisierung: 2026-02-26*

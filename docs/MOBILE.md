@@ -2,9 +2,9 @@
 
 Diese Dokumentation beschreibt die Einrichtung, Entwicklung und den Build der KI Tauben Scanner Mobile App für Android und iOS.
 
-**Framework:** React Native + Expo SDK 51
+**Framework:** React Native + Expo SDK 52
 
-**Zielplattformen**: Android (API 21+) und iOS (14+)
+**Zielplattformen**: Android (API 24+) und iOS (14+)
 
 ---
 
@@ -13,12 +13,11 @@ Diese Dokumentation beschreibt die Einrichtung, Entwicklung und den Build der KI
 Die App wurde von **Capacitor** zu **React Native + Expo** migriert.
 
 - **Früher**: Capacitor 8 + React + Vite
-- **Jetzt**: React Native + Expo SDK 51
+- **Jetzt**: React Native 0.76 + Expo SDK 52 (pure Expo, kein Capacitor)
 
 Siehe:
 - [`SETUP.md`](./SETUP.md) - Development Setup
 - [`ARCHITECTURE.md`](./ARCHITECTURE.md) - Architektur-Dokumentation
-- [`../frontend/README.md`](../frontend/README.md) - Frontend Dokumentation
 
 ---
 
@@ -29,8 +28,8 @@ Siehe:
 cd ..
 docker-compose up -d
 
-# 2. Frontend installieren
-cd frontend
+# 2. Mobile App installieren
+cd mobile
 npm install
 
 # 3. Dev Server starten
@@ -43,17 +42,19 @@ npx expo start
 
 ## Tech Stack
 
-| Komponente | Technologie |
-|------------|-------------|
-| Framework | React Native |
-| SDK | Expo SDK 51 |
-| Navigation | React Navigation v7 |
-| UI | React Native Paper (Material Design 3) |
-| State | Zustand + React Query |
-| Storage | MMKV |
-| HTTP | Axios |
-| Camera | expo-camera |
-| Location | expo-location |
+| Komponente | Technologie | Version |
+|------------|-------------|---------|
+| Framework | React Native | 0.76 |
+| SDK | Expo SDK | 52 |
+| Navigation | React Navigation | v7 |
+| UI | React Native Paper | v5 (Material Design 3) |
+| State | Zustand | ^5.x |
+| Server State | React Query | ^5.x |
+| Storage | MMKV | ^2.x |
+| HTTP | Axios | ^1.x |
+| Camera | expo-camera | ~16.0 |
+| Location | expo-location | ~18.0 |
+| Image Picker | expo-image-picker | ~16.0 |
 
 ---
 
@@ -82,10 +83,22 @@ eas build --profile preview
 **Konfiguration** (`eas.json`):
 ```json
 {
-  "cli": { "version": ">= 5.0.0" },
+  "cli": {
+    "version": ">= 5.0.0",
+    "appVersionSource": "remote"
+  },
   "build": {
-    "preview": { "distribution": "internal" },
-    "production": { "distribution": "store" }
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" }
+    },
+    "production": {
+      "android": { "buildType": "apk" }
+    }
   }
 }
 ```
@@ -118,8 +131,24 @@ eas update --channel production --message "Bugfixes"
 {
   "expo": {
     "plugins": [
-      ["expo-camera", { "cameraPermission": "Für Tauben-Scans" }],
-      ["expo-location", { "locationPermission": "Für Standorte" }]
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Tauben Scanner benötigt Zugriff auf die Kamera, um Tauben zu scannen."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Tauben Scanner benötigt Ihren Standort, um Sichtungen zu speichern."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Die App benötigt Zugriff auf Ihre Fotos."
+        }
+      ]
     ]
   }
 }
@@ -133,8 +162,6 @@ eas update --channel production --message "Bugfixes"
 - Bottom Tab Navigator (Hauptnavigation)
 - Native Stack Navigator für Screens
 
-Siehe `../frontend/README.md`
-
 ---
 
 ## State Management
@@ -143,28 +170,28 @@ Siehe `../frontend/README.md`
 - **React Query**: API-Calls mit Caching
 - **MMKV**: Persistenter Storage
 
-Siehe `../frontend/STATE_MANAGEMENT.md`
-
 ---
 
 ## API Client
 
-**Axios mit FormData:**
+**Axios mit Base64:**
 ```typescript
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://api.tauben-scanner.de',
+  baseURL: 'https://api.tauben-scanner.de/api',
   timeout: 30000,
 });
 
-// Bild-Upload
-const formData = new FormData();
-formData.append('photo', { uri, type: 'image/jpeg', name: 'scan.jpg' });
-await api.post('/api/images/match', formData);
+// Bild-Upload als Base64
+const uploadImage = async (base64Image: string) => {
+  const { data } = await api.post('/images/match', {
+    photo: base64Image,
+    threshold: 0.80,
+  });
+  return data;
+};
 ```
-
-Siehe `API.md` für Details.
 
 ---
 
@@ -210,4 +237,4 @@ npx expo run:ios
 
 **Zurück zur [Hauptdokumentation](../README.md)**
 
-*Aktualisiert: Migration zu React Native + Expo SDK 51*
+*Aktualisiert: React Native 0.76 + Expo SDK 52*

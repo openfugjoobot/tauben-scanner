@@ -6,7 +6,7 @@
 [![Docker](https://img.shields.io/badge/Docker-ready-blue.svg)](https://www.docker.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791.svg)](https://www.postgresql.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-3178C6.svg)](https://www.typescriptlang.org/)
-[![Expo](https://img.shields.io/badge/Expo-SDK%2051-000020.svg)](https://expo.dev/)
+[![Expo](https://img.shields.io/badge/Expo-SDK%2052-000020.svg)](https://expo.dev/)
 [![React Native](https://img.shields.io/badge/React%20Native-0.72+-61dafb.svg)](https://reactnative.dev/)
 
 ---
@@ -34,7 +34,7 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 
 **Architektur-Überblick:**
 - React Native App sendet Fotos an Backend
-- Backend extrahiert Embeddings server-seitig (MobileNet-V3)
+- Backend extrahiert Embeddings server-seitig (MobileNet-V2)
 - PostgreSQL mit pgvector speichert 1024-dimensionale Vektoren
 - Cosine Similarity für Bild-Matching
 
@@ -49,13 +49,13 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 ## ✨ Features
 
 ### 🔍 Bilderkennung
-- **KI-basierte Identifikation** mit MobileNet-V3
+- **KI-basierte Identifikation** mit MobileNet-V2
 - **Server-side Embedding-Extraktion** (Backend verarbeitet Fotos)
 - **Cosine Similarity Matching** mit anpassbarem Threshold (0.50-0.99)
 - **Mehrwinkelsupport** durch Speicherung mehrerer Bilder pro Taube
 
 ### 📱 Mobile App
-- **Native Cross-Platform App** via React Native + Expo SDK 51
+- **Native Cross-Platform App** via React Native + Expo SDK 52
 - **Kamera-Zugriff** mit Bilderfassung (expo-camera)
 - **Material Design 3** UI mit React Native Paper
 - **React Navigation v7** für Screen-Navigation
@@ -92,8 +92,8 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 ### Frontend (Mobile App)
 | Technologie | Zweck |
 |-------------|-------|
-| **React Native 0.72+** | Native Mobile UI |
-| **Expo SDK 51** | Development & Build Platform |
+| **React Native 0.76** | Native Mobile UI |
+| **Expo SDK 52** | Development & Build Platform |
 | **TypeScript 5.9** | Typisierung |
 | **React Navigation v7** | Screen Navigation |
 | **React Native Paper v5** | Material Design 3 Komponenten |
@@ -108,7 +108,7 @@ Der **KI Tauben Scanner** ist eine mobile Anwendung, die es ermöglicht, Stadtta
 | **Node.js** | Runtime |
 | **Express.js 5** | Web-Framework |
 | **TypeScript 5.9** | Typisierung |
-| **MobileNet-V3** | Server-side Feature Extraction |
+| **MobileNet-V2** | Server-side Feature Extraction |
 | **pg 8** | PostgreSQL Client |
 | **Helmet** | Security Headers |
 | **CORS** | Cross-Origin Requests (Backend-gesteuert) |
@@ -146,7 +146,7 @@ graph TB
     end
     
     subgraph "Backend API"
-        G[🌐 Express.js API] --> H[MobileNet-V3 Embedding]
+        G[🌐 Express.js API] --> H[MobileNet-V2 Embedding]
         H --> I[1024-d Vector]
         G --> J[/api/pigeons\]
         G --> K[/api/sightings\]
@@ -184,7 +184,7 @@ graph TB
                                                           │
                                                           ▼
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Match-         │◀────│  Cosine Similar. │◀────│  MobileNet-V3   │
+│  Match-         │◀────│  Cosine Similar. │◀────│  MobileNet-V2   │
 │  Ergebnis       │     │  1 - (vec<=>q)  │     │  (Backend)      │
 │  (Navigation)   │     └──────────────────┘     └─────────────────┘
 └─────────────────┘                                          │
@@ -547,7 +547,7 @@ MIT License - siehe [LICENSE](LICENSE) für Details.
 
 ## 🙏 Danksagungen
 
-- **MobileNet-V3** - Für effiziente Feature Extraction
+- **MobileNet-V2** - Für effiziente Feature Extraction
 - **pgvector** - Für Vektor-Suche in PostgreSQL
 - **Expo** - Für React Native Entwicklung & Build Process
 - **React Navigation** - Für Navigation in der App
@@ -566,4 +566,4 @@ Bei Problemen:
 
 **Made with ❤️ by OpenFugjooBot**
 
-*Migration complete: Capacitor → React Native + Expo SDK 51*
+*Migration complete: Capacitor → React Native + Expo SDK 52*

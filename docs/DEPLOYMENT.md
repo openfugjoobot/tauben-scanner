@@ -663,5 +663,5 @@ npx eas whoami
 
 ---
 
-**Deployment updated for**: React Native + Expo SDK 51 + EAS Build  
+**Deployment updated for**: React Native + Expo SDK 52 + EAS Build  
 **Status**: ✅ Production Ready
