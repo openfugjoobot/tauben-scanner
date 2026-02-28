@@ -32,7 +32,7 @@ export default function App() {
     }
     
     // Netzwerk-Status überwachen
-    const unsubscribeNetInfo = NetInfo.addEventListener(state => {
+    const unsubscribeNetInfo = NetInfo.addEventListener((state: { isConnected: boolean | null }) => {
       setOnlineStatus(state.isConnected ?? false);
     });
     

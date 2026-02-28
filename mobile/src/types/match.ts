@@ -1,11 +1,9 @@
+import type { Pigeon } from '../services/api/apiClient.types';
+
 export interface MatchResult {
   success?: boolean;
   confidence?: number;
-  pigeon?: {
-    id: string;
-    name?: string;
-    bandNumber?: string;
-  };
+  pigeon?: Pigeon | null;
   message?: string;
   isNewPigeon?: boolean;
 }
