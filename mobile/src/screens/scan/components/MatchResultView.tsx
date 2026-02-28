@@ -26,39 +26,39 @@ export const MatchResultView: React.FC<MatchResultViewProps> = ({
 }) => {
   const theme = useTheme();
   return (
-    <View style={[styles.container, { backgroundColor: "#fff" }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {result.match ? (
         <>
-          <Text style={styles.title}>Taube erkannt!</Text>
-          <Text style={styles.confidence}>Genauigkeit: {(result.confidence * 100).toFixed(1)}%</Text>
+          <Text style={[styles.title, { color: theme.colors.onSurface }]}＞Taube erkannt!</Text>
+          <Text style={[styles.confidence, { color: theme.colors.primary }]}＞Genauigkeit: {(result.confidence * 100).toFixed(1)}%</Text>
           {result.pigeon && (
             <TouchableOpacity
-              style={[styles.button, styles.primaryButton]}
+              style={[styles.button, styles.primaryButton, { backgroundColor: theme.colors.primary }]}
               onPress={() => result.pigeon?.id && onViewPigeon(result.pigeon.id)}
             >
-              <Text style={styles.buttonText}>Details ansehen</Text>
+              <Text style={[styles.buttonText, { color: theme.colors.onPrimary }]}＞Details ansehen</Text>
             </TouchableOpacity>
           )}
         </>
       ) : (
         <>
-          <Text style={styles.title}>Kein Treffer</Text>
-          <Text style={styles.subtitle}>Diese Taube konnte nicht in der Datenbank gefunden werden.</Text>
+          <Text style={[styles.title, { color: theme.colors.onSurface }]}＞Kein Treffer</Text>
+          <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}＞Diese Taube konnte nicht in der Datenbank gefunden werden.</Text>
         </>
       )}
 
       <TouchableOpacity
-        style={[styles.button, styles.secondaryButton]}
+        style={[styles.button, styles.secondaryButton, { borderColor: theme.colors.primary }]}
         onPress={onScanAgain}
       >
-        <Text style={styles.secondaryButtonText}>Erneut scannen</Text>
+        <Text style={[styles.secondaryButtonText, { color: theme.colors.primary }]}＞Erneut scannen</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.linkButton}
         onPress={onGoHome}
       >
-        <Text style={styles.linkText}>Zurück zum Dashboard</Text>
+        <Text style={[styles.linkText, { color: theme.colors.onSurfaceVariant }]}＞Zurück zum Dashboard</Text>
       </TouchableOpacity>
     </View>
   );
@@ -70,23 +70,20 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: "center",
     alignItems: "center",
-      },
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 8,
-    color: "#333",
   },
   subtitle: {
     fontSize: 16,
     textAlign: "center",
     marginBottom: 24,
-    color: "#666",
   },
   confidence: {
     fontSize: 16,
     marginBottom: 32,
-    color: "#2196F3",
   },
   button: {
     width: "100%",
@@ -96,19 +93,15 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   primaryButton: {
-    backgroundColor: "#2196F3",
   },
   secondaryButton: {
-        borderWidth: 1,
-    borderColor: "#2196F3",
+    borderWidth: 1,
   },
   buttonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },
   secondaryButtonText: {
-    color: "#2196F3",
     fontSize: 16,
     fontWeight: "600",
   },
@@ -116,7 +109,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   linkText: {
-    color: "#666",
     fontSize: 14,
   },
 });

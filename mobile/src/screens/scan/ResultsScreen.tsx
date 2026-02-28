@@ -26,11 +26,11 @@ interface ExtendedMatchResult {
   isNewPigeon: boolean;
 }
 
-const getConfidenceColor = (confidence: number): string => {
-  if (confidence >= 80) return '#4CAF50'; // Grün
-  if (confidence >= 60) return '#FFC107'; // Gelb
-  if (confidence >= 40) return '#FF9800'; // Orange
-  return '#F44336'; // Rot
+const getConfidenceColor = (confidence: number, isDark: boolean): string => {
+  if (confidence >= 80) return isDark ? '#4ADE80' : '#22C55E'; // Success
+  if (confidence >= 60) return isDark ? '#FBBF24' : '#F59E0B'; // Warning
+  if (confidence >= 40) return isDark ? '#FB923C' : '#F97316'; // Orange variant
+  return isDark ? '#F87171' : '#EF4444'; // Error
 };
 
 const getConfidenceLabel = (confidence: number): string => {
@@ -55,7 +55,8 @@ export const ResultsScreen: React.FC = () => {
     message: 'Keine Übereinstimmung gefunden'
   };
 
-  const confidenceColor = getConfidenceColor(result.confidence);
+  const isDark = theme.dark ?? false;
+  const confidenceColor = getConfidenceColor(result.confidence, isDark);
   const confidenceLabel = getConfidenceLabel(result.confidence);
 
   const handleViewDetails = () => {
@@ -81,7 +82,7 @@ export const ResultsScreen: React.FC = () => {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text variant="headlineMedium" style={styles.title}>
+          <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
             {result.pigeon?.name ? 'Taube gefunden!' : 'Keine Übereinstimmung'}
           </Text>
         </View>
@@ -90,10 +91,10 @@ export const ResultsScreen: React.FC = () => {
         <Card style={[styles.confidenceCard, { borderColor: confidenceColor }]}>
           <Card.Content>
             <View style={styles.confidenceHeader}>
-              <Text variant="titleMedium">Übereinstimmung</Text>
+              <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>Übereinstimmung</Text>
               <Chip
                 style={[styles.confidenceChip, { backgroundColor: confidenceColor }]}
-                textStyle={{ color: '#fff', fontWeight: 'bold' }}
+                textStyle={{ color: theme.colors.onPrimary, fontWeight: 'bold' }}
               >
                 {Math.round(result.confidence)}%
               </Chip>
@@ -118,7 +119,7 @@ export const ResultsScreen: React.FC = () => {
         {result.pigeon && (
           <Card style={styles.detailsCard}>
             <Card.Content>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                 Gefundene Taube
               </Text>
 
@@ -136,7 +137,7 @@ export const ResultsScreen: React.FC = () => {
                 <Text variant="bodyMedium" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>
                   Name:
                 </Text>
-                <Text variant="bodyLarge" style={styles.detailValue}>
+                <Text variant="bodyLarge" style={[styles.detailValue, { color: theme.colors.onSurface }]}>
                   {result.pigeon.name || 'Unbekannt'}
                 </Text>
               </View>
@@ -145,7 +146,7 @@ export const ResultsScreen: React.FC = () => {
                 <Text variant="bodyMedium" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>
                   Ring-Nr:
                 </Text>
-                <Text variant="bodyLarge" style={styles.detailValue}>
+                <Text variant="bodyLarge" style={[styles.detailValue, { color: theme.colors.onSurface }]}>
                   {result.pigeon.bandNumber || 'Keine'}
                 </Text>
               </View>
@@ -154,17 +155,17 @@ export const ResultsScreen: React.FC = () => {
                 <Text variant="bodyMedium" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>
                   ID:
                 </Text>
-                <Text variant="bodyMedium" style={[styles.detailValue, styles.idText]}>
+                <Text variant="bodyMedium" style={[styles.detailValue, styles.idText, { color: theme.colors.onSurfaceVariant }]}>
                   #{result.pigeon.id}
                 </Text>
               </View>
 
               {result.pigeon.description && (
-                <View style={styles.descriptionContainer}>
+                <View style={[styles.descriptionContainer, { borderTopColor: theme.colors.outline }]}>
                   <Text variant="bodyMedium" style={[styles.detailLabel, { color: theme.colors.onSurfaceVariant }]}>
                     Beschreibung:
                   </Text>
-                  <Text variant="bodySmall" style={styles.description}>
+                  <Text variant="bodySmall" style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
                     {result.pigeon.description}
                   </Text>
                 </View>
@@ -175,9 +176,12 @@ export const ResultsScreen: React.FC = () => {
 
         {/* Kein Match */}
         {!result.pigeon && (
-          <Card style={styles.noMatchCard}>
+          <Card style={[styles.noMatchCard, { 
+            backgroundColor: isDark ? theme.colors.surface : '#FFF8E1',
+            borderColor: isDark ? theme.colors.outline : '#FFE0B2'
+          }]}>
             <Card.Content>
-              <Text variant="titleMedium" style={{ textAlign: 'center', marginBottom: 8 }}>
+              <Text variant="titleMedium" style={{ textAlign: 'center', marginBottom: 8, color: theme.colors.onSurface }}>
                 🤔 Keine passende Taube
               </Text>
               <Text variant="bodyMedium" style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant }}>
@@ -189,7 +193,7 @@ export const ResultsScreen: React.FC = () => {
       </ScrollView>
 
       {/* Action Buttons */}
-      <View style={[styles.buttonContainer, { backgroundColor: theme.colors.surface }]}>
+      <View style={[styles.buttonContainer, { backgroundColor: theme.colors.surface, borderTopColor: theme.colors.outline }]}>
         {result.pigeon && (
           <Button
             mode="contained"
@@ -239,7 +243,6 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     fontWeight: '600',
-    color: '#333',
   },
   confidenceCard: {
     marginHorizontal: 16,
@@ -274,7 +277,6 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: 16,
-    color: '#444',
     fontWeight: '600',
   },
   pigeonImageContainer: {
@@ -299,36 +301,29 @@ const styles = StyleSheet.create({
   detailValue: {
     flex: 1,
     fontWeight: '600',
-    color: '#333',
   },
   idText: {
-    color: '#888',
     fontSize: 13,
   },
   descriptionContainer: {
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
   },
   description: {
     marginTop: 8,
     lineHeight: 22,
-    color: '#555',
   },
   noMatchCard: {
     marginHorizontal: 16,
     marginBottom: 16,
-    backgroundColor: '#FFF8E1',
     borderWidth: 1,
-    borderColor: '#FFE0B2',
     elevation: 2,
   },
   buttonContainer: {
     padding: 16,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
   },
   primaryButton: {
     marginBottom: 8,
