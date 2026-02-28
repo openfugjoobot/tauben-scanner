@@ -30,6 +30,9 @@ services:
       PORT: 3000
       DATABASE_URL: postgresql://tauben:${DB_PASSWORD}@postgres:5432/tauben_scanner
       CORS_ORIGINS: "https://tauben-scanner.fugjoo.duckdns.org,http://localhost:5173,http://localhost"
+      UPLOADS_DIR: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
     ports:
       - "3000:3000"
     depends_on:
@@ -64,3 +67,4 @@ networks:
 volumes:
   postgres_data:
   minio_data:
+  uploads_data:
