@@ -44,18 +44,6 @@
     },
     "plugins": [
       [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#FFFFFF",
-          "image": "./assets/splash-icon.png",
-          "resizeMode": "contain",
-          "dark": {
-            "backgroundColor": "#FFFFFF",
-            "image": "./assets/splash-icon.png"
-          }
-        }
-      ],
-      [
         "expo-camera",
         {
           "cameraPermission": "Tauben Scanner benötigt Zugriff auf Ihre Kamera, um Tauben zu scannen."

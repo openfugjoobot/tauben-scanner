@@ -1,18 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useColorScheme, StatusBar, View, StyleSheet } from 'react-native';
+import { useColorScheme, StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
 import NetInfo from '@react-native-community/netinfo';
-import * as SplashScreen from 'expo-splash-screen';
 import { queryClient } from './src/services/queryClient';
 import { paperLightTheme, paperDarkTheme } from './src/theme/paperTheme';
 import { migrateStorageData, useAppStore } from './src/stores';
 import { RootNavigator } from './src/navigation';
 import { usePermissions } from './src/hooks/usePermissions';
-
-// Prevent native splash screen from hiding automatically
-SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
@@ -38,9 +34,6 @@ export default function App() {
         setOnlineStatus(state.isConnected ?? false);
       });
       
-      // Kurze Verzögerung für bessere UX
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       return () => {
         unsubscribeNetInfo();
       };
@@ -52,8 +45,6 @@ export default function App() {
   useEffect(() => {
     initializeApp().then(cleanup => {
       setIsReady(true);
-      // Hide splash screen after app is ready
-      SplashScreen.hideAsync();
       return cleanup;
     });
   }, [initializeApp]);
