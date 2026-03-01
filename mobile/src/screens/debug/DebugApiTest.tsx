@@ -22,7 +22,7 @@ export const DebugApiTest: React.FC = () => {
     setManualTest(null);
     
     try {
-      const result = await apiClient.get('/pigeons?page=1&limit=5');
+      const result = await apiClient.get('/api/pigeons?page=1&limit=5');
       console.log('Manual test success:', result);
       setManualTest(result);
     } catch (err: any) {

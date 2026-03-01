@@ -13,7 +13,7 @@ export const useMatchImage = () => {
   
   return useMutation({
     mutationFn: (data: MatchRequest) =>
-      apiClient.post<MatchResponse>('/images/match', {
+      apiClient.post<MatchResponse>('/api/images/match', {
         photo: data.image,
         threshold: data.threshold
       }),

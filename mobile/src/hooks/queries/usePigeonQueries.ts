@@ -31,7 +31,7 @@ export const usePigeons = (params: PaginationParams = {}) => {
         limit: String(limit),
         ...(search && { search }),
       });
-      return apiClient.get<PigeonsResponse>(`/pigeons?${searchParams}`);
+      return apiClient.get<PigeonsResponse>(`/api/pigeons?${searchParams}`);
     },
   });
 };
@@ -40,7 +40,7 @@ export const usePigeons = (params: PaginationParams = {}) => {
 export const usePigeon = (id: string) => {
   return useQuery({
     queryKey: pigeonKeys.detail(id),
-    queryFn: () => apiClient.get<Pigeon>(`/pigeons/${id}`),
+    queryFn: () => apiClient.get<Pigeon>(`/api/pigeons/${id}`),
     enabled: !!id,
   });
 };
@@ -51,7 +51,7 @@ export const useCreatePigeon = () => {
   
   return useMutation({
     mutationFn: (data: CreatePigeonRequest) =>
-      apiClient.post<Pigeon>('/pigeons', data),
+      apiClient.post<Pigeon>('/api/pigeons', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: pigeonKeys.lists() });
     },
@@ -64,7 +64,7 @@ export const useUpdatePigeon = () => {
   
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<CreatePigeonRequest> }) =>
-      apiClient.put<Pigeon>(`/pigeons/${id}`, data),
+      apiClient.put<Pigeon>(`/api/pigeons/${id}`, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: pigeonKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: pigeonKeys.lists() });
@@ -77,7 +77,7 @@ export const useDeletePigeon = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (id: string) => apiClient.delete(`/pigeons/${id}`),
+    mutationFn: (id: string) => apiClient.delete(`/api/pigeons/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: pigeonKeys.lists() });
     },
