@@ -177,8 +177,8 @@ export const ResultsScreen: React.FC = () => {
         {/* Kein Match */}
         {!result.pigeon && (
           <Card style={[styles.noMatchCard, { 
-            backgroundColor: isDark ? theme.colors.surface : '#FFF8E1',
-            borderColor: isDark ? theme.colors.outline : '#FFE0B2'
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.outline
           }]}>
             <Card.Content>
               <Text variant="titleMedium" style={{ textAlign: 'center', marginBottom: 8, color: theme.colors.onSurface }}>

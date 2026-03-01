@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, ActivityIndicator, useColorScheme, StatusBar, Alert, Linking } from 'react-native';
+import { View, ActivityIndicator, useColorScheme, StatusBar, Alert, Linking, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider, Text } from 'react-native-paper';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
+import * as NavigationBar from 'expo-navigation-bar';
 import { queryClient } from './src/services/queryClient';
 import { paperLightTheme, paperDarkTheme } from './src/theme/paperTheme';
 import { migrateStorageData, useAppStore } from './src/stores';
@@ -25,6 +26,15 @@ export default function App() {
   const { setOnlineStatus } = useAppStore();
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? paperDarkTheme : paperLightTheme;
+
+  // Android Navigation Bar styling
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      NavigationBar.setBackgroundColorAsync(theme.colors.background);
+      NavigationBar.setButtonStyleAsync(colorScheme === "dark" ? "light" : "dark");
+    }
+  }, [theme, colorScheme]);
+
   
   // Camera permission hook
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();

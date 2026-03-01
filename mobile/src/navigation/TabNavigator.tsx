@@ -38,6 +38,9 @@ export const TabNavigator: React.FC = () => {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.outline,
         },
+        sceneContainerStyle: {
+          backgroundColor: theme.colors.background,
+        },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '500',
