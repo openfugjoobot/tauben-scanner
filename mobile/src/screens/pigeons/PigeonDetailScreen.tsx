@@ -68,12 +68,12 @@ export const PigeonDetailScreen: React.FC = () => {
         
         <PigeonInfoCard pigeon={pigeon} />
         
-        {/* @ts-ignore - Sightings are optional in Type but may exist in API */}
+        
         {pigeon.sightings?.length > 0 && (
           <>
-            {/* @ts-ignore */}
+            
             <PigeonMap sightings={pigeon.sightings} />
-            {/* @ts-ignore */}
+            
             <SightingsList sightings={pigeon.sightings} />
           </>
         )}

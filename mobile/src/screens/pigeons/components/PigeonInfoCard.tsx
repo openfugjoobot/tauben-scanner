@@ -3,9 +3,8 @@ import { View, StyleSheet } from 'react-native';
 import { Card } from '../../../components/atoms/Card';
 import { Text } from '../../../components/atoms/Text';
 import { Icon } from '../../../components/atoms/Icon';
-import { palette } from '../../../theme/colors';
 import { Pigeon } from '../../../services/api/apiClient.types';
-import { useTheme } from "../../../theme";
+import { useTheme } from '../../../theme';
 
 interface PigeonInfoCardProps {
   pigeon: Pigeon;
@@ -17,11 +16,12 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
     try {
       if (!dateString) return 'Unbekannt';
       const date = new Date(dateString);
-      return date.toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      });
+      return date.toLocaleDateString('de-DE',
+        {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
     } catch (error) {
       return dateString || 'Unbekannt';
     }
@@ -35,18 +35,6 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
 
       <View style={styles.infoRow}>
         <View style={styles.infoItem}>
-          <Icon name="information" size={20} color={theme.colors.onSurfaceVariant} />
-          <View style={styles.infoText}>
-            <Text variant="caption" style={styles.label}>
-              Beschreibung
-            </Text>
-            <Text variant="body" numberOfLines={2}>
-              {pigeon.description || 'Keine'}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.infoItem}>
           <Icon name="eye" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
             <Text variant="caption" style={styles.label}>
@@ -57,9 +45,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
             </Text>
           </View>
         </View>
-      </View>
 
-      <View style={styles.infoRow}>
         <View style={styles.infoItem}>
           <Icon name="counter" size={20} color={theme.colors.onSurfaceVariant} />
           <View style={styles.infoText}>
@@ -68,18 +54,6 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
             </Text>
             <Text variant="body">
               {pigeon.sightingsCount}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.infoItem}>
-          <Icon name="calendar" size={20} color={theme.colors.onSurfaceVariant} />
-          <View style={styles.infoText}>
-            <Text variant="caption" style={styles.label}>
-              Erstgesichtung
-            </Text>
-            <Text variant="body">
-              {formatDate(pigeon.firstSeen)}
             </Text>
           </View>
         </View>
@@ -96,11 +70,9 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 16,
-    /* color handled inline */
   },
   infoRow: {
     flexDirection: 'row',
-    marginBottom: 16,
   },
   infoItem: {
     flex: 1,
@@ -111,7 +83,6 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   label: {
-    /* color handled inline */
     textTransform: 'uppercase',
   },
 });

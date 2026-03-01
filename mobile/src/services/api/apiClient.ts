@@ -114,6 +114,35 @@ class ApiClient {
       delete transformed.owner_id;
     }
 
+    // Transform sightings array: timestamp -> date, snake_case -> camelCase
+    if (Array.isArray(pigeon.sightings)) {
+      transformed.sightings = pigeon.sightings.map((sighting: any) => {
+        const s = { ...sighting };
+        // Backend sends 'timestamp', component expects 'date'
+        if (sighting.timestamp !== undefined) {
+          s.date = sighting.timestamp;
+          delete s.timestamp;
+        }
+        // Transform location properties if needed
+        if (sighting.location_lat !== undefined) {
+          s.location = s.location || {};
+          s.location.lat = sighting.location_lat;
+          delete s.location_lat;
+        }
+        if (sighting.location_lng !== undefined) {
+          s.location = s.location || {};
+          s.location.lng = sighting.location_lng;
+          delete s.location_lng;
+        }
+        if (sighting.location_name !== undefined) {
+          s.location = s.location || {};
+          s.location.address = sighting.location_name;
+          delete s.location_name;
+        }
+        return s;
+      });
+    }
+
     return transformed;
   }
 
