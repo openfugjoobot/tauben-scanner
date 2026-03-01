@@ -24,8 +24,8 @@ export const PigeonListScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
-  const debouncedSearch = useDebounce(searchQuery, 700);
-  const effectiveSearch = debouncedSearch.length >= 2 ? debouncedSearch : '';
+  const debouncedSearch = useDebounce(searchQuery, 500);
+  const effectiveSearch = debouncedSearch;
 
   const { data, isLoading, isFetching, refetch, isError, error } = usePigeons({
     page,
@@ -97,6 +97,8 @@ export const PigeonListScreen: React.FC = () => {
         <Card style={styles.searchCard}>
           <Input
             placeholder="Suchen..."
+          blurOnSubmit={false}
+          returnKeyType="search"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -124,6 +126,8 @@ export const PigeonListScreen: React.FC = () => {
       <Card style={styles.searchCard}>
         <Input
           placeholder="Suchen..."
+          blurOnSubmit={false}
+          returnKeyType="search"
           value={searchQuery}
           onChangeText={setSearchQuery}
         />

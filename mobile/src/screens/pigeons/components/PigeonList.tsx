@@ -36,6 +36,8 @@ export const PigeonList: React.FC<PigeonListProps> = ({
       contentContainerStyle={styles.listContent}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
       ListFooterComponent={
         isLoadingMore ? (
           <View style={styles.loaderContainer}>
