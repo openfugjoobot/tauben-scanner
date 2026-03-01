@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useRootNavigation } from '../../../navigation/hooks';
 import { useMatchImage } from '../../../hooks/queries';
 import { useScanStore } from '../../../stores/scans';
 import { useSettingsStore } from '../../../stores/settings';
@@ -25,7 +25,7 @@ interface ScanFlowState {
 }
 
 export const useScanFlow = () => {
-  const navigation = useNavigation();
+  const navigation = useRootNavigation();
   const { saveScan } = useScanStore();
   const { matchThreshold } = useSettingsStore();
   const matchMutation = useMatchImage();
@@ -126,17 +126,18 @@ export const useScanFlow = () => {
   }, []);
 
   const navigateToPigeon = useCallback((pigeonId: string) => {
-    // @ts-ignore - navigation type complexity
-    navigation.navigate('PigeonsFlow', {
-      screen: 'PigeonDetail',
-      params: { pigeonId },
+    navigation.navigate('MainTabs', {
+      screen: 'PigeonsFlow',
+      params: {
+        screen: 'PigeonDetail',
+        params: { pigeonId },
+      },
     });
   }, [navigation]);
 
   // ADDED: Navigate to NewPigeon with photo from scan
   const navigateToNewPigeon = useCallback(() => {
     if (!state.capturedPhoto?.uri) return;
-    // @ts-ignore - navigation type complexity
     navigation.navigate('MainTabs', {
       screen: 'PigeonsFlow',
       params: {

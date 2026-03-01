@@ -39,7 +39,7 @@ export const HomeScreen: React.FC = () => {
   };
 
   const handleAddPigeonPress = () => {
-    navigation.navigate('PigeonsFlow', { screen: 'NewPigeon' });
+    navigation.navigate('PigeonsFlow', { screen: 'NewPigeon', params: {} });
   };
 
   return (

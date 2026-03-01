@@ -5,7 +5,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
-import { useRootNavigation } from '../../navigation/hooks';
+import { usePigeonsNavigation } from '../../navigation/hooks';
 import { Text } from '../../components/atoms/Text';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
@@ -18,7 +18,7 @@ import { useTheme } from '../../theme';
 import { spacing } from '../../theme/spacing';
 
 export const PigeonListScreen: React.FC = () => {
-  const navigation = useRootNavigation();
+  const navigation = usePigeonsNavigation();
   const theme = useTheme();
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,8 +33,6 @@ export const PigeonListScreen: React.FC = () => {
     search: effectiveSearch || undefined,
   });
 
-  // DEBUG: Log data state
-  console.log('PigeonList data:', data, 'isLoading:', isLoading, 'isError:', isError, 'error:', error);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -57,7 +55,7 @@ export const PigeonListScreen: React.FC = () => {
   );
 
   const handleAddPigeon = useCallback(() => {
-    navigation.navigate('NewPigeon');
+    navigation.navigate({ name: 'NewPigeon', params: {} });
   }, [navigation]);
 
   // Loading state
