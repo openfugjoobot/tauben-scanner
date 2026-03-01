@@ -4,8 +4,10 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { config } from 'dotenv';
 import { join } from 'path';
-import { pool } from './config/database';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { apiRateLimiter, uploadRateLimiter } from './middleware/rateLimit';
+import { validateApiKey, optionalAuth } from './middleware/auth';
+import healthRoutes from './routes/health';
 import pigeonRoutes from './routes/pigeons';
 import imageRoutes from './routes/images';
 import sightingRoutes from './routes/sightings';
@@ -16,13 +18,12 @@ config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Uploads directory
 const UPLOADS_DIR = process.env.UPLOADS_DIR || join(process.cwd(), 'uploads');
 
-// Middleware
+// Security middleware
 app.use(helmet());
 
-// CORS configuration - restrict to known origins
+// CORS configuration
 const corsOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
   : [
@@ -34,8 +35,6 @@ const corsOrigins = process.env.CORS_ORIGINS
     'http://localhost:4200'
   ];
 
-// CORS - Allow mobile apps and configured origins
-// Allow null origin (some mobile WebViews) and all configured origins
 app.use(cors({
   origin: function(origin, callback) {
     const allowedOrigins = [
@@ -45,56 +44,42 @@ app.use(cors({
     ];
     
     if (!origin || allowedOrigins.includes(origin)) {
-      // Reflect the origin back - this is important for CORS
       callback(null, origin || '*');
     } else {
-      console.log('⚠️ CORS blocked:', origin);
+      console.log('CORS blocked:', origin);
       callback(new Error('Not allowed'), false);
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Requested-With', 'Accept'],
   optionsSuccessStatus: 204,
   preflightContinue: false
 }));
 
+// Logging
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 
-// Static file serving for uploads (before API routes)
+// Static file serving for uploads
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-// Routes
+// Health check routes (before rate limiting and auth)
+app.use('/health', healthRoutes);
+
+// Rate limiting for API routes
+app.use('/api', apiRateLimiter);
+app.use('/api/images', uploadRateLimiter);
+
+// API authentication (skip if no API_KEY configured, for backward compatibility)
+if (process.env.API_KEY) {
+  app.use('/api', validateApiKey);
+}
+
+// API Routes
 app.use('/api/pigeons', pigeonRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/sightings', sightingRoutes);
-
-// Health check endpoint
-app.get('/health', async (req, res) => {
-  try {
-    // Test database connection
-    const client = await pool.connect();
-    client.release();
-    
-    res.status(200).json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      services: {
-        database: 'connected',
-        storage: 'connected',
-        embedding_model: 'loaded'
-      }
-    });
-  } catch (error) {
-    console.error('Health check failed:', error);
-    res.status(503).json({
-      status: 'unhealthy',
-      error: 'DATABASE_CONNECTION_FAILED',
-      message: 'Could not connect to database'
-    });
-  }
-});
 
 // Error handling middleware
 app.use(errorHandler);
