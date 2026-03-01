@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Share, Image, Alert } from 'react-native';
-import { useRootNavigation } from '../../.../.../navigation/hooks';
+import { useRootNavigation } from '../../../navigation/hooks';
 import { Text } from '../../../components/atoms/Text';
 import { Icon } from '../../../components/atoms/Icon';
 import { useTheme } from '../../../theme';

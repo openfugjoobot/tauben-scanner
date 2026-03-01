@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { useTabNavigation } from '../../.../navigation/hooks';
+import { useTabNavigation } from '../../navigation/hooks';
 import { Text } from '../../components/atoms/Text';
 import { OfflineBanner } from '../../components/molecules/OfflineBanner';
 import { StatsCard } from './components/StatsCard';

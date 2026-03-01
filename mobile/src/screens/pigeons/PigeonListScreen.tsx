@@ -5,7 +5,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
-import { useRootNavigation } from '../../.../navigation/hooks';
+import { useRootNavigation } from '../../navigation/hooks';
 import { Text } from '../../components/atoms/Text';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
