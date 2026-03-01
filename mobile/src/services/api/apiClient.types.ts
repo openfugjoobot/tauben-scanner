@@ -6,6 +6,17 @@ export type ApiErrorCode =
   | 'SERVER_ERROR'
   | 'UNKNOWN_ERROR';
 
+export interface Sighting {
+  id: string;
+  date: string;
+  location: {
+    lat: number;
+    lng: number;
+    address?: string;
+  };
+  notes?: string;
+}
+
 export interface ApiError {
   code: ApiErrorCode;
   message: string;
@@ -24,6 +35,7 @@ export interface Pigeon {
   lastSeen?: string;
   createdAt: string;
   updatedAt: string;
+  sightings?: Sighting[];
 }
 
 export interface MatchResponse {
