@@ -169,7 +169,7 @@ export const SettingsScreen: React.FC = () => {
       
       {showSaved && (
         <View style={[styles.savedBanner, { backgroundColor: theme.colors.success as string }]}>
-          <Text variant="caption" style={{ color: '#fff', textAlign: 'center' }}>
+          <Text variant="caption" style={{ color: theme.colors.onPrimary, textAlign: 'center' }}>
             Gespeichert!
           </Text>
         </View>
