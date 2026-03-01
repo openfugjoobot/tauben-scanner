@@ -6,28 +6,85 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://192.168.1.100:3000/api",
+        "EXPO_PUBLIC_ENABLE_DEBUG_MODE": "true",
+        "EXPO_PUBLIC_ENABLE_OFFLINE_MODE": "true"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://staging.tauben-scanner.example.com/api",
+        "EXPO_PUBLIC_ENABLE_DEBUG_MODE": "false",
+        "EXPO_PUBLIC_ENABLE_OFFLINE_MODE": "true"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "preview-ios": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://staging.tauben-scanner.example.com/api",
+        "EXPO_PUBLIC_ENABLE_DEBUG_MODE": "false"
+      },
+      "ios": {
+        "simulator": false
+      }
+    },
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.tauben-scanner.example.com/api",
+        "EXPO_PUBLIC_ENABLE_DEBUG_MODE": "false",
+        "EXPO_PUBLIC_ENABLE_OFFLINE_MODE": "true"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "simulator": false
+      }
+    },
+    "production-apk": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.tauben-scanner.example.com/api",
+        "EXPO_PUBLIC_ENABLE_DEBUG_MODE": "false"
+      },
+      "android": {
+        "buildType": "apk"
+      }
     },
     "debug": {
       "distribution": "internal",
       "android": {
         "buildType": "apk",
         "gradleCommand": "assembleDebug"
-      }
-    },
-    "preview": {
-      "distribution": "internal",
-      "android": {
-        "buildType": "apk"
-      }
-    },
-    "production": {
-      "android": {
-        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./service-account.json",
+        "track": "internal"
+      },
+      "ios": {
+        "ascAppId": "1234567890",
+        "ascTeamId": "TEAM123",
+        "ascApiKeyPath": "./AuthKey.p8",
+        "ascApiKeyIssuerId": "ISSUER123"
+      }
+    }
   }
 }

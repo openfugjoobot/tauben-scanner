@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Slider } from '@miblanchard/react-native-slider';
+import type { CameraType } from 'expo-camera';
+import { Text } from '../../atoms/Text';
 import { useTheme } from '../../../theme';
 
 interface CameraControlsProps {
@@ -11,7 +13,8 @@ interface CameraControlsProps {
   onCapture: () => void;
   isCapturing: boolean;
   zoom: number;
-  onZoomChange: (zoom: number) => void;
+  onZoomChange: (zoom: number | number[]) => void;
+  cameraType?: CameraType;
 }
 
 export const CameraControls: React.FC<CameraControlsProps> = ({
@@ -22,6 +25,7 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
   isCapturing,
   zoom,
   onZoomChange,
+  cameraType = 'back',
 }) => {
   const theme = useTheme();
 
@@ -36,48 +40,90 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
     }
   };
 
+  // Calculate zoom display value (0.1x to 2.0x)
+  const zoomDisplayValue = Math.round((0.1 + zoom * 1.9) * 10) / 10;
+  const zoomPercent = Math.round(zoom * 100);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.zoomContainer}>
-        <MaterialCommunityIcons name="magnify-minus" size={20} color="white" />
-        <View style={styles.sliderWrapper}>
-          <Slider
-            value={zoom}
-            onValueChange={(value) => onZoomChange(Array.isArray(value) ? value[0] : value)}
-            minimumValue={0}
-            maximumValue={1} // Expo Zoom scales 0 to 1 (0 = wide, 1 = max zoom)
-            step={0.01}
-            thumbTintColor="white"
-            minimumTrackTintColor="white"
-            maximumTrackTintColor="rgba(255,255,255,0.3)"
+    <View style={styles.container} pointerEvents="auto">
+      {/* Camera Type Indicator */}
+      <View style={styles.cameraTypeContainer} pointerEvents="auto">
+        <View style={styles.cameraTypeBadge}>
+          <MaterialCommunityIcons
+            name={cameraType === 'back' ? 'camera-rear' : 'camera-front'}
+            size={16}
+            color="white"
           />
+          <Text style={styles.cameraTypeText}>
+            {cameraType === 'back' ? 'Rückseite' : 'Frontkamera'}
+          </Text>
         </View>
-        <MaterialCommunityIcons name="magnify-plus" size={20} color="white" />
+        <TouchableOpacity style={styles.cameraTypeButton} onPress={onToggleCamera}>
+          <MaterialCommunityIcons name="camera-flip" size={24} color="white" />
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.buttonsRow}>
+      {/* Zoom Slider with Indicator */}
+      <View style={styles.zoomContainer} pointerEvents="auto">
+        <View style={styles.zoomLabelContainer}>
+          <Text style={styles.zoomLabel}>{zoomDisplayValue.toFixed(1)}x</Text>
+          <Text style={styles.zoomPercentLabel}>({zoomPercent}%)</Text>
+        </View>
+        <View style={styles.sliderRow}>
+          <MaterialCommunityIcons name="magnify-minus" size={20} color="white" />
+          <View style={styles.sliderWrapper}>
+            <Slider
+              value={zoom}
+              onValueChange={onZoomChange}
+              minimumValue={0}
+              maximumValue={1}
+              step={0.01}
+              thumbTintColor="white"
+              minimumTrackTintColor="white"
+              maximumTrackTintColor="rgba(255,255,255,0.3)"
+            />
+          </View>
+          <MaterialCommunityIcons name="magnify-plus" size={20} color="white" />
+        </View>
+      </View>
+
+      {/* Main Controls Row */}
+      <View style={styles.buttonsRow} pointerEvents="auto">
+        {/* Flash Toggle */}
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, styles.flashButton]}
           onPress={onToggleFlash}
           disabled={isCapturing}
         >
           <MaterialCommunityIcons name={getFlashIcon()} size={28} color="white" />
         </TouchableOpacity>
 
+        {/* Capture Button */}
         <TouchableOpacity
-          style={[styles.captureButton, isCapturing && styles.disabledButton]}
+          style={[
+            styles.captureButton, 
+            isCapturing && styles.disabledButton,
+            // Platform-specific elevation for Android
+            Platform.OS === 'android' && { elevation: 5 }
+          ]}
           onPress={onCapture}
           disabled={isCapturing}
+          activeOpacity={0.7}
         >
           <View style={styles.captureInner} />
         </TouchableOpacity>
 
+        {/* Camera Flip (also shown here for convenience) */}
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, styles.flipButton]}
           onPress={onToggleCamera}
           disabled={isCapturing}
         >
-          <MaterialCommunityIcons name="camera-flip" size={28} color="white" />
+          <MaterialCommunityIcons 
+            name={cameraType === 'back' ? 'camera-rear' : 'camera-front-variant'} 
+            size={28} 
+            color="white" 
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -89,20 +135,75 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     paddingHorizontal: 20,
     backgroundColor: 'transparent',
+    // Android elevation for the entire control panel
+    elevation: Platform.OS === 'android' ? 2 : 0,
   },
-  zoomContainer: {
+  // Camera Type Indicator
+  cameraTypeContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  cameraTypeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 12,
+  },
+  cameraTypeText: {
+    color: 'white',
+    fontSize: 14,
+    marginLeft: 6,
+    fontWeight: '500',
+  },
+  cameraTypeButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: Platform.OS === 'android' ? 2 : 0,
+  },
+  // Zoom Controls
+  zoomContainer: {
     alignItems: 'center',
     marginBottom: 20,
     backgroundColor: 'rgba(0,0,0,0.3)',
     borderRadius: 20,
     paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingVertical: 10,
+    elevation: Platform.OS === 'android' ? 2 : 0,
+  },
+  zoomLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 4,
+  },
+  zoomLabel: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  zoomPercentLabel: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    marginLeft: 4,
+  },
+  sliderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
   },
   sliderWrapper: {
     flex: 1,
     marginHorizontal: 10,
   },
+  // Main Controls
   buttonsRow: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -115,6 +216,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
+    // Android elevation for tappability
+    elevation: Platform.OS === 'android' ? 3 : 0,
+    zIndex: 2,
+  },
+  flashButton: {
+    elevation: Platform.OS === 'android' ? 3 : 0,
+  },
+  flipButton: {
+    elevation: Platform.OS === 'android' ? 3 : 0,
   },
   captureButton: {
     width: 80,
@@ -125,6 +235,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.2)',
+    elevation: Platform.OS === 'android' ? 5 : 0,
+    zIndex: 3,
   },
   captureInner: {
     width: 60,
