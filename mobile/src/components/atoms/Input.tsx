@@ -19,6 +19,8 @@ interface InputProps {
   disabled?: boolean;
   multiline?: boolean;
   numberOfLines?: number;
+  blurOnSubmit?: boolean;
+  returnKeyType?: 'done' | 'go' | 'next' | 'search' | 'send';
   style?: StyleProp<TextStyle>;
 }
 
@@ -27,6 +29,8 @@ export const Input: React.FC<InputProps> = ({
   placeholder,
   value,
   onChangeText,
+  blurOnSubmit,
+  returnKeyType,
   error,
   secureTextEntry,
   keyboardType = 'default',
@@ -68,6 +72,8 @@ export const Input: React.FC<InputProps> = ({
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
+          blurOnSubmit={blurOnSubmit}
+          returnKeyType={returnKeyType}
           editable={!disabled}
           multiline={multiline}
           numberOfLines={numberOfLines}
