@@ -7,7 +7,7 @@ import { useSettingsStore } from '../../stores/settings';
 import { clearStorage, createMmkvStorage, StorageKeys } from '../../stores/storage';
 import { useTheme } from "../../theme";
 
-export const DebugApiTest = () => {
+export const DebugApiTest: React.FC = () => {
   const theme = useTheme();
   const [manualTest, setManualTest] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -47,36 +47,50 @@ export const DebugApiTest = () => {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text variant="headlineMedium" style={styles.title}>🔧 Debug API Test</Text>
+      <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>🔧 Debug API Test</Text>
       
-      <Text style={styles.section}>API URL:</Text>
-      <Text variant="bodyLarge" style={styles.value}>{apiUrl}</Text>
+      <Text style={[styles.section, { color: theme.colors.onSurfaceVariant }]}>API URL:</Text>
+      <Text 
+        variant="bodyLarge" 
+        style={[styles.value, { 
+          backgroundColor: theme.colors.surface,
+          color: theme.colors.onSurface 
+        }]}
+      >
+        {apiUrl}
+      </Text>
 
-      <Text style={styles.section}>React Query Hook:</Text>
-      <Text>isLoading: {String(isLoading)}</Text>
-      <Text>isError: {String(isError)}</Text>
-      <Text>error: {queryError ? JSON.stringify(queryError, null, 2) : 'none'}</Text>
-      <Text>data: {data ? JSON.stringify(data, null, 2).slice(0, 500) + '...' : 'null'}</Text>
+      <Text style={[styles.section, { color: theme.colors.onSurfaceVariant }]}>React Query Hook:</Text>
+      <Text style={{ color: theme.colors.onSurface }}>isLoading: {String(isLoading)}</Text>
+      <Text style={{ color: theme.colors.onSurface }}>isError: {String(isError)}</Text>
+      <Text style={{ color: theme.colors.onSurface }}>error: {queryError ? JSON.stringify(queryError, null, 2) : 'none'}</Text>
+      <Text style={{ color: theme.colors.onSurface }}>data: {data ? JSON.stringify(data, null, 2).slice(0, 500) + '...' : 'null'}</Text>
 
-      <Text style={styles.section}>Manual API Test:</Text>
+      <Text style={[styles.section, { color: theme.colors.onSurfaceVariant }]}>Manual API Test:</Text>
       <Button title={loading ? "Testing..." : "Test API Call"} onPress={testManual} disabled={loading} />
       
       {manualTest && (
-        <View style={styles.resultBox}>
-          <Text style={{ color: 'green' }}>✅ Success!</Text>
-          <Text>{JSON.stringify(manualTest, null, 2).slice(0, 1000)}</Text>
+        <View style={[styles.resultBox, { 
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.success 
+        }]}>
+          <Text style={{ color: theme.colors.success }}>✅ Success!</Text>
+          <Text style={{ color: theme.colors.onSurface }}>{JSON.stringify(manualTest, null, 2).slice(0, 1000)}</Text>
         </View>
       )}
 
       {error && (
-        <View style={[styles.resultBox, { borderColor: 'red' }]}>
-          <Text style={{ color: 'red' }}>❌ Error: {error}</Text>
+        <View style={[styles.resultBox, { 
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.error 
+        }]}>
+          <Text style={{ color: theme.colors.error }}>❌ Error: {error}</Text>
         </View>
       )}
 
-      <Text style={styles.section}>Storage Actions:</Text>
+      <Text style={[styles.section, { color: theme.colors.onSurfaceVariant }]}>Storage Actions:</Text>
       <View style={styles.buttonGap}>
-        <Button title="Clear Storage" onPress={clearCache} color="red" />
+        <Button title="Clear Storage" onPress={clearCache} color={theme.colors.error} />
       </View>
       <View style={styles.buttonGap}>
         <Button title="Reset Settings" onPress={resetSettings} />
@@ -92,7 +106,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
   },
   title: {
     marginBottom: 20,
@@ -103,10 +116,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontWeight: 'bold',
     fontSize: 16,
-    color: '#333',
   },
   value: {
-    backgroundColor: '#f0f0f0',
     padding: 8,
     borderRadius: 4,
   },
@@ -114,11 +125,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#4CAF50',
     borderRadius: 4,
-    backgroundColor: '#f9f9f9',
   },
   buttonGap: {
     marginVertical: 5,
   },
 });
+
+export default DebugApiTest;

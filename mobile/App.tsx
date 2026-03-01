@@ -13,10 +13,10 @@ import { migrateStorageData, useAppStore } from './src/stores';
 import { RootNavigator } from './src/navigation';
 
 // Loading Screen während Initialisierung
-const LoadingScreen = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
-    <ActivityIndicator size="large" color="#4CAF50" />
-    <Text style={{ marginTop: 16, color: '#666' }}>Tauben Scanner wird gestartet...</Text>
+const LoadingScreen = ({ theme }: { theme: typeof paperLightTheme }) => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.background }}>
+    <ActivityIndicator size="large" color={theme.colors.success} />
+    <Text style={{ marginTop: 16, color: theme.colors.onSurfaceVariant }}>Tauben Scanner wird gestartet...</Text>
   </View>
 );
 
@@ -105,7 +105,7 @@ export default function App() {
   }, [requestAllPermissions, setOnlineStatus]);
 
   if (!isReady) {
-    return <LoadingScreen />;
+    return <LoadingScreen theme={theme} />;
   }
 
   return (
