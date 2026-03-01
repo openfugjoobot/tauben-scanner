@@ -20,7 +20,10 @@ interface MatchResultData {
 // Scan Flow
 export type ScanStackParamList = {
   Scan: undefined;
-  Results: { matchResult: MatchResultData | null };
+  Results: { 
+    matchResult: MatchResultData | null;
+    photoUri: string;
+  };
   NewPigeon: { photoUri: string; location?: { lat: number; lng: number } };
 };
 

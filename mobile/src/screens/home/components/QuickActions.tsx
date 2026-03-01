@@ -2,9 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '../../../components/atoms/Text';
 import { ScanButton } from '../../../components/molecules/ScanButton';
-import { useTheme } from '../../../theme';
-// @ts-ignore
-import { spacing } from '../../../theme/spacing';
+import { useTheme, spacing } from '../../../theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface QuickActionsProps {

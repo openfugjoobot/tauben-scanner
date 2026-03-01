@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useTabNavigation } from '../../navigation/hooks';
 import { Text } from '../../components/atoms/Text';
 import { OfflineBanner } from '../../components/molecules/OfflineBanner';
 import { StatsCard } from './components/StatsCard';
@@ -13,7 +13,7 @@ import { useTheme } from '../../theme';
 import { usePermissions } from '../../hooks';
 
 export const HomeScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useTabNavigation();
   const theme = useTheme();
   usePermissions(); // Request permissions on app start
   
@@ -39,7 +39,7 @@ export const HomeScreen: React.FC = () => {
   };
 
   const handleAddPigeonPress = () => {
-    navigation.navigate('PigeonsFlow', { screen: 'NewPigeon' });
+    navigation.navigate('PigeonsFlow', { screen: 'NewPigeon', params: {} });
   };
 
   return (

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
+import { usePigeonsNavigation } from '../../navigation/hooks';
 import { usePigeon, useDeletePigeon } from '../../hooks/queries';
 import { LoadingState } from '../../components/molecules/LoadingState';
 import { ErrorState } from '../../components/molecules/ErrorState';
@@ -14,7 +15,7 @@ import { useTheme } from "../../theme";
 export const PigeonDetailScreen: React.FC = () => {
   const theme = useTheme();
   const route = useRoute();
-  const navigation = useNavigation<any>();
+  const navigation = usePigeonsNavigation();
   const { pigeonId } = route.params as { pigeonId: string };
   
   const { data: pigeon, isLoading, isError, error, refetch } = usePigeon(pigeonId);
@@ -69,12 +70,12 @@ export const PigeonDetailScreen: React.FC = () => {
         <PigeonInfoCard pigeon={pigeon} />
         
         
-        {pigeon.sightings?.length > 0 && (
+        {(pigeon.sightings || []).length > 0 && (
           <>
             
-            <PigeonMap sightings={pigeon.sightings} />
+            <PigeonMap sightings={pigeon.sightings || []} />
             
-            <SightingsList sightings={pigeon.sightings} />
+            <SightingsList sightings={pigeon.sightings || []} />
           </>
         )}
       </ScrollView>

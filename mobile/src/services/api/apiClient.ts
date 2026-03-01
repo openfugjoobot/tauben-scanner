@@ -6,9 +6,8 @@ const UPLOAD_TIMEOUT = 120000;
 
 // API URL direkt setzen - zuverlässiger als Interceptor
 // Wichtig: Muss mit /api enden!
-const API_URL = 'https://tauben-scanner.fugjoo.duckdns.org/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://tauben-scanner.fugjoo.duckdns.org/api';
 
-console.log('[API] Using API URL:', API_URL);
 
 class ApiClient {
   private instance: AxiosInstance;
@@ -29,7 +28,6 @@ class ApiClient {
     this.instance.interceptors.request.use(
       (config) => {
         // Debug logging
-        console.log('[API Request]', config.method?.toUpperCase(), config.url);
         return config;
       },
       (error) => Promise.reject(error)
@@ -38,7 +36,6 @@ class ApiClient {
     // Response interceptor
     this.instance.interceptors.response.use(
       (response) => {
-        console.log('[API Response]', response.status, response.config.url);
         // Transformiere Daten: snake_case -> camelCase + absolute URLs
         response.data = this.transformResponse(response.data);
         return response;

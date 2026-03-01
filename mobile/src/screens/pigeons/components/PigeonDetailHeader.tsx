@@ -18,7 +18,7 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
   onDelete,
 }) => {
   const theme = useTheme();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation();
 
   const handleShare = async () => {
     try {
