@@ -46,21 +46,18 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
 
   return (
     <View style={styles.container} pointerEvents="auto">
-      {/* Camera Type Indicator */}
-      <View style={styles.cameraTypeContainer} pointerEvents="auto">
+      {/* Camera Type Indicator - nur Info, kein Button mehr hier */}
+      <View style={styles.cameraTypeContainer} pointerEvents="none">
         <View style={styles.cameraTypeBadge}>
           <MaterialCommunityIcons
             name={cameraType === 'back' ? 'camera-rear' : 'camera-front'}
-            size={16}
+            size={14}
             color="white"
           />
           <Text style={styles.cameraTypeText}>
-            {cameraType === 'back' ? 'Rückseite' : 'Frontkamera'}
+            {cameraType === 'back' ? 'Rückseite' : 'Front'}
           </Text>
         </View>
-        <TouchableOpacity style={styles.cameraTypeButton} onPress={onToggleCamera}>
-          <MaterialCommunityIcons name="camera-flip" size={24} color="white" />
-        </TouchableOpacity>
       </View>
 
       {/* Zoom Slider with Indicator */}
@@ -87,7 +84,7 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
         </View>
       </View>
 
-      {/* Main Controls Row */}
+      {/* Main Controls Row - Flash, Capture, Camera Flip */}
       <View style={styles.buttonsRow} pointerEvents="auto">
         {/* Flash Toggle */}
         <TouchableOpacity
@@ -103,7 +100,6 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
           style={[
             styles.captureButton, 
             isCapturing && styles.disabledButton,
-            // Platform-specific elevation for Android
             Platform.OS === 'android' && { elevation: 5 }
           ]}
           onPress={onCapture}
@@ -113,14 +109,14 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
           <View style={styles.captureInner} />
         </TouchableOpacity>
 
-        {/* Camera Flip (also shown here for convenience) */}
+        {/* Camera Flip - NUR NOCH HIER */}
         <TouchableOpacity
           style={[styles.button, styles.flipButton]}
           onPress={onToggleCamera}
           disabled={isCapturing}
         >
           <MaterialCommunityIcons 
-            name={cameraType === 'back' ? 'camera-rear' : 'camera-front-variant'} 
+            name="camera-flip" 
             size={28} 
             color="white" 
           />
@@ -135,41 +131,28 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     paddingHorizontal: 20,
     backgroundColor: 'transparent',
-    // Android elevation for the entire control panel
     elevation: Platform.OS === 'android' ? 2 : 0,
   },
-  // Camera Type Indicator
   cameraTypeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   cameraTypeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 12,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   cameraTypeText: {
     color: 'white',
-    fontSize: 14,
-    marginLeft: 6,
+    fontSize: 12,
+    marginLeft: 4,
     fontWeight: '500',
   },
-  cameraTypeButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: Platform.OS === 'android' ? 2 : 0,
-  },
-  // Zoom Controls
   zoomContainer: {
     alignItems: 'center',
     marginBottom: 20,
@@ -203,7 +186,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 10,
   },
-  // Main Controls
   buttonsRow: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -216,7 +198,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
-    // Android elevation for tappability
     elevation: Platform.OS === 'android' ? 3 : 0,
     zIndex: 2,
   },
