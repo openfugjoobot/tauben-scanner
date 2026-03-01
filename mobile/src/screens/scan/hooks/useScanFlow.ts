@@ -133,6 +133,19 @@ export const useScanFlow = () => {
     });
   }, [navigation]);
 
+  // ADDED: Navigate to NewPigeon with photo from scan
+  const navigateToNewPigeon = useCallback(() => {
+    if (!state.capturedPhoto?.uri) return;
+    // @ts-ignore - navigation type complexity
+    navigation.navigate('MainTabs', {
+      screen: 'PigeonsFlow',
+      params: {
+        screen: 'NewPigeon',
+        params: { photoUri: state.capturedPhoto.uri },
+      },
+    });
+  }, [navigation, state.capturedPhoto]);
+
   return {
     ...state,
     isProcessing: matchMutation.isPending,
@@ -141,5 +154,6 @@ export const useScanFlow = () => {
     processImage,
     reset,
     navigateToPigeon,
+    navigateToNewPigeon,
   };
 };

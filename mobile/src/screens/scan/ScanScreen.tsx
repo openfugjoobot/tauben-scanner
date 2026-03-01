@@ -23,6 +23,7 @@ export const ScanScreen: React.FC = () => {
     processImage,
     reset,
     navigateToPigeon,
+    navigateToNewPigeon,  // ADDED
   } = useScanFlow();
 
   // Handle back button
@@ -80,6 +81,7 @@ export const ScanScreen: React.FC = () => {
         onViewPigeon={navigateToPigeon}
         onScanAgain={reset}
         onGoHome={() => navigation.navigate('Home' as never)}
+        onAddNewPigeon={navigateToNewPigeon}  // ADDED
       />
     );
   }
