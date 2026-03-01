@@ -41,23 +41,6 @@ services:
       - tauben-network
       - proxy
 
-  # MinIO (optional: S3-compatible storage)
-  minio:
-    image: minio/minio:latest
-    container_name: tauben-minio
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_USER:-admin}
-      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
-    volumes:
-      - minio_data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    networks:
-      - tauben-network
-
 networks:
   tauben-network:
     driver: bridge
@@ -66,5 +49,4 @@ networks:
 
 volumes:
   postgres_data:
-  minio_data:
   uploads_data:
