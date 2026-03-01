@@ -152,7 +152,7 @@ export const SettingsScreen: React.FC = () => {
           )}
           
           {!serverStatus.connected && serverStatus.error && (
-            <Text variant="caption" style={styles.errorText}>
+            <Text variant="caption" style={{ color: theme.colors.error, marginTop: 4 }}>
               {serverStatus.error}
             </Text>
           )}
@@ -223,10 +223,6 @@ const styles = StyleSheet.create({
   serviceText: {
     
     fontSize: 12,
-  },
-  errorText: {
-    color: theme.colors.error,
-    marginTop: 4,
   },
   savedBanner: {
     position: 'absolute',

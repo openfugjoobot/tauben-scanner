@@ -207,6 +207,19 @@ router.get('/:id', async (req: Request, res: Response) => {
     
     const sightingsResult = await pool.query(sightingsQuery, [id]);
     
+    // Calculate last_seen from sightings
+    const sightings = sightingsResult.rows.map(sighting => ({
+      id: sighting.id,
+      location: {
+        lat: sighting.location_lat,
+        lng: sighting.location_lng,
+        name: sighting.location_name
+      },
+      notes: sighting.notes,
+      timestamp: sighting.timestamp
+    }));
+    const lastSeen = sightings.length > 0 ? sightings[0].timestamp : pigeon.first_seen;
+
     // Format response
     const response = {
       id: pigeon.id,
@@ -218,17 +231,9 @@ router.get('/:id', async (req: Request, res: Response) => {
         name: pigeon.location_name
       },
       first_seen: pigeon.first_seen,
+      last_seen: lastSeen,
       photo_url: photoUrl,
-      sightings: sightingsResult.rows.map(sighting => ({
-        id: sighting.id,
-        location: {
-          lat: sighting.location_lat,
-          lng: sighting.location_lng,
-          name: sighting.location_name
-        },
-        notes: sighting.notes,
-        timestamp: sighting.timestamp
-      })),
+      sightings: sightings,
       sightings_count: parseInt(pigeon.sightings_count),
       created_at: pigeon.created_at,
       updated_at: pigeon.updated_at
@@ -265,11 +270,12 @@ router.get('/', async (req: Request, res: Response) => {
     
     // Query database for pigeons with primary photo
     const query = `
-      SELECT 
-        p.id, 
-        p.name, 
-        p.first_seen, 
-        p.created_at,
+      SELECT
+        p.id,
+        p.name,
+        p.description,
+        p.first_seen,
+        MAX(s.timestamp) as last_seen,
         COUNT(s.id) as sightings_count,
         i.file_path as photo_path
       FROM pigeons p
@@ -299,8 +305,10 @@ router.get('/', async (req: Request, res: Response) => {
       pigeons: result.rows.map(pigeon => ({
         id: pigeon.id,
         name: pigeon.name,
+        description: pigeon.description,
         photo_url: pigeon.photo_path ? `/uploads/${pigeon.photo_path}` : null,
         first_seen: pigeon.first_seen,
+        last_seen: pigeon.last_seen || pigeon.first_seen,
         sightings_count: parseInt(pigeon.sightings_count)
       })),
       pagination: {
