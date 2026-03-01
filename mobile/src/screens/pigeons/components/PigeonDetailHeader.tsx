@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Share, Image, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useRootNavigation } from '../../.../.../navigation/hooks';
 import { Text } from '../../../components/atoms/Text';
 import { Icon } from '../../../components/atoms/Icon';
 import { useTheme } from '../../../theme';
@@ -18,7 +18,7 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
   onDelete,
 }) => {
   const theme = useTheme();
-  const navigation = useNavigation<any>();
+  const navigation = useRootNavigation();
 
   const handleShare = async () => {
     try {

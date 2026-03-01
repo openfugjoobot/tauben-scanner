@@ -5,7 +5,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useRootNavigation } from '../../.../navigation/hooks';
 import { Text } from '../../components/atoms/Text';
 import { Button } from '../../components/atoms/Button';
 import { Input } from '../../components/atoms/Input';
@@ -18,7 +18,7 @@ import { useTheme } from '../../theme';
 import { spacing } from '../../theme/spacing';
 
 export const PigeonListScreen: React.FC = () => {
-  const navigation = useNavigation<any>();
+  const navigation = useRootNavigation();
   const theme = useTheme();
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');

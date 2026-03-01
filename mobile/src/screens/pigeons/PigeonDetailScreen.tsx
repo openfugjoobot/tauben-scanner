@@ -14,7 +14,7 @@ import { useTheme } from "../../theme";
 export const PigeonDetailScreen: React.FC = () => {
   const theme = useTheme();
   const route = useRoute();
-  const navigation = useNavigation<any>();
+  const navigation = useRootNavigation();
   const { pigeonId } = route.params as { pigeonId: string };
   
   const { data: pigeon, isLoading, isError, error, refetch } = usePigeon(pigeonId);
