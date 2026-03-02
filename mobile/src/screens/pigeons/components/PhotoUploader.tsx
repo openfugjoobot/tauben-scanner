@@ -79,7 +79,7 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
   return (
     <View style={styles.container}>
       <Text variant="caption" style={{ marginBottom: 4, color: theme.colors.onSurfaceVariant }}>
-        Foto {showRequired && <Text style={{ color: theme.colors.error }}>*</Text>}
+        Foto
       </Text>
       
       <TouchableOpacity
