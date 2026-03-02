@@ -88,17 +88,52 @@ export const PigeonListScreen: React.FC = () => {
     );
   }
 
-  // Empty state (nur wenn wirklich keine Daten)
-  if (!data?.pigeons?.length && !isLoading) {
+  // Empty state - keine Suchergebnisse
+  if (!data?.pigeons?.length && !isLoading && searchQuery) {
     return (
       <View style={styles.container}>
         <Card style={styles.searchCard}>
           <Input
-            placeholder="Suchen..."
-          blurOnSubmit={false}
-          returnKeyType="search"
+            placeholder="Name suchen..."
             value={searchQuery}
             onChangeText={setSearchQuery}
+            leftIcon="magnify"
+            rightIcon="close"
+            onRightIconPress={() => setSearchQuery('')}
+            blurOnSubmit={false}
+            returnKeyType="search"
+            autoFocus={true}
+          />
+        </Card>
+
+        <View style={styles.centered}>
+          <Icon name="magnify-close" size={64} color={theme.colors.onSurfaceVariant} />
+          <Text variant="h3" style={styles.emptyTitle}>
+            Keine Ergebnisse
+          </Text>
+          <Text variant="body" color={theme.colors.onSurfaceVariant} style={styles.emptyText}>
+            Keine Tauben gefunden für "{searchQuery}"
+          </Text>
+          <Button variant="secondary" onPress={() => setSearchQuery('')} style={styles.addButton}>
+            Suche zurücksetzen
+          </Button>
+        </View>
+      </View>
+    );
+  }
+    return (
+      <View style={styles.container}>
+        <Card style={styles.searchCard}>
+          <Input
+            placeholder="Name suchen..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            leftIcon="magnify"
+            rightIcon={searchQuery ? 'close' : undefined}
+            onRightIconPress={() => setSearchQuery('')}
+            blurOnSubmit={false}
+            returnKeyType="search"
+            autoFocus={true}
           />
         </Card>
 
@@ -123,11 +158,14 @@ export const PigeonListScreen: React.FC = () => {
     <View style={styles.container}>
       <Card style={styles.searchCard}>
         <Input
-          placeholder="Suchen..."
-          blurOnSubmit={false}
-          returnKeyType="search"
+          placeholder="Name suchen..."
           value={searchQuery}
           onChangeText={setSearchQuery}
+          leftIcon="magnify"
+          rightIcon={searchQuery ? 'close' : undefined}
+          onRightIconPress={() => setSearchQuery('')}
+          blurOnSubmit={false}
+          returnKeyType="search"
         />
       </Card>
 
