@@ -69,7 +69,7 @@ export const useScanFlow = () => {
 
       const response = await matchMutation.mutateAsync({
         image: state.capturedPhoto.base64,
-        threshold: matchThreshold,
+        threshold: matchThreshold / 100, // Convert 0-100 to 0.0-1.0
       });
 
       setState((prev) => ({ ...prev, processingStatus: 'KI-Abgleich laeuft...' }));

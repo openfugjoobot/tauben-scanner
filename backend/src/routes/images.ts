@@ -64,10 +64,11 @@ router.post('/match', async (req: Request, res: Response) => {
     }
     
     // Validate threshold
+    console.log('[Images] Received threshold:', threshold, 'type:', typeof threshold);
     if (typeof threshold !== 'number' || threshold < 0.5 || threshold > 0.99) {
       return res.status(400).json({
         error: 'INVALID_THRESHOLD',
-        message: 'Threshold must be a number between 0.5 and 0.99'
+        message: 'Threshold must be a number between 0.5 and 0.99, received: ' + threshold
       });
     }
     
