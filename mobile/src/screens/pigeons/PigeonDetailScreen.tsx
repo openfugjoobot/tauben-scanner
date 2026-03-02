@@ -46,9 +46,12 @@ export const PigeonDetailScreen: React.FC = () => {
   const handleShare = async () => {
     if (!pigeon) return;
     try {
+      const shareText = `🕊️ ${pigeon.name}\n\n${pigeon.description || 'Eine coole Stadt-Taube'}
+\n📸 ${pigeon.photoUrl || ''}`;
+      
       await Share.share({
-        message: `Schau dir diese Taube an: ${pigeon.name}`,
-        url: pigeon.photoUrl,
+        message: shareText,
+        title: pigeon.name,
       });
     } catch (error) {
       // ignore
