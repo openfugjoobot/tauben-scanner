@@ -7,3 +7,4 @@ export { OfflineBanner } from './OfflineBanner';
 export { EmptyState } from './EmptyState';
 export { LoadingState } from './LoadingState';
 export { ErrorState } from './ErrorState';
+export { ScreenHeader } from './ScreenHeader';

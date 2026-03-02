@@ -1,6 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from 'react-native-paper';
+import { IconButton } from 'react-native-paper';
 import { PigeonListScreen } from '../screens/pigeons/PigeonListScreen';
 import { PigeonDetailScreen } from '../screens/pigeons/PigeonDetailScreen';
 import { PigeonEditScreen } from '../screens/pigeons/PigeonEditScreen';
@@ -32,7 +33,22 @@ export const PigeonsStackNavigator: React.FC = () => {
       <Stack.Screen name="PigeonList" component={PigeonListScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PigeonDetail" component={PigeonDetailScreen} options={{ title: 'Details' }} />
       <Stack.Screen name="PigeonEdit" component={PigeonEditScreen} options={{ title: 'Bearbeiten' }} />
-      <Stack.Screen name="NewPigeon" component={NewPigeonScreen} options={{ title: 'Neue Taube' }} />
+      <Stack.Screen
+        name="NewPigeon"
+        component={NewPigeonScreen}
+        options={({ navigation }) => ({
+          title: 'Neue Taube',
+          headerShown: true,
+          headerLeft: () => (
+            <IconButton
+              icon="arrow-left"
+              size={24}
+              iconColor={theme.colors.primary}
+              onPress={() => navigation.goBack()}
+            />
+          ),
+        })}
+      />
     </Stack.Navigator>
   );
 };

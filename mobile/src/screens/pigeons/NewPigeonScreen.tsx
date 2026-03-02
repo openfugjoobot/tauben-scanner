@@ -1,21 +1,32 @@
 import React from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { View, StyleSheet } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useRoute } from '@react-navigation/native';
 import { Text } from '../../components/atoms/Text';
 import { Button } from '../../components/atoms/Button';
 import { Icon } from '../../components/atoms/Icon';
 import { OfflineBanner } from '../../components/molecules/OfflineBanner';
 import { PigeonForm } from './components/PigeonForm';
+import { SaveButton } from './components/SaveButton';
 import { usePigeonForm } from './hooks/usePigeonForm';
 import { useTheme } from '../../theme';
 
 export const NewPigeonScreen: React.FC = () => {
   const theme = useTheme();
-  const navigation = useNavigation();
   const route = useRoute();
   const { photoUri } = route.params as { photoUri?: string } || {};
-  
-  const { formData, errors, isSubmitting, submitStatus, submitError, updateField, submit, resetSubmitStatus } = usePigeonForm({
+
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    submitStatus,
+    submitError,
+    isValid,
+    updateField,
+    submit,
+    resetSubmitStatus,
+  } = usePigeonForm({
     photo: photoUri || null,
   });
 
@@ -42,35 +53,29 @@ export const NewPigeonScreen: React.FC = () => {
         </View>
       )}
       
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
+      <KeyboardAwareScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        enableOnAndroid
+        enableAutomaticScroll
+        extraScrollHeight={120}
+        keyboardShouldPersistTaps="handled"
       >
-        <View style={[styles.header, { backgroundColor: theme.colors.surface }]}>
-          <Text variant="h1">Neue Taube</Text>
-          <Text variant="body" color={theme.colors.onSurfaceVariant}>
-            Geben Sie die Details der Taube ein.
-          </Text>
-        </View>
-        
         <PigeonForm
           formData={formData}
           errors={errors}
           onFieldChange={updateField}
         />
-        
+
         <View style={[styles.buttonContainer, { backgroundColor: theme.colors.surface }]}>
-          <Button
-            variant="primary"
-            size="large"
-            loading={isSubmitting}
+          <SaveButton
+            isValid={isValid}
+            isSubmitting={isSubmitting}
             onPress={submit}
             style={styles.saveButton}
-          >
-            Speichern
-          </Button>
+          />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </View>
   );
 };
@@ -79,11 +84,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  keyboardView: {
+  scrollView: {
     flex: 1,
   },
-  header: {
-    padding: 16,
+  scrollContent: {
+    flexGrow: 1,
   },
   buttonContainer: {
     padding: 16,

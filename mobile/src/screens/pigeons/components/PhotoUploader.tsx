@@ -9,12 +9,16 @@ interface PhotoUploaderProps {
   photo: string | null;
   onPhotoSelected: (uri: string) => void;
   error?: string;
+  showRequired?: boolean;
+  attempted?: boolean;
 }
 
 export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
   photo,
   onPhotoSelected,
   error,
+  showRequired = false,
+  attempted = false,
 }) => {
   const theme = useTheme();
 
@@ -75,7 +79,7 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
   return (
     <View style={styles.container}>
       <Text variant="caption" style={{ marginBottom: 4, color: theme.colors.onSurfaceVariant }}>
-        Foto
+        Foto {showRequired && <Text style={{ color: theme.colors.error }}>*</Text>}
       </Text>
       
       <TouchableOpacity
@@ -83,7 +87,7 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
         style={[
           styles.uploader,
           {
-            borderColor: error ? theme.colors.error : theme.colors.outline,
+            borderColor: error || (attempted && !photo) ? theme.colors.error : theme.colors.outline,
             backgroundColor: theme.colors.surfaceVariant,
           },
         ]}

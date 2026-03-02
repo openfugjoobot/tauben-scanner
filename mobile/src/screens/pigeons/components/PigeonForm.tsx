@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Input } from '../../../components/atoms/Input';
 import { PhotoUploader } from './PhotoUploader';
 import { LocationPicker } from './LocationPicker';
@@ -20,13 +20,15 @@ export const PigeonForm: React.FC<PigeonFormProps> = ({
   const theme = useTheme();
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.surface }]} contentContainerStyle={styles.content}>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <PhotoUploader
         photo={formData.photo}
         onPhotoSelected={(uri) => onFieldChange('photo', uri)}
         error={errors.photo}
+        showRequired={true}
+        attempted={Object.keys(errors).length > 0}
       />
-      
+
       <Input
         label="Name"
         placeholder="Geben Sie den Namen der Taube ein"
@@ -35,7 +37,7 @@ export const PigeonForm: React.FC<PigeonFormProps> = ({
         error={errors.name}
         autoCapitalize="words"
       />
-      
+
       <Input
         label="Beschreibung"
         placeholder="Kurze Beschreibung der Taube (Farbe, Merkmale)"
@@ -44,22 +46,22 @@ export const PigeonForm: React.FC<PigeonFormProps> = ({
         error={errors.description}
         autoCapitalize="sentences"
       />
-      
-      
+
       <LocationPicker
         location={formData.location}
-        onLocationSelected={(lat, lng) => onFieldChange('location', { lat, lng })}
+        onLocationSelected={(lat, lng, municipality) =>
+          onFieldChange('location', { lat, lng, municipality })
+        }
+        onLocationCleared={() => onFieldChange('location', null)}
         error={errors.location}
       />
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
     padding: 16,
   },
 });

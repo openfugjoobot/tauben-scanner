@@ -7,7 +7,7 @@ export interface PigeonFormData {
   name: string;
   description: string;
   photo: string | null;
-  location: { lat: number; lng: number } | null;
+  location: { lat: number; lng: number; municipality?: string } | null;
 }
 
 export type SubmitStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -32,6 +32,9 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Computed validity - photo AND name are both required
+  const isValid = Boolean(formData.photo && formData.name.trim().length > 0);
+
   const updateField = useCallback(<K extends keyof PigeonFormData>(
     field: K,
     value: PigeonFormData[K]
@@ -44,9 +47,17 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
 
   const validate = useCallback((): boolean => {
     const newErrors: Partial<Record<keyof PigeonFormData, string>> = {};
+    
+    // Photo validation - required
+    if (!formData.photo) {
+      newErrors.photo = 'Foto ist erforderlich';
+    }
+    
+    // Name validation - required
     if (!formData.name.trim()) {
       newErrors.name = 'Name ist erforderlich';
     }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
@@ -74,9 +85,20 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
     }
   };
 
-  const submit = useCallback(async () => {
+  const submit = useCallback(async (): Promise<boolean> => {
     console.log('[usePigeonForm] Submit called');
 
+    // Only proceed if form is valid
+    if (!isValid) {
+      console.log('[usePigeonForm] Form is not valid');
+      // Trigger validation to show errors
+      validate();
+      setSubmitStatus('error');
+      setSubmitError('Bitte füllen Sie alle Pflichtfelder aus.');
+      return false;
+    }
+
+    // Double-check validation
     if (!validate()) {
       console.log('[usePigeonForm] Validation failed');
       setSubmitStatus('error');
@@ -117,7 +139,7 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
       setErrors((prev) => ({ ...prev, name: 'Speichern fehlgeschlagen. Bitte versuche es erneut.' }));
       return false;
     }
-  }, [formData, validate, createMutation, navigation]);
+  }, [formData, isValid, validate, createMutation, navigation]);
 
   return {
     formData,
@@ -125,6 +147,7 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
     isSubmitting: createMutation.isPending,
     submitStatus,
     submitError,
+    isValid,
     updateField,
     submit,
     setErrors,
