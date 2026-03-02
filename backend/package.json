@@ -11,7 +11,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:integration": "jest __tests__/integration.test.ts",
-    "generate-api-key": "node src/utils/generate-api-key.js"
+    "generate-api-key": "node src/utils/generate-api-key.js",
+    "seed": "ts-node src/scripts/seedDatabase.ts"
   },
   "keywords": [
     "tauben",
