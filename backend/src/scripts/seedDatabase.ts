@@ -97,7 +97,8 @@ function saveImageFile(base64Data: string, filename: string): { path: string; si
  * Insert a single pigeon into database
  */
 async function insertPigeon(pigeon: typeof SEED_PIGEONS[0]): Promise<void> {
-  const imagePath = join(__dirname, 'samples', pigeon.imageFile);
+  // Read from source directory (works both in dev and compiled)
+  const imagePath = join(__dirname, '..', '..', 'src', 'scripts', 'samples', pigeon.imageFile);
   
   console.log(`📝 Processing ${pigeon.name}...`);
   
