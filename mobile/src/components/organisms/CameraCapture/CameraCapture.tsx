@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, StyleSheet, ActivityIndicator, Platform, PanResponder } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Platform, PanResponder, Linking, TouchableOpacity } from 'react-native';
 import { CameraView } from 'expo-camera';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from '../../atoms/Text';
 import { Button } from '../../atoms/Button';
-import { TouchableOpacity } from 'react-native';
 import { useCameraCapture } from './useCameraCapture';
 import { CameraControls } from './CameraControls';
 import { PhotoPreview } from './PhotoPreview';
@@ -157,7 +156,22 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
   // Camera view
   return (
-    <View style={styles.container}>
+    <View style={styles.container} {...panResponder.panHandlers}>
+      {/* Close Button - oben rechts */}
+      {onCancel && (
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={onCancel}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <MaterialCommunityIcons
+            name="close"
+            size={28}
+            color="white"
+          />
+        </TouchableOpacity>
+      )}
+
       <CameraView
         ref={cameraRef}
         style={styles.camera}
@@ -230,5 +244,18 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     textAlign: 'center',
     color: '#fff',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 40,
+    right: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    elevation: 5,
   },
 });
