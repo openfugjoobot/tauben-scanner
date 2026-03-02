@@ -126,17 +126,22 @@ export async function extractEmbeddingFromBuffer(imageBuffer: Buffer): Promise<n
     
     const actualDimension = shape[1];
     if (actualDimension !== EXPECTED_EMBEDDING_DIMENSION) {
-      console.warn(`[Embedding] Warning: Expected ${EXPECTED_EMBEDDING_DIMENSION} dimensions, got ${actualDimension}`);
+      console.warn(`[Embedding] Warning: Expected ${EXPECTED_EMBEDDING_DIMENSION} dimensions, got ${actualDimension}. Trimming to ${EXPECTED_EMBEDDING_DIMENSION}.`);
     }
     
     // Flatten and convert to array
     const flattened = embeddings.flatten();
-    const embeddingArray = Array.from(await flattened.data()) as number[];
+    let embeddingArray = Array.from(await flattened.data()) as number[];
     
     // Cleanup tensors
     tensor.dispose();
     embeddings.dispose();
     flattened.dispose();
+    
+    // Trim to expected dimension (1280 -> 1024 if needed)
+    if (embeddingArray.length > EXPECTED_EMBEDDING_DIMENSION) {
+      embeddingArray = embeddingArray.slice(0, EXPECTED_EMBEDDING_DIMENSION);
+    }
     
     if (embeddingArray.length === 0) {
       throw new Error('Failed to extract embedding: empty array returned');
