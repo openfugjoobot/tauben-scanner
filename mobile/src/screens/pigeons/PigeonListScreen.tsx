@@ -2,15 +2,12 @@ import React, { useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
-  RefreshControl,
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
 import { usePigeonsNavigation } from '../../navigation/hooks';
 import { Text } from '../../components/atoms/Text';
 import { Button } from '../../components/atoms/Button';
-import { Input } from '../../components/atoms/Input';
-import { Card } from '../../components/atoms/Card';
 import { Icon } from '../../components/atoms/Icon';
 import { PigeonList } from './components/PigeonList';
 import { usePigeons } from '../../hooks/queries';
@@ -18,15 +15,12 @@ import { useDebounce } from '../../hooks';
 import { useTheme } from '../../theme';
 import { spacing } from '../../theme/spacing';
 import { SearchBar } from '../../components/molecules/SearchBar';
-import { ListTile } from '../../components/molecules/ListTile';
-import { Avatar } from '../../components/atoms/Avatar';
 
 export const PigeonListScreen: React.FC = () => {
   const navigation = usePigeonsNavigation();
   const theme = useTheme();
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [refreshing, setRefreshing] = useState(false);
 
   const debouncedSearch = useDebounce(searchQuery, 500);
   const effectiveSearch = debouncedSearch;
@@ -36,14 +30,6 @@ export const PigeonListScreen: React.FC = () => {
     limit: 20,
     search: effectiveSearch || undefined,
   });
-
-
-  const handleRefresh = useCallback(async () => {
-    setRefreshing(true);
-    setPage(1);
-    await refetch();
-    setRefreshing(false);
-  }, [refetch]);
 
   const handleEndReached = useCallback(() => {
     if (data?.pagination && page < data.pagination.pages) {
@@ -62,19 +48,7 @@ export const PigeonListScreen: React.FC = () => {
     navigation.navigate({ name: 'NewPigeon', params: {} });
   }, [navigation]);
 
-  // Loading state
-  if (isLoading && !refreshing) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-        <Text variant="body" color={theme.colors.onSurfaceVariant} style={styles.loadingText}>
-          Tauben werden geladen...
-        </Text>
-      </View>
-    );
-  }
-
-  // ERROR state - NEU!
+  // ERROR state
   if (isError) {
     return (
       <View style={styles.centered}>
@@ -92,41 +66,26 @@ export const PigeonListScreen: React.FC = () => {
     );
   }
 
-  // Empty state - keine Suchergebnisse
-  if (!data?.pigeons?.length && !isLoading && searchQuery) {
+  // Loading state
+  if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Card style={styles.searchCard}>
-          <Input
-            placeholder="Name suchen..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            leftIcon="magnify"
-            rightIcon="close"
-            onRightIconPress={() => setSearchQuery('')}
-            blurOnSubmit={false}
-            returnKeyType="search"
-            autoFocus={true}
-          />
-        </Card>
-
-        <View style={styles.centered}>
-          <Icon name="magnify-close" size={64} color={theme.colors.onSurfaceVariant} />
-          <Text variant="h3" style={styles.emptyTitle}>
-            Keine Ergebnisse
-          </Text>
-          <Text variant="body" color={theme.colors.onSurfaceVariant} style={styles.emptyText}>
-            Keine Tauben gefunden für "{searchQuery}"
-          </Text>
-          <Button variant="secondary" onPress={() => setSearchQuery('')} style={styles.addButton}>
-            Suche zurücksetzen
-          </Button>
-        </View>
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+        <Text variant="body" color={theme.colors.onSurfaceVariant} style={styles.loadingText}>
+          Tauben werden geladen...
+        </Text>
       </View>
     );
   }
+
+  // Empty state - keine Daten UND keine Suche
+  if (!data?.pigeons?.length && !searchQuery) {
     return (
       <View style={styles.container}>
+        <Text variant="h1" style={styles.headerTitle}>
+          Tauben
+        </Text>
+        
         <SearchBar
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -144,6 +103,37 @@ export const PigeonListScreen: React.FC = () => {
           </Text>
           <Button variant="primary" onPress={handleAddPigeon} style={styles.addButton}>
             Taube hinzufügen
+          </Button>
+        </View>
+      </View>
+    );
+  }
+
+  // Empty state - Suche ohne Ergebnisse
+  if (!data?.pigeons?.length && searchQuery) {
+    return (
+      <View style={styles.container}>
+        <Text variant="h1" style={styles.headerTitle}>
+          Tauben
+        </Text>
+        
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onClear={() => setSearchQuery('')}
+          placeholder="Tauben suchen..."
+        />
+
+        <View style={styles.centered}>
+          <Icon name="magnify-close" size={64} color={theme.colors.onSurfaceVariant} />
+          <Text variant="h3" style={styles.emptyTitle}>
+            Keine Ergebnisse
+          </Text>
+          <Text variant="body" color={theme.colors.onSurfaceVariant} style={styles.emptyText}>
+            Keine Tauben gefunden für "{searchQuery}"
+          </Text>
+          <Button variant="secondary" onPress={() => setSearchQuery('')} style={styles.addButton}>
+            Suche zurücksetzen
           </Button>
         </View>
       </View>
@@ -169,11 +159,11 @@ export const PigeonListScreen: React.FC = () => {
           pigeons={data?.pigeons || []}
           onPigeonPress={handlePigeonPress}
           onEndReached={handleEndReached}
-          isLoadingMore={isFetching && !!data?.pigeons?.length}
+          isLoadingMore={isFetching}
         />
       </View>
 
-      {/* Floating Add FAB - nur Icon */}
+      {/* Floating Add FAB */}
       <TouchableOpacity 
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={handleAddPigeon}
@@ -194,11 +184,6 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.md,
     marginBottom: 8,
   },
-  searchCard: {
-    margin: spacing.md,
-    marginBottom: 0,
-    padding: spacing.md,
-  },
   listContainer: {
     flex: 1,
   },
@@ -210,7 +195,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: spacing.md,
-    
   },
   emptyTitle: {
     marginTop: spacing.lg,
@@ -219,18 +203,15 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    
     marginBottom: spacing.lg,
   },
   addButton: {
     marginTop: spacing.md,
   },
-  fabContainer: {
+  fab: {
     position: 'absolute',
     right: spacing.lg,
     bottom: spacing.lg,
-  },
-  fab: {
     width: 56,
     height: 56,
     borderRadius: 28,
