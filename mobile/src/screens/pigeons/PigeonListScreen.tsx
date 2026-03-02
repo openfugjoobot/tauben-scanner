@@ -156,6 +156,10 @@ export const PigeonListScreen: React.FC = () => {
   // DATA vorhanden
   return (
     <View style={styles.container}>
+      <Text variant="h1" style={styles.headerTitle}>
+        Tauben
+      </Text>
+      
       <Card style={styles.searchCard}>
         <Input
           placeholder="Name suchen..."
@@ -196,6 +200,11 @@ export const PigeonListScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  headerTitle: {
+    marginTop: 16,
+    marginHorizontal: spacing.md,
+    marginBottom: 8,
   },
   searchCard: {
     margin: spacing.md,

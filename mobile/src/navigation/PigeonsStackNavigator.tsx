@@ -29,7 +29,7 @@ export const PigeonsStackNavigator: React.FC = () => {
         headerTintColor: theme.colors.primary,
       }}
     >
-      <Stack.Screen name="PigeonList" component={PigeonListScreen} options={{ title: 'Tauben' }} />
+      <Stack.Screen name="PigeonList" component={PigeonListScreen} options={{ headerShown: false }} />
       <Stack.Screen name="PigeonDetail" component={PigeonDetailScreen} options={{ title: 'Details' }} />
       <Stack.Screen name="PigeonEdit" component={PigeonEditScreen} options={{ title: 'Bearbeiten' }} />
       <Stack.Screen name="NewPigeon" component={NewPigeonScreen} options={{ title: 'Neue Taube' }} />
