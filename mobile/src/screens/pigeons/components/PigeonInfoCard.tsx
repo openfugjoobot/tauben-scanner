@@ -33,6 +33,14 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
         Details
       </Text>
 
+      {pigeon.description ? (
+        <View style={styles.descriptionContainer}>
+          <Text variant="body" style={[styles.description, { color: theme.colors.onSurfaceVariant }]}\u003e
+            {pigeon.description}
+          </Text>
+        </View>
+      ) : null}
+
       <View style={styles.infoRow}>
         <View style={styles.infoItem}>
           <Icon name="eye" size={20} color={theme.colors.onSurfaceVariant} />
@@ -70,6 +78,15 @@ const styles = StyleSheet.create({
   },
   title: {
     marginBottom: 16,
+  },
+  descriptionContainer: {
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  description: {
+    lineHeight: 22,
   },
   infoRow: {
     flexDirection: 'row',
