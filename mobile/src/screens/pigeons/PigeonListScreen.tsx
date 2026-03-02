@@ -76,7 +76,7 @@ export const PigeonListScreen: React.FC = () => {
   // Empty state - keine Daten UND keine Suche
   if (!data?.pigeons?.length && !searchQuery) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <Text variant="h1" style={styles.headerTitle}>
           Tauben
         </Text>
@@ -107,7 +107,7 @@ export const PigeonListScreen: React.FC = () => {
   // Empty state - Suche ohne Ergebnisse
   if (!data?.pigeons?.length && searchQuery) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <Text variant="h1" style={styles.headerTitle}>
           Tauben
         </Text>
@@ -137,7 +137,7 @@ export const PigeonListScreen: React.FC = () => {
 
   // DATA vorhanden
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Text variant="h1" style={styles.headerTitle}>
         Tauben
       </Text>

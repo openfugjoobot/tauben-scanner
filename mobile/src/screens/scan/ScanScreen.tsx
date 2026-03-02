@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '../../theme';
 import { CameraCapture } from '../../components/organisms/CameraCapture/CameraCapture';
 import { useScanFlow } from './hooks/useScanFlow';
 import { ScanOverlay } from './components/ScanOverlay';
@@ -38,10 +39,12 @@ export const ScanScreen: React.FC = () => {
     return unsubscribe;
   }, [navigation, step]);
 
+  const theme = useTheme();
+
   // Camera step
   if (step === 'camera') {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <CameraCapture
           onPhotoCaptured={capturePhoto}
           onCancel={() => navigation.goBack()}
@@ -55,7 +58,7 @@ export const ScanScreen: React.FC = () => {
   // Preview step
   if (step === 'preview' && capturedPhoto) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <ImagePreview
           photo={capturedPhoto}
           onRetake={retakePhoto}

@@ -1,6 +1,16 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { useTheme } from '../../theme';
 
 export const NewPigeonScreen: React.FC = () => {
-  return <View />;
+  const theme = useTheme();
+  return (
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]} />
+  );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

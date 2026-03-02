@@ -43,7 +43,7 @@ export const HomeScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <OfflineBanner />
       
       <ScrollView
