@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, ActivityIndicator, Platform, Linking } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, StyleSheet, ActivityIndicator, Platform, PanResponder } from 'react-native';
 import { CameraView } from 'expo-camera';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from '../../atoms/Text';
 import { Button } from '../../atoms/Button';
+import { TouchableOpacity } from 'react-native';
 import { useCameraCapture } from './useCameraCapture';
 import { CameraControls } from './CameraControls';
 import { PhotoPreview } from './PhotoPreview';
@@ -22,7 +23,44 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 }) => {
   const theme = useTheme();
   const [state, actions, cameraRef, cameraError, clearError] = useCameraCapture();
+  const [pinchZoom, setPinchZoom] = useState(0);
 
+  // Pinch-to-Zoom Logic
+  const initialPinchDistanceRef = useRef<number | null>(null);
+  const initialZoomRef = useRef(0);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        initialPinchDistanceRef.current = null;
+        initialZoomRef.current = state.zoom;
+      },
+      onPanResponderMove: (evt) => {
+        const touches = evt.nativeEvent.touches;
+        // Pinch detection
+        if (touches.length === 2 && initialPinchDistanceRef.current === null) {
+          const dx = touches[0].pageX - touches[1].pageX;
+          const dy = touches[0].pageY - touches[1].pageY;
+          initialPinchDistanceRef.current = Math.sqrt(dx * dx + dy * dy);
+        }
+        if (touches.length === 2 && initialPinchDistanceRef.current !== null) {
+          const dx = touches[0].pageX - touches[1].pageX;
+          const dy = touches[0].pageY - touches[1].pageY;
+          const newDistance = Math.sqrt(dx * dx + dy * dy);
+          const scale = newDistance / initialPinchDistanceRef.current;
+          const newZoom = Math.max(0, Math.min(1, initialZoomRef.current + (scale - 1) * 0.5));
+          actions.setZoom(newZoom);
+          setPinchZoom(newZoom);
+        }
+      },
+      onPanResponderRelease: () => {
+        initialPinchDistanceRef.current = null;
+      },
+    })
+  ).current;
+  
   // Auto-confirm if skipPreview is true
   React.useEffect(() => {
     if (skipPreview && state.capturedPhoto) {
@@ -38,6 +76,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
         photo={state.capturedPhoto}
         onRetake={actions.retakePhoto}
         onConfirm={() => onPhotoCaptured(state.capturedPhoto!)}
+        onCancel={onCancel}
       />
     );
   }
