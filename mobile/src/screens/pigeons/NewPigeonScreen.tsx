@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Text } from '../../components/atoms/Text';
 import { Button } from '../../components/atoms/Button';
@@ -15,13 +15,32 @@ export const NewPigeonScreen: React.FC = () => {
   const route = useRoute();
   const { photoUri } = route.params as { photoUri?: string } || {};
   
-  const { formData, errors, isSubmitting, updateField, submit } = usePigeonForm({
+  const { formData, errors, isSubmitting, submitStatus, submitError, updateField, submit, resetSubmitStatus } = usePigeonForm({
     photo: photoUri || null,
   });
+
+  const showErrorBanner = submitStatus === 'error' && submitError;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <OfflineBanner />
+      
+      {showErrorBanner && (
+        <View style={[styles.errorBanner, { backgroundColor: theme.colors.error }]}>
+          <Icon name="alert-circle" size={20} color={theme.colors.onError} />
+          <Text variant="body" style={[styles.errorBannerText, { color: theme.colors.onError }]}>
+            {submitError}
+          </Text>
+          <Button
+            variant="ghost"
+            size="small"
+            onPress={resetSubmitStatus}
+            style={styles.errorBannerDismiss}
+          >
+            <Icon name="close" size={16} color={theme.colors.onError} />
+          </Button>
+        </View>
+      )}
       
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -71,5 +90,20 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     width: '100%',
+  },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  errorBannerText: {
+    flex: 1,
+    fontWeight: '500',
+  },
+  errorBannerDismiss: {
+    padding: 0,
+    minWidth: 0,
   },
 });
