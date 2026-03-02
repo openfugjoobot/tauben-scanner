@@ -40,7 +40,7 @@ export const PigeonListScreen: React.FC = () => {
   );
 
   const handleAddPigeon = useCallback(() => {
-    navigation.navigate('NewPigeon');
+    navigation.navigate('NewPigeon', { photoUri: undefined });
   }, [navigation]);
 
   // ERROR state

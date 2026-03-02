@@ -35,7 +35,7 @@ export const PigeonInfoCard: React.FC<PigeonInfoCardProps> = ({ pigeon }) => {
 
       {pigeon.description ? (
         <View style={styles.descriptionContainer}>
-          <Text variant="body" style={[styles.description, { color: theme.colors.onSurfaceVariant }]}\u003e
+          <Text variant="body" style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
             {pigeon.description}
           </Text>
         </View>

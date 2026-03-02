@@ -29,7 +29,7 @@ const slides: OnboardingSlide[] = [
     id: '1',
     image: require('../../../assets/splash-icon.png'),
     title: 'Willkommen beim Tauben Scanner',
-    description: 'Unterstütze Bestandsaufnahme und Tierschutz. Erfasse Tauben und dokumentiere ihre Sichtungen.',
+    description: 'Unterstuetze Bestandsaufnahme und Tierschutz. Erfasse Tauben und dokumentiere ihre Sichtungen.',
   },
   {
     id: '2',
@@ -41,7 +41,7 @@ const slides: OnboardingSlide[] = [
     id: '3',
     icon: 'map-marker',
     title: 'Sichtungen tracken',
-    description: 'Speichere Fundorte mit GPS-Koordinaten und hilf bei der Dokumentation für Bestandsaufnahme und Tierschutz.',
+    description: 'Speichere Fundorte mit GPS-Koordinaten und hilf bei der Dokumentation fuer Bestandsaufnahme und Tierschutz.',
   },
 ];
 
@@ -85,7 +85,7 @@ export const OnboardingScreen: React.FC = () => {
       </Text>
       <Text
         variant="body"
-        style={[styles.description, { color: theme.colors.onBackground + 'CC' }}
+        style={[styles.description, { color: theme.colors.onBackground + 'CC' }]}
       >
         {item.description}
       </Text>
@@ -137,7 +137,7 @@ export const OnboardingScreen: React.FC = () => {
       {/* Skip Button */}
       <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
         <Text variant="caption" style={{ color: theme.colors.primary }}>
-          Überspringen
+          Ueberspringen
         </Text>
       </TouchableOpacity>
 
