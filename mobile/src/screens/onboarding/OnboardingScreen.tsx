@@ -6,6 +6,7 @@ import {
   FlatList,
   Animated,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { useTheme } from '../../theme';
 import { Text } from '../../components/atoms/Text';
@@ -17,7 +18,8 @@ const { width } = Dimensions.get('window');
 
 interface OnboardingSlide {
   id: string;
-  icon: string;
+  icon?: string;
+  image?: any;
   title: string;
   description: string;
 }
@@ -25,7 +27,7 @@ interface OnboardingSlide {
 const slides: OnboardingSlide[] = [
   {
     id: '1',
-    icon: 'bird',
+    image: require('../../../assets/splash-icon.png'),
     title: 'Willkommen beim Tauben Scanner',
     description: 'Unterstütze Bestandsaufnahme und Tierschutz. Erfasse Tauben und dokumentiere ihre Sichtungen.',
   },
@@ -67,19 +69,23 @@ export const OnboardingScreen: React.FC = () => {
 
   const renderSlide = ({ item }: { item: OnboardingSlide }) => (
     <View style={[styles.slide, { width }]}>
-      <View style={[styles.iconContainer, { backgroundColor: theme.colors.primary + '20' }]}>
-        <MaterialCommunityIcons
-          name={item.icon as any}
-          size={80}
-          color={theme.colors.primary}
-        />
-      </View>
+      {item.image ? (
+        <Image source={item.image} style={styles.splashImage} resizeMode="contain" />
+      ) : (
+        <View style={[styles.iconContainer, { backgroundColor: theme.colors.primary + '20' }]}>
+          <MaterialCommunityIcons
+            name={item.icon as any}
+            size={80}
+            color={theme.colors.primary}
+          />
+        </View>
+      )}
       <Text variant="h2" style={[styles.title, { color: theme.colors.onBackground }]}>
         {item.title}
       </Text>
       <Text
         variant="body"
-        style={[styles.description, { color: theme.colors.onBackground + 'CC' }]}
+        style={[styles.description, { color: theme.colors.onBackground + 'CC' }}
       >
         {item.description}
       </Text>
@@ -194,6 +200,11 @@ const styles = StyleSheet.create({
     borderRadius: 80,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 40,
+  },
+  splashImage: {
+    width: 200,
+    height: 200,
     marginBottom: 40,
   },
   title: {
