@@ -75,7 +75,7 @@ function imageToBase64DataUrl(imagePath: string): string {
  */
 async function pigeonExists(name: string): Promise<boolean> {
   const result = await pool.query('SELECT id FROM pigeons WHERE name = $1', [name]);
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 }
 
 /**
