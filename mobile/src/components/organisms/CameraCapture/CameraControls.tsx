@@ -79,25 +79,21 @@ export const CameraControls: React.FC<CameraControlsProps> = ({
           />
         </TouchableOpacity>
 
-        {/* Capture Button - MD3 Fab Style */}
+        {/* Capture Button - Simple Shutter Style */}
         <TouchableOpacity
           style={[
             styles.captureButton,
-            { backgroundColor: theme.colors.primary },
+            { borderColor: 'white' },
             isCapturing && styles.disabledButton,
           ]}
           onPress={onCapture}
           disabled={isCapturing}
-          activeOpacity={0.8}
+          activeOpacity={1}
         >
           <View 
             style={[
               styles.captureInner,
-              { 
-                backgroundColor: isCapturing 
-                  ? theme.colors.onSurfaceVariant 
-                  : theme.colors.onPrimary 
-              }
+              { backgroundColor: isCapturing ? '#CCCCCC' : 'white' }
             ]} 
           />
         </TouchableOpacity>
@@ -166,16 +162,11 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    borderWidth: 3,
+    borderWidth: 4,
     borderColor: 'white',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
-    // Material 3 elevation
-    elevation: Platform.OS === 'android' ? 4 : 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
   },
   captureInner: {
     width: 56,

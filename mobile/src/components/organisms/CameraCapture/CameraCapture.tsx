@@ -185,9 +185,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
           ref={cameraRef}
           style={styles.camera}
           facing={state.cameraType}
-          flash={state.flashMode}
+          flash="off"
           zoom={state.zoom}
-          enableTorch={state.flashMode === 'on'}
+          enableTorch={false}
         />
       </View>
       

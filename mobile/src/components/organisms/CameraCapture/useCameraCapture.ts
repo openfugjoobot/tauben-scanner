@@ -40,11 +40,9 @@ export const useCameraCapture = (): [
   const [capturedPhoto, setCapturedPhoto] = useState<{ uri: string; base64: string } | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   
-  // Ref for debouncing zoom changes (300ms)
-  const zoomTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const pendingZoomRef = useRef<number>(0);
 
-  // Debounced zoom setter with 300ms delay
+
+  // Immediate zoom setter for pinch-to-zoom (no debounce for smooth onMove)
   const setZoom = useCallback((value: number | number[]) => {
     // Handle slider returning array [value]
     const normalizedValue = Array.isArray(value) ? value[0] : value;
@@ -53,28 +51,11 @@ export const useCameraCapture = (): [
     // Expo Camera zoom: 0 = minimum zoom, 1 = maximum zoom
     const clampedValue = Math.max(0, Math.min(1, normalizedValue));
     
-    // Clear existing timeout
-    if (zoomTimeoutRef.current) {
-      clearTimeout(zoomTimeoutRef.current);
-    }
-    
-    // Store pending value for immediate UI feedback
-    pendingZoomRef.current = clampedValue;
-    
-    // Debounce the actual state update
-    zoomTimeoutRef.current = setTimeout(() => {
-      setZoomState(pendingZoomRef.current);
-    }, 300); // 300ms debounce
+    // Immediate update for smooth pinch gesture
+    setZoomState(clampedValue);
   }, []);
 
-  // Cleanup zoom timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (zoomTimeoutRef.current) {
-        clearTimeout(zoomTimeoutRef.current);
-      }
-    };
-  }, []);
+
 
   const clearError = useCallback(() => {
     setCameraError(null);
@@ -87,10 +68,6 @@ export const useCameraCapture = (): [
     });
     // Reset zoom when switching cameras (front/back have different zoom ranges)
     setZoomState(0);
-    pendingZoomRef.current = 0;
-    if (zoomTimeoutRef.current) {
-      clearTimeout(zoomTimeoutRef.current);
-    }
   }, []);
 
   const toggleFlash = useCallback(() => {
