@@ -79,6 +79,13 @@ router.post('/', async (req: Request, res: Response) => {
     let imageData: { path: string; size: number } | null = null;
     
     // Extract embedding AND save image if photo is provided
+    console.log('[Pigeons] Photo check:', { 
+      hasPhoto: !!photo, 
+      photoType: typeof photo, 
+      startsWithDataImage: typeof photo === 'string' ? photo.startsWith('data:image') : false,
+      photoLength: typeof photo === 'string' ? photo.length : 0
+    });
+    
     if (photo && typeof photo === 'string' && photo.startsWith('data:image')) {
       try {
         console.log('[Pigeons] Processing photo...');
@@ -93,6 +100,8 @@ router.post('/', async (req: Request, res: Response) => {
         console.error('[Pigeons] Failed to process photo:', err);
         // Continue without photo
       }
+    } else {
+      console.log('[Pigeons] No valid photo provided, skipping image processing');
     }
     
     // Insert pigeon into database
