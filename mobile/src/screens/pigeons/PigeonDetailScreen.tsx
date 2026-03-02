@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useLayoutEffect } from 'react';
+import { View, StyleSheet, ScrollView, Alert, Share, TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { usePigeonsNavigation } from '../../navigation/hooks';
 import { usePigeon, useDeletePigeon } from '../../hooks/queries';
@@ -11,6 +11,7 @@ import { SightingsList } from './components/SightingsList';
 import { PigeonMap } from './components/PigeonMap';
 import { OfflineBanner } from '../../components/molecules/OfflineBanner';
 import { useTheme } from "../../theme";
+import { Icon } from '../../components/atoms/Icon';
 
 export const PigeonDetailScreen: React.FC = () => {
   const theme = useTheme();
@@ -41,6 +42,33 @@ export const PigeonDetailScreen: React.FC = () => {
       );
     }
   };
+
+  const handleShare = async () => {
+    if (!pigeon) return;
+    try {
+      await Share.share({
+        message: `Schau dir diese Taube an: ${pigeon.name}`,
+        url: pigeon.photoUrl,
+      });
+    } catch (error) {
+      // ignore
+    }
+  };
+
+  // Set header right button
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={handleShare} style={{ marginRight: 16 }}>
+          <Icon
+            name="share-variant"
+            size={24}
+            color={theme.colors.onSurface}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, pigeon]);
 
   if (isLoading) {
     return <LoadingState type="detail" />;

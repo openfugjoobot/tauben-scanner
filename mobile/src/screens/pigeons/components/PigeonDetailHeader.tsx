@@ -52,30 +52,19 @@ export const PigeonDetailHeader: React.FC<PigeonDetailHeaderProps> = ({
       )}
 
       <View style={[styles.overlay, { backgroundColor: 'transparent' }]}>
-        <TouchableOpacity
-          style={[styles.backButton, { backgroundColor: theme.colors.surface + '4D' }]}
-          onPress={() => navigation.goBack()}
-        >
-          <Icon name="arrow-left" size={24} color={theme.colors.onSurface} />
-        </TouchableOpacity>
-
-        <View style={styles.actions}>
-          <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.surface + '4D' }]} onPress={handleShare}>
-            <Icon name="share-variant" size={20} color={theme.colors.onSurface} />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.surface + '4D' }]} onPress={onEdit}>
-            <Icon name="pencil" size={20} color={theme.colors.onSurface} />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.surface + '4D' }]} onPress={confirmDelete}>
-            <Icon name="trash-can" size={20} color={theme.colors.onSurface} />
-          </TouchableOpacity>
-        </View>
+        {/* Leer - Buttons entfernt */}
       </View>
 
       <View style={[styles.infoContainer, { backgroundColor: theme.colors.background + '66' }]}>
         <Text variant="h1" style={[styles.name, { color: theme.colors.onSurface }]}>
           {pigeon.name}
         </Text>
+        
+        {pigeon.description && (
+          <Text variant="body" style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
+            {pigeon.description}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -128,6 +117,11 @@ const styles = StyleSheet.create({
   },
   name: {
     marginBottom: 4,
+  },
+  description: {
+    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 20,
   },
   color: {
     // color handled inline
