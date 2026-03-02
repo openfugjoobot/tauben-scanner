@@ -1,69 +1,49 @@
-import React, { useState, useCallback } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
-import { Icon } from '../atoms/Icon';
+import React from 'react';
+import { View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
-import { spacing } from '../../theme/spacing';
 
 interface SearchBarProps {
+  value: string;
+  onChangeText: (text: string) => void;
+  onClear?: () => void;
   placeholder?: string;
-  onSearch: (query: string) => void;
-  debounceMs?: number;
-  value?: string;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = 'Suchen...',
-  onSearch,
-  debounceMs = 300,
-  value: controlledValue,
+  value,
+  onChangeText,
+  onClear,
+  placeholder = 'Suchen',
 }) => {
   const theme = useTheme();
-  const [internalValue, setInternalValue] = useState('');
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
-
-  const value = controlledValue !== undefined ? controlledValue : internalValue;
-
-  const handleChange = useCallback((text: string) => {
-    if (controlledValue === undefined) {
-      setInternalValue(text);
-    }
-
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    const timer = setTimeout(() => {
-      onSearch(text);
-    }, debounceMs);
-
-    setDebounceTimer(timer);
-  }, [onSearch, debounceMs, controlledValue, debounceTimer]);
-
-  const handleClear = () => {
-    if (controlledValue === undefined) {
-      setInternalValue('');
-    }
-    onSearch('');
-  };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-      <Icon name="magnify" size={20} color={theme.colors.onSurfaceVariant} />
+    <View style={[styles.container, { backgroundColor: theme.colors.surfaceVariant }]}>
+      <MaterialCommunityIcons
+        name="magnify"
+        size={24}
+        color={theme.colors.onSurfaceVariant}
+        style={styles.leadingIcon}
+      />
       <TextInput
         style={[styles.input, { color: theme.colors.onSurface }]}
-        placeholder={placeholder}
-        placeholderTextColor={theme.colors.onSurfaceDisabled}
         value={value}
-        onChangeText={handleChange}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={theme.colors.onSurfaceVariant}
+        blurOnSubmit={false}
         returnKeyType="search"
       />
-      {value.length > 0 && (
-        <Icon
-          name="close-circle"
-          size={20}
-          color={theme.colors.onSurfaceVariant}
-          onPress={handleClear}
-        />
+      
+      {value.length > 0 && onClear && (
+        <TouchableOpacity onPress={onClear} style={styles.trailingIcon}>
+          <MaterialCommunityIcons
+            name="close-circle"
+            size={20}
+            color={theme.colors.onSurfaceVariant}
+          />
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -73,16 +53,24 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    height: 56,
+    borderRadius: 28,
+    paddingHorizontal: 16,
     marginHorizontal: 16,
     marginVertical: 8,
   },
+  leadingIcon: {
+    marginRight: 12,
+  },
   input: {
     flex: 1,
-    marginLeft: 8,
     fontSize: 16,
+    lineHeight: 24,
+    letterSpacing: 0.5,
     padding: 0,
+  },
+  trailingIcon: {
+    marginLeft: 8,
+    padding: 4,
   },
 });

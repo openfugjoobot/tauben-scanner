@@ -17,6 +17,9 @@ import { usePigeons } from '../../hooks/queries';
 import { useDebounce } from '../../hooks';
 import { useTheme } from '../../theme';
 import { spacing } from '../../theme/spacing';
+import { SearchBar } from '../../components/molecules/SearchBar';
+import { ListTile } from '../../components/molecules/ListTile';
+import { Avatar } from '../../components/atoms/Avatar';
 
 export const PigeonListScreen: React.FC = () => {
   const navigation = usePigeonsNavigation();
@@ -124,19 +127,12 @@ export const PigeonListScreen: React.FC = () => {
   }
     return (
       <View style={styles.container}>
-        <Card style={styles.searchCard}>
-          <Input
-            placeholder="Name suchen..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            leftIcon="magnify"
-            rightIcon={searchQuery ? 'close' : undefined}
-            onRightIconPress={() => setSearchQuery('')}
-            blurOnSubmit={false}
-            returnKeyType="search"
-            autoFocus={true}
-          />
-        </Card>
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onClear={() => setSearchQuery('')}
+          placeholder="Tauben suchen..."
+        />
 
         <View style={styles.centered}>
           <Icon name="bird" size={64} color={theme.colors.onSurfaceVariant} />
@@ -161,18 +157,12 @@ export const PigeonListScreen: React.FC = () => {
         Tauben
       </Text>
       
-      <Card style={styles.searchCard}>
-        <Input
-          placeholder="Name suchen..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          leftIcon="magnify"
-          rightIcon={searchQuery ? 'close' : undefined}
-          onRightIconPress={() => setSearchQuery('')}
-          blurOnSubmit={false}
-          returnKeyType="search"
-        />
-      </Card>
+      <SearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        onClear={() => setSearchQuery('')}
+        placeholder="Tauben suchen..."
+      />
 
       <View style={styles.listContainer}>
         <PigeonList

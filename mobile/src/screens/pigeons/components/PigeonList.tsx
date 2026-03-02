@@ -1,9 +1,16 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, ListRenderItem } from 'react-native';
-import { PigeonCard } from '../../../components/molecules/PigeonCard';
+import { 
+  View, 
+  StyleSheet, 
+  FlatList, 
+  ActivityIndicator
+} from 'react-native';
 import { spacing } from '../../../theme/spacing';
 import { useTheme } from '../../../theme';
 import { Pigeon } from '../../../services/api/apiClient.types';
+import { ListTile } from '../../../components/molecules/ListTile';
+import { Avatar } from '../../../components/atoms/Avatar';
+import { Text } from '../../../components/atoms/Text';
 
 interface PigeonListProps {
   pigeons: Pigeon[];
@@ -20,13 +27,35 @@ export const PigeonList: React.FC<PigeonListProps> = ({
 }) => {
   const theme = useTheme();
 
-  const renderItem: ListRenderItem<Pigeon> = ({ item }) => (
-    <PigeonCard
-      pigeon={item}
-      onPress={() => onPigeonPress(item.id)}
-      style={styles.card}
-    />
-  );
+  const renderItem = ({ item }: { item: Pigeon }) => {
+    const subtitle = item.description 
+      ? `${item.description.substring(0, 40)}${item.description.length > 40 ? '...' : ''}`
+      : `${item.sightingsCount} Sichtung${item.sightingsCount !== 1 ? 'en' : ''}`;
+    
+    return (
+      <ListTile
+        leading={
+          <Avatar 
+            source={item.photoUrl} 
+            name={item.name} 
+            size="medium" 
+          />
+        }
+        title={item.name}
+        subtitle={subtitle}
+        trailing={
+          item.sightingsCount > 0 ? (
+            <View style={[styles.badge, { backgroundColor: theme.colors.primaryContainer }]} >
+              <Text variant="labelSmall" style={{ color: theme.colors.onPrimaryContainer }}>
+                {item.sightingsCount}
+              </Text>
+            </View>
+          ) : null
+        }
+        onPress={() => onPigeonPress(item.id)}
+      />
+    );
+  };
 
   return (
     <FlatList
@@ -36,8 +65,7 @@ export const PigeonList: React.FC<PigeonListProps> = ({
       contentContainerStyle={styles.listContent}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
+      ItemSeparatorComponent={() => <View style={styles.divider} />}
       ListFooterComponent={
         isLoadingMore ? (
           <View style={styles.loaderContainer}>
@@ -51,11 +79,20 @@ export const PigeonList: React.FC<PigeonListProps> = ({
 
 const styles = StyleSheet.create({
   listContent: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.xl + 80, // Platz für FAB
   },
-  card: {
-    marginBottom: spacing.md,
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    marginHorizontal: spacing.md,
+  },
+  badge: {
+    minWidth: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
   },
   loaderContainer: {
     paddingVertical: spacing.md,
