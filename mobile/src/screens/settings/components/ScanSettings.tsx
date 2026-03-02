@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SettingsSection } from './SettingsSection';
-import { SettingsItem } from './SettingsItem';
 import { Text } from '../../../components/atoms/Text';
 import { useTheme } from '../../../theme';
+import { spacing } from '../../../theme/spacing';
 
 interface ScanSettingsProps {
   matchThreshold: number;
@@ -18,12 +19,35 @@ export const ScanSettings: React.FC<ScanSettingsProps> = ({
   const theme = useTheme();
 
   return (
-    <SettingsSection title="Scan-Einstellungen">
-      <SettingsItem label="Übereinstimmungsschwellenwert">
-        <View style={styles.container}>
-          <Text variant="caption" style={[styles.valueText, { color: theme.colors.onSurfaceVariant }]}>
-            {matchThreshold.toFixed(0)}% Übereinstimmung erforderlich
+    <SettingsSection 
+      title="Scan-Einstellungen" 
+      icon="camera-outline"
+    >
+      <View style={styles.item}>
+        <View style={styles.header}>
+          <Text variant="bodyLarge">Übereinstimmungsschwelle</Text>
+          <Text 
+            variant="labelLarge" 
+            style={{ color: theme.colors.primary }}
+          >
+            {matchThreshold.toFixed(0)}%
           </Text>
+        </View>
+        
+        <Text 
+          variant="bodyMedium" 
+          style={{ color: theme.colors.onSurfaceVariant, marginBottom: spacing.sm }}
+        >
+          Erhöht die Empfindlichkeit der Bilderkennung
+        </Text>
+
+        <View style={styles.sliderContainer}>
+          <MaterialCommunityIcons
+            name="magnify-minus"
+            size={20}
+            color={theme.colors.onSurfaceVariant}
+          />
+          
           <Slider
             style={styles.slider}
             minimumValue={0}
@@ -32,34 +56,57 @@ export const ScanSettings: React.FC<ScanSettingsProps> = ({
             value={matchThreshold}
             onSlidingComplete={onThresholdChange}
             minimumTrackTintColor={theme.colors.primary}
-            maximumTrackTintColor={theme.colors.outline}
+            maximumTrackTintColor={theme.colors.secondaryContainer}
             thumbTintColor={theme.colors.primary}
           />
-          <View style={styles.labels}>
-            <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant }}>0%</Text>
-            <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant }}>50%</Text>
-            <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant }}>100%</Text>
-          </View>
+          
+          <MaterialCommunityIcons
+            name="magnify-plus"
+            size={20}
+            color={theme.colors.onSurfaceVariant}
+          />
         </View>
-      </SettingsItem>
+        
+        <View style={styles.labels}>
+          <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant }}>
+            0%
+          </Text>
+          <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant }}>
+            50%
+          </Text>
+          <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant }}>
+            100%
+          </Text>
+        </View>
+      </View>
     </SettingsSection>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 12,
+  item: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-  valueText: {
-    marginBottom: 12,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  sliderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: spacing.sm,
   },
   slider: {
-    width: '100%',
+    flex: 1,
     height: 40,
+    marginHorizontal: spacing.sm,
   },
   labels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: -8,
+    paddingHorizontal: spacing.lg,
   },
 });

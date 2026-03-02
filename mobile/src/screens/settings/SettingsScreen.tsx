@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
+import { Surface, Divider, Chip } from 'react-native-paper';
 import { Text } from '../../components/atoms/Text';
-import { Card } from '../../components/atoms/Card';
 import { OfflineBanner } from '../../components/molecules/OfflineBanner';
 import { ScanSettings } from './components/ScanSettings';
 import { AboutSection } from './components/AboutSection';
 import { useSettingsStore } from '../../stores/settings';
 import { useTheme } from '../../theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { spacing } from '../../theme/spacing';
 
 interface ServerStatus {
   connected: boolean;
@@ -101,67 +102,54 @@ export const SettingsScreen: React.FC = () => {
           Einstellungen
         </Text>
 
-        {/* Server Status Card - Kompakt */}
-        <Card style={styles.card}>
-          <View style={styles.statusRow}>
-            <MaterialCommunityIcons
-              name={serverStatus.connected ? 'check-circle' : 'alert-circle'}
-              size={20}
-              color={serverStatus.connected ? theme.colors.success : theme.colors.error}
-            />
-            <Text variant="body" style={styles.statusTitle}>
-              {serverStatus.connected ? 'Server verbunden' : 'Server nicht erreichbar'}
-            </Text>
-            
-            {serverStatus.latency && (
-              <Text variant="caption" style={[styles.latency, { color: theme.colors.onSurfaceVariant }]}>
-                {serverStatus.latency}ms
+        {/* Server Status - MD3 Surface mit Chip */}
+        <Surface style={[styles.surface, { elevation: 1 }]}>
+          <View style={styles.statusHeader}>
+            <View style={styles.statusRow}>
+              <MaterialCommunityIcons
+                name={serverStatus.connected ? 'check-circle' : 'alert-circle'}
+                size={24}
+                color={serverStatus.connected ? theme.colors.success : theme.colors.error}
+              />
+              <Text variant="bodyLarge" style={styles.statusTitle}>
+                {serverStatus.connected ? 'Server verbunden' : 'Server nicht erreichbar'}
               </Text>
-            )}
+            </View>
+            
+            <Chip 
+              style={{ 
+                backgroundColor: serverStatus.connected ? theme.colors.successContainer : theme.colors.errorContainer 
+              }}
+              textStyle={{ 
+                color: serverStatus.connected ? theme.colors.onSuccessContainer : theme.colors.onErrorContainer 
+              }}
+              icon={serverStatus.connected ? 'check' : 'alert'}
+            >
+              {serverStatus.connected ? 'Online' : 'Offline'}
+            </Chip>
           </View>
           
-          {serverStatus.connected && serverStatus.services && (
-            <View style={[styles.servicesRow, { borderTopColor: theme.colors.outline }]}>
-              <View style={styles.serviceItem}>
-                <MaterialCommunityIcons
-                  name={getServiceIcon(serverStatus.services.database)}
-                  size={14}
-                  color={getServiceColor(serverStatus.services.database)}
-                />
-                <Text variant="caption" style={[styles.serviceText, { color: theme.colors.onSurfaceVariant }]}>DB</Text>
-              </View>
-              
-              <View style={styles.serviceItem}>
-                <MaterialCommunityIcons
-                  name={getServiceIcon(serverStatus.services.storage)}
-                  size={14}
-                  color={getServiceColor(serverStatus.services.storage)}
-                />
-                <Text variant="caption" style={[styles.serviceText, { color: theme.colors.onSurfaceVariant }]}>Storage</Text>
-              </View>
-              
-              <View style={styles.serviceItem}>
-                <MaterialCommunityIcons
-                  name={getServiceIcon(serverStatus.services.embedding_model)}
-                  size={14}
-                  color={getServiceColor(serverStatus.services.embedding_model)}
-                />
-                <Text variant="caption" style={[styles.serviceText, { color: theme.colors.onSurfaceVariant }]}>KI</Text>
-              </View>
-            </View>
+          {serverStatus.latency && (
+            <Text variant="caption" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
+              Latenz: {serverStatus.latency}ms
+            </Text>
           )}
           
           {!serverStatus.connected && serverStatus.error && (
-            <Text variant="caption" style={{ color: theme.colors.error, marginTop: 4 }}>
+            <Text variant="caption" style={{ color: theme.colors.error, marginTop: 8 }}>
               {serverStatus.error}
             </Text>
           )}
-        </Card>
+        </Surface>
+
+        <Divider style={styles.divider} />
 
         <ScanSettings
           matchThreshold={matchThreshold}
           onThresholdChange={handleThresholdChange}
         />
+        
+        <Divider style={styles.divider} />
         
         <AboutSection />
         
@@ -183,46 +171,32 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: 16,
-    paddingBottom: 32,
+    padding: spacing.md,
+    paddingBottom: spacing.xl,
   },
   title: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
-  card: {
-    marginBottom: 16,
-    padding: 12,
+  surface: {
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderRadius: 12,
   },
-  // Kompakter Status-Block
+  statusHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   statusTitle: {
-    marginLeft: 8,
+    marginLeft: spacing.sm,
     fontWeight: '600',
-    flex: 1,
   },
-  latency: {
-    
-    marginLeft: 8,
-  },
-  servicesRow: {
-    flexDirection: 'row',
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    
-    gap: 16,
-  },
-  serviceItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  serviceText: {
-    
-    fontSize: 12,
+  divider: {
+    marginVertical: spacing.md,
   },
   savedBanner: {
     position: 'absolute',
