@@ -52,7 +52,7 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
       const base64 = await FileSystem.readAsStringAsync(photoUri, {
         encoding: FileSystem.EncodingType.Base64,
       });
-      return \`data:image/jpeg;base64,\${base64}\`;
+      return 'data:image/jpeg;base64,' + base64;
     } catch (error) {
       console.error('Fehler beim Konvertieren:', error);
       throw new Error('Bild konnte nicht verarbeitet werden');
