@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, StyleSheet, ActivityIndicator, Platform, PanResponder, Linking, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, StyleSheet, ActivityIndicator, Platform, Linking, TouchableOpacity, GestureResponderEvent, PanResponder } from 'react-native';
 import { CameraView } from 'expo-camera';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Text } from '../../atoms/Text';
@@ -22,46 +22,53 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 }) => {
   const theme = useTheme();
   const [state, actions, cameraRef, cameraError, clearError] = useCameraCapture();
-  const [pinchZoom, setPinchZoom] = useState(0);
 
-  // Pinch-to-Zoom Logic
-  const initialPinchDistanceRef = useRef<number | null>(null);
-  const initialZoomRef = useRef(0);
+  // Pinch-to-Zoom State
+  const [initialPinch, setInitialPinch] = useState<{ distance: number; zoom: number } | null>(null);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: () => {
-        initialPinchDistanceRef.current = null;
-        initialZoomRef.current = state.zoom;
-      },
-      onPanResponderMove: (evt) => {
-        const touches = evt.nativeEvent.touches;
-        // Pinch detection
-        if (touches.length === 2 && initialPinchDistanceRef.current === null) {
-          const dx = touches[0].pageX - touches[1].pageX;
-          const dy = touches[0].pageY - touches[1].pageY;
-          initialPinchDistanceRef.current = Math.sqrt(dx * dx + dy * dy);
-        }
-        if (touches.length === 2 && initialPinchDistanceRef.current !== null) {
-          const dx = touches[0].pageX - touches[1].pageX;
-          const dy = touches[0].pageY - touches[1].pageY;
-          const newDistance = Math.sqrt(dx * dx + dy * dy);
-          const scale = newDistance / initialPinchDistanceRef.current;
-          const newZoom = Math.max(0, Math.min(1, initialZoomRef.current + (scale - 1) * 0.5));
-          actions.setZoom(newZoom);
-          setPinchZoom(newZoom);
-        }
-      },
-      onPanResponderRelease: () => {
-        initialPinchDistanceRef.current = null;
-      },
-    })
-  ).current;
-  
+  // Handlers für Pinch-Zoom
+  const handlePanResponderGrant = useCallback(() => {
+    setInitialPinch(null);
+  }, []);
+
+  const handlePanResponderMove = useCallback((evt: GestureResponderEvent) => {
+    const touches = evt.nativeEvent.touches;
+    
+    if (touches.length === 2) {
+      const dx = touches[0].pageX - touches[1].pageX;
+      const dy = touches[0].pageY - touches[1].pageY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (!initialPinch) {
+        setInitialPinch({ distance, zoom: state.zoom });
+      } else {
+        const scale = distance / initialPinch.distance;
+        // Sensitivität: 0.5x Scale = 0.25x Zoom-Änderung
+        const zoomDelta = (scale - 1) * 0.5;
+        const newZoom = Math.max(0, Math.min(1, initialPinch.zoom + zoomDelta));
+        actions.setZoom(newZoom);
+      }
+    }
+  }, [initialPinch, state.zoom, actions]);
+
+  const handlePanResponderRelease = useCallback(() => {
+    setInitialPinch(null);
+  }, []);
+
+  const panResponder = React.useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: (_evt, gestureState) => {
+      // Nur bei Pinch (2 Finger) oder großen Bewegungen
+      return gestureState.numberActiveTouches === 2 || Math.abs(gestureState.dx) > 5;
+    },
+    onPanResponderGrant: handlePanResponderGrant,
+    onPanResponderMove: handlePanResponderMove,
+    onPanResponderRelease: handlePanResponderRelease,
+    onPanResponderTerminate: handlePanResponderRelease,
+  }), [handlePanResponderGrant, handlePanResponderMove, handlePanResponderRelease]);
+
   // Auto-confirm if skipPreview is true
-  React.useEffect(() => {
+  useEffect(() => {
     if (skipPreview && state.capturedPhoto) {
       onPhotoCaptured(state.capturedPhoto);
       actions.retakePhoto();
@@ -156,36 +163,36 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
   // Camera view
   return (
-    <View style={styles.container} {...panResponder.panHandlers}>
-      {/* Close Button - oben rechts */}
+    <View style={styles.container}>
+      {/* Close Button - MD3 Icon Button oben rechts */}
       {onCancel && (
         <TouchableOpacity
-          style={styles.closeButton}
+          style={[styles.closeButton, { backgroundColor: theme.colors.surface + 'CC' }]}
           onPress={onCancel}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <MaterialCommunityIcons
             name="close"
-            size={28}
-            color="white"
+            size={24}
+            color={theme.colors.onSurface}
           />
         </TouchableOpacity>
       )}
 
-      <CameraView
-        ref={cameraRef}
-        style={styles.camera}
-        facing={state.cameraType}
-        flash={state.flashMode}
-        zoom={state.zoom}
-        enableTorch={state.flashMode === 'on'}
-      />
+      {/* Camera mit Pan-Handler für Pinch */}
+      <View style={styles.cameraContainer} {...panResponder.panHandlers}>
+        <CameraView
+          ref={cameraRef}
+          style={styles.camera}
+          facing={state.cameraType}
+          flash={state.flashMode}
+          zoom={state.zoom}
+          enableTorch={state.flashMode === 'on'}
+        />
+      </View>
       
-      {/* Controls overlay with proper pointer events handling for Android */}
-      <View 
-        style={styles.controlsOverlay}
-        pointerEvents="box-none"
-      >
+      {/* Controls overlay */}
+      <View style={styles.controlsOverlay} pointerEvents="box-none">
         <CameraControls
           flashMode={state.flashMode}
           onToggleFlash={actions.toggleFlash}
@@ -205,16 +212,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
-    // Establish positioning context for absolute children
     position: 'relative',
   },
-  camera: {
+  closeButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 40,
+    right: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    elevation: 5,
+    // MD3: Surface color with 80% opacity
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  cameraContainer: {
     flex: 1,
+  },
+  camera: {
+    ...StyleSheet.absoluteFillObject,
   },
   controlsOverlay: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
-    // zIndex and elevation for Android
     zIndex: 1,
     elevation: Platform.OS === 'android' ? 1 : 0,
   },
@@ -244,18 +269,5 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     textAlign: 'center',
     color: '#fff',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 40,
-    right: 20,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
-    elevation: 5,
   },
 });
