@@ -47,28 +47,47 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
-  const convertPhotoToBase64 = async (photoUri: string): Promise<string> => {
+  const convertPhotoToBase64 = async (photoUri: string): Promise<string | null> => {
     try {
+      console.log('[usePigeonForm] Converting photo:', photoUri);
+      
+      // Check if file exists
+      const fileInfo = await FileSystem.getInfoAsync(photoUri);
+      if (!fileInfo.exists) {
+        console.error('[usePigeonForm] Photo file does not exist');
+        return null;
+      }
+      
       const base64 = await FileSystem.readAsStringAsync(photoUri, {
         encoding: FileSystem.EncodingType.Base64,
       });
+      
+      console.log('[usePigeonForm] Photo converted, size:', base64.length);
       return 'data:image/jpeg;base64,' + base64;
     } catch (error) {
-      console.error('Fehler beim Konvertieren:', error);
-      throw new Error('Bild konnte nicht verarbeitet werden');
+      console.error('[usePigeonForm] Failed to convert photo:', error);
+      return null;
     }
   };
 
   const submit = useCallback(async () => {
-    if (!validate()) return false;
+    console.log('[usePigeonForm] Submit called');
+    
+    if (!validate()) {
+      console.log('[usePigeonForm] Validation failed');
+      return false;
+    }
 
     try {
       let photoBase64: string | undefined;
 
       if (formData.photo) {
+        console.log('[usePigeonForm] Processing photo...');
         photoBase64 = await convertPhotoToBase64(formData.photo);
+        console.log('[usePigeonForm] Photo processed:', photoBase64 ? 'success' : 'failed');
       }
 
+      console.log('[usePigeonForm] Creating pigeon...');
       await createMutation.mutateAsync({
         name: formData.name,
         description: formData.description || undefined,
@@ -76,12 +95,15 @@ export const usePigeonForm = (initialData?: Partial<PigeonFormData>) => {
         location: formData.location || undefined,
       });
 
+      console.log('[usePigeonForm] Pigeon created successfully');
       navigation.goBack();
       return true;
     } catch (error) {
+      console.error('[usePigeonForm] Submit error:', error);
+      setErrors({ name: 'Speichern fehlgeschlagen. Bitte versuche es erneut.' });
       return false;
     }
-  }, [formData, validate, createMutation, navigation, convertPhotoToBase64]);
+  }, [formData, validate, createMutation, navigation]);
 
   return {
     formData,
