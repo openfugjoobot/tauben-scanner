@@ -197,6 +197,13 @@ async function main() {
     await pool.query('SELECT NOW()');
     console.log('✅ Database connected\n');
     
+    // Clear existing data
+    console.log('🗑️  Clearing existing data...');
+    await pool.query('DELETE FROM sightings');
+    await pool.query('DELETE FROM images');
+    await pool.query('DELETE FROM pigeons');
+    console.log('✅ Data cleared\n');
+    
     // Run seed
     const result = await seedDatabase();
     
