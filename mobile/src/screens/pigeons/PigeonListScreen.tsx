@@ -1,10 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
-} from 'react-native';
+import { View, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { usePigeonsNavigation } from '../../navigation/hooks';
 import { Text } from '../../components/atoms/Text';
 import { Button } from '../../components/atoms/Button';
@@ -45,7 +40,7 @@ export const PigeonListScreen: React.FC = () => {
   );
 
   const handleAddPigeon = useCallback(() => {
-    navigation.navigate({ name: 'NewPigeon', params: {} });
+    navigation.navigate('NewPigeon');
   }, [navigation]);
 
   // ERROR state
