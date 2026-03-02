@@ -2,7 +2,7 @@ import React from 'react';
 import { Text as RNText, TextProps as RNTextProps, StyleSheet } from 'react-native';
 import { useTheme } from '../../theme';
 
-type TextVariant = 'h1' | 'h2' | 'h3' | 'body' | 'caption' | 'button';
+type TextVariant = 'h1' | 'h2' | 'h3' | 'body' | 'caption' | 'button' | 'bodyLarge' | 'bodyMedium' | 'labelSmall' | 'labelLarge' | 'labelMedium';
 
 interface TextProps extends RNTextProps {
   variant?: TextVariant;
@@ -30,8 +30,18 @@ export const Text: React.FC<TextProps> = ({
         return { fontSize: 20, fontWeight: '600' as const, lineHeight: 28 };
       case 'body':
         return { fontSize: 16, fontWeight: '400' as const, lineHeight: 24 };
+      case 'bodyLarge':
+        return { fontSize: 16, fontWeight: '400' as const, lineHeight: 24 };
+      case 'bodyMedium':
+        return { fontSize: 14, fontWeight: '400' as const, lineHeight: 20 };
       case 'caption':
         return { fontSize: 12, fontWeight: '400' as const, lineHeight: 16 };
+      case 'labelSmall':
+        return { fontSize: 11, fontWeight: '500' as const, lineHeight: 16 };
+      case 'labelMedium':
+        return { fontSize: 12, fontWeight: '500' as const, lineHeight: 16 };
+      case 'labelLarge':
+        return { fontSize: 14, fontWeight: '500' as const, lineHeight: 20 };
       case 'button':
         return { fontSize: 16, fontWeight: '600' as const, lineHeight: 24 };
       default:

@@ -3,6 +3,8 @@ import { MD3LightTheme, MD3DarkTheme, configureFonts, MD3Theme } from 'react-nat
 export interface AppTheme extends MD3Theme {
   colors: MD3Theme['colors'] & {
     success: string;
+    successContainer: string;
+    onSuccessContainer: string;
     warning: string;
     info: string;
   };
@@ -142,8 +144,12 @@ export const paperLightTheme: AppTheme = {
     onSurfaceVariant: lightColors.textSecondary,
     error: lightColors.error,
     onError: lightColors.onError,
+    errorContainer: palette.error + '1A', // 10% opacity
+    onErrorContainer: palette.error,
     outline: lightColors.outline,
     success: semanticColors.success,
+    successContainer: semanticColors.success + '1A',
+    onSuccessContainer: semanticColors.success,
     warning: semanticColors.warning,
     info: semanticColors.info,
   },
@@ -163,9 +169,13 @@ export const paperDarkTheme: AppTheme = {
     onSurface: darkColors.text,
     onSurfaceVariant: darkColors.textSecondary,
     onError: darkColors.onError,
+    errorContainer: palette.errorDark + '1A',
+    onErrorContainer: palette.errorDark,
     outline: darkColors.outline,
     error: semanticColors.error,
     success: semanticColors.success,
+    successContainer: semanticColors.success + '1A',
+    onSuccessContainer: semanticColors.success,
     warning: semanticColors.warning,
     info: semanticColors.info,
   },

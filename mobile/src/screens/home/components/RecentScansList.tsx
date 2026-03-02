@@ -54,7 +54,7 @@ export const RecentScansList: React.FC<RecentScansListProps> = ({ scans }) => {
     return theme.colors.primary;
   };
 
-  const formatDate = (timestamp: string) => {
+  const formatDate = (timestamp: string | number) => {
     const date = new Date(timestamp);
     return date.toLocaleString('de-DE', {
       day: '2-digit',

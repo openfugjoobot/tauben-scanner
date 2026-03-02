@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { apiClient } from '../../services/api';
 import { usePigeons } from '../../hooks/queries';
 import { useSettingsStore } from '../../stores/settings';
-import { clearStorage, createMmkvStorage, StorageKeys } from '../../stores/storage';
+import { clearAllStorage, createMmkvStorage, StorageKeys } from '../../stores/storage';
 import { useTheme } from "../../theme";
 
 export const DebugApiTest: React.FC = () => {
@@ -34,8 +34,7 @@ export const DebugApiTest: React.FC = () => {
   };
 
   const clearCache = async () => {
-    const storage = createMmkvStorage();
-    await storage.clear();
+    clearAllStorage();
     console.log('Storage cleared!');
     alert('Storage cleared - Restart app!');
   };

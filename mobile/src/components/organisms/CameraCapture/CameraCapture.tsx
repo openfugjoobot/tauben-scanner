@@ -200,7 +200,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
           onCapture={actions.takePhoto}
           isCapturing={state.isCapturing}
           zoom={state.zoom}
-          onZoomChange={actions.setZoom}
+          onZoomChange={(zoom) => actions.setZoom(Array.isArray(zoom) ? zoom[0] : zoom)}
           cameraType={state.cameraType}
         />
       </View>

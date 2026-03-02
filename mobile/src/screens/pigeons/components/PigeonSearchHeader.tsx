@@ -28,8 +28,8 @@ export const PigeonSearchHeader: React.FC<PigeonSearchHeaderProps> = ({
           <SearchBar
             placeholder="Tauben suchen..."
             value={searchQuery}
-            onSearch={onSearchChange}
-            debounceMs={300}
+            onChangeText={onSearchChange}
+            onClear={() => onSearchChange('')}
           />
         </View>
         
