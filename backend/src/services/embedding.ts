@@ -17,8 +17,8 @@ let model: mobilenet.MobileNet | null = null;
 let modelLoading = false;
 let modelError: string | null = null;
 
-// Expected embedding dimension - must match backend validation
-const EXPECTED_EMBEDDING_DIMENSION = 1280;
+// Expected embedding dimension - must match backend validation and database schema
+const EXPECTED_EMBEDDING_DIMENSION = 1024;
 
 /**
  * Load the MobileNet model for embedding extraction
