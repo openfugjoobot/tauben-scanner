@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { Card } from '../../../components/atoms/Card';
+import { View, StyleSheet } from 'react-native';
+import { Surface, Divider } from 'react-native-paper';
 import { Text } from '../../../components/atoms/Text';
 import { Icon } from '../../../components/atoms/Icon';
-import { EmptyState } from '../../../components/molecules/EmptyState';
+import { ListTile } from '../../../components/molecules/ListTile';
 import { useTheme } from '../../../theme';
 import { spacing } from '../../../theme/spacing';
 import type { ScanResult } from '../../../stores/scans/scanStore.types';
@@ -21,56 +21,47 @@ export const RecentScansList: React.FC<RecentScansListProps> = ({ scans }) => {
         <Text variant="h3" style={styles.title}>
           Letzte Scans
         </Text>
-        <EmptyState
-          icon="camera-outline"
-          title="Noch keine Scans"
-          message="Scannen Sie Ihre erste Taube, um sie hier zu sehen."
-        />
+        <Surface style={[styles.emptyContainer, { elevation: 0 }]} >
+          <View style={styles.illustration}>
+            <Icon name="camera-outline" size={64} color={theme.colors.onSurfaceVariant} />
+          </View>
+          <Text variant="h3" style={[styles.emptyTitle, { color: theme.colors.onSurfaceVariant }]}>
+            Noch keine Scans
+          </Text>
+          <Text variant="body" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
+            Scannen Sie Ihre erste Taube, um sie hier zu sehen.
+          </Text>
+        </Surface>
       </View>
     );
   }
 
-  const renderScanItem = ({ item }: { item: ScanResult & { status?: 'success' | 'error' | 'pending' } }) => {
-    const date = new Date(item.timestamp);
-    const isSuccess = item.status === 'success' || (item.pigeonId !== undefined && item.pigeonId !== null);
-    const isError = item.status === 'error';
+  const getScanIcon = (status: string | undefined) => {
+    if (status === 'success') return 'check-circle' as const;
+    if (status === 'error') return 'alert-circle' as const;
+    return 'camera' as const;
+  };
 
-    return (
-      <Card padding="medium" style={styles.scanCard}>
-        <View style={styles.scanRow}>
-          <Icon
-            name={isSuccess ? 'check-circle' : isError ? 'alert-circle' : 'camera'}
-            size={24}
-            color={isSuccess ? (theme.colors.success as string) : isError ? (theme.colors.error as string) : theme.colors.primary}
-          />
-          
-          <View style={styles.scanInfo}>
-            <Text variant="body" numberOfLines={1}>
-              {isSuccess ? 'Taube erkannt' : isError ? 'Fehler beim Scannen' : 'Scan durchgeführt'}
-            </Text>
-            <Text variant="caption" color={theme.colors.onSurfaceVariant}>
-              {date.toLocaleString('de-DE', {
-                day: '2-digit',
-                month: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
-          </View>
-          
-          {item.confidence !== undefined && (
-            <Text
-              variant="caption"
-              style={{
-                color: item.confidence > 0.8 ? (theme.colors.success as string) : (theme.colors.warning as string),
-              }}
-            >
-              {Math.round(item.confidence * 100)}%
-            </Text>
-          )}
-        </View>
-      </Card>
-    );
+  const getScanTitle = (status: string | undefined) => {
+    if (status === 'success') return 'Taube erkannt';
+    if (status === 'error') return 'Fehler beim Scannen';
+    return 'Scan durchgeführt';
+  };
+
+  const getScanColor = (status: string | undefined) => {
+    if (status === 'success') return theme.colors.success;
+    if (status === 'error') return theme.colors.error;
+    return theme.colors.primary;
+  };
+
+  const formatDate = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   return (
@@ -78,34 +69,75 @@ export const RecentScansList: React.FC<RecentScansListProps> = ({ scans }) => {
       <Text variant="h3" style={styles.title}>
         Letzte Scans
       </Text>
-      
-      <FlatList
-        data={scans}
-        renderItem={renderScanItem}
-        keyExtractor={(item) => item.id}
-        scrollEnabled={false}
-        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-      />
+
+      {scans.map((scan, index) => (
+        <React.Fragment key={scan.id}>
+          <ListTile
+            leading={
+              <View style={[styles.iconContainer, { backgroundColor: theme.colors.surfaceVariant }]} >
+                <Icon
+                  name={getScanIcon(scan.status)}
+                  size={24}
+                  color={getScanColor(scan.status)}
+                />
+              </View>
+            }
+            title={getScanTitle(scan.status)}
+            subtitle={formatDate(scan.timestamp)}
+            trailing={
+              scan.confidence !== undefined ? (
+                <Text
+                  variant="caption"
+                  style={{
+                    color: scan.confidence > 0.8 
+                      ? theme.colors.success 
+                      : theme.colors.warning,
+                    fontWeight: '600',
+                  }}
+                >
+                  {Math.round(scan.confidence * 100)}%
+                </Text>
+              ) : undefined
+            }
+            onPress={() => { /* Navigation to scan detail could go here */ }}
+          />
+          {index < scans.length - 1 && <Divider style={styles.divider} />}
+        </React.Fragment>
+      ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 16,
+    marginTop: spacing.md,
   },
   title: {
-    marginBottom: 12,
+    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.md,
   },
-  scanCard: {
-    marginHorizontal: 0,
-  },
-  scanRow: {
-    flexDirection: 'row',
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  scanInfo: {
-    flex: 1,
-    marginLeft: 12,
+  divider: {
+    marginHorizontal: spacing.md,
+    marginVertical: spacing.xs,
+  },
+  emptyContainer: {
+    padding: spacing.xl,
+    alignItems: 'center',
+    borderRadius: 12,
+    marginTop: spacing.sm,
+  },
+  illustration: {
+    marginBottom: spacing.md,
+    opacity: 0.5,
+  },
+  emptyTitle: {
+    marginBottom: spacing.sm,
   },
 });
