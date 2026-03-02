@@ -4,6 +4,7 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { usePigeonsNavigation } from '../../navigation/hooks';
 import { Text } from '../../components/atoms/Text';
@@ -182,17 +183,14 @@ export const PigeonListScreen: React.FC = () => {
         />
       </View>
 
-      {/* Floating Add Button */}
-      <View style={styles.fabContainer}>
-        <Button
-          variant="primary"
-          onPress={handleAddPigeon}
-          icon="plus"
-          style={styles.fab}
-        >
-          Hinzufügen
-        </Button>
-      </View>
+      {/* Floating Add FAB - nur Icon */}
+      <TouchableOpacity 
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        onPress={handleAddPigeon}
+        activeOpacity={0.8}
+      >
+        <Icon name="plus" size={24} color={theme.colors.onPrimary} />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -243,6 +241,15 @@ const styles = StyleSheet.create({
     bottom: spacing.lg,
   },
   fab: {
-    elevation: 4,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
   },
 });
