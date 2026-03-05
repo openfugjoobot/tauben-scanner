@@ -5,12 +5,15 @@
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "backgroundColor": "#FFFFFF",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#FFFFFF",
+      "dark": {
+        "backgroundColor": "#121212"
+      }
     },
     "ios": {
       "supportsTablet": true,
@@ -61,7 +64,6 @@
           "photosPermission": "Die App benötigt Zugriff auf Ihre Fotos, um Taubenbilder hochzuladen."
         }
       ]
-    ],
-
+    ]
   }
 }
